@@ -1,0 +1,97 @@
+    Différentes Tâches
+--------------------------------
+
+Tâche 1: Setup & config (PARISSA)
+    - lire les arguments et structure du main
+    - Parser la config minimale (server, port, root)
+    - créer structure ServerConfig, LocationConfig
+
+Tâche 2: Serveur réseau minimal 
+    - Créer socket d'écoute, bind(), listen()
+    - passer en non-blocking
+    - mettre en place select()/poll()
+    - accepter les connexions et recevevoir des données brutes
+
+Tâches 3: Parsing HTTP de base
+    - Parser ligne de requête
+    - Parser les headers
+    - Gérer un body simple avec Content-Length
+    - Créer HttpRequest
+
+Tâche 4: Réponse minimale
+    - construire réponse simple style Hello (200 ok)
+    - Vérifier que le naviguateur/curl reçoit bien la réponse
+    - intégrer un HttpResponse
+
+Tâche 5: Fichiers statiques & routing 
+    - trouver le fichier root(), path()
+    - Gérer fichier inexistant (404)
+    - si path = répertoire (si index)
+    - utiliser ServerConfig, LocationConfig 
+
+Tâche 6: Http suite
+    - Methode: GET, POST, DELETE
+    - Gestion erreur (403, 404, 405, 500, ...)
+    - Gestion autoindex
+    Upload (POST vers un chemin prévu)
+
+Tâche 7: CGI 
+    - détection d'une location CGI
+    - lancer programme avec bonne var. env. 
+    - récuper la sortie 
+    - convertir en HttpResponse
+
+Tâche 8: clean, finish, check 
+    - leaks, bons noms de fonctions, trier files, cleaning (delete fonction inutile)
+    - teste avec siege/ab/wrk/bcp de curl
+    - timeout (client inactif/CGI trop long)
+    - vérifier sujet que tout est présent
+
+      Structure 
+------------------------
+    [ Client (Browser/curl) ]
+            |
+            Socket
+            |
+        [ Listener(s) ]  <--- config (host:port)
+            |
+        [ EventLoop ]
+        /     |     \
+    Conn1   Conn2   Conn3   ... (ClientConnection)
+    |        |       |
+    [HttpRequest] ... [HttpRequest]
+         |                 |
+    [Router -> ServerConfig/LocationConfig]
+        |
+    [FileHandler / CgiHandler / ErrorHandler]
+        |
+    [HttpResponse]
+        |
+    Socket -> Client
+
+
+        Objets/strucutre 
+--------------------------------
+
+Configuratioin: 
+    Config
+    ServerConfig
+    LocationConfig
+
+
+Server/Reseau :
+    EventLoop
+    Listener
+    ClientConnection (un par client)
+
+HTTP:
+    HttpRequest
+    HttpResponse
+    RequestParser
+    ResponseBuilder
+
+autre:
+    Router
+    CgiHandler
+    FileHandler
+    ErrorHandler
