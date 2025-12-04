@@ -10,7 +10,8 @@ PINK = \033[1;95m
 GREEN = \033[1;32m
 RESET = \033[0m
 
-SRCS = $(shell ls $(SRC_DIR)/*.cpp)
+SRCS = $(shell find $(SRC_DIR) -type f -name "*.cpp")
+
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(NAME)
@@ -20,7 +21,7 @@ $(NAME): $(OBJS)
 	@echo "$(PINK)Compilation of $(NAME) successful ✔$(RESET)"
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:

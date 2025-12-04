@@ -1,0 +1,73 @@
+main()
+--> en argument on a la configuration file (plusieurs niveaux: simple, medium, etc...)
+--> creation d'un vecteur qui va contenir les différentes informations de chaques serveur. 
+--> chaque Server est un objet de type ServerConfig
+
+/!\ pour l'instant que utiliser config_simple, config_medium et config_simple_serverS
+
+ConfigFile.cpp
+init_servers(config file, vecteur de server);
+--> va venir ouvrir le fichier de configuration pour le parser
+--> va venir créer un ServerConfig objet à chaque fois qu'il détecte un Server {
+--> puis venir mettre tous les attributs dans la classe
+
+Attributs obligatoire:
+    - index
+    - listener
+    - root
+    - server name
+
+Attributs facultatifs
+    - error page (peut en avoir plusieurs)
+    - locations: location est particulier car il fait aussi
+    l'objet d'une classe ConfigLocation et a ses propres Attributs
+
+ServerConfig.cpp
+--> contient toutes les fonctions qui permettent de venir 
+parser les attributs de chaque server
+
+LocationsConfig.cpp
+--> contient toutes les fonctions qui permettent de venir 
+parser les attributs de chaque locations (potentiellement plusieurs
+par server)
+
+    Structures importantes
+--------------------------------
+
+struct ServerConfig
+{
+    int listenPort; //le routeur utilise ce port pour sélectionner le bon ServerConfig en fonction de la socket qui reçoit la requête
+    std::string listenHost; //L'adresse IP sur laquelle écouter (si vide --> toutes les adresses)
+    std::string serverName; //Utilisé avec l’en-tête HTTP Host: pour choisir le bon virtual host si plusieurs serveurs écoutent sur le même port
+    std::string root; //dossier racine où chercher les fichiers si pas de locations
+    std::string index; //fichier par défaut dans un dossier (/)
+    std::vector<LocationConfig> locations; //le routeur parcourt la location et ses attributs
+    pour trouvers la location qui correspond au chemin demandé
+    std::map<int, std::string> errorPages; //associe un code d'erreur HTTP à une page faite specifiquement pour cette erreur
+    --> si page_error existe alors on l'affiche 
+
+    ...
+};
+
+
+struct LocationConfig //surcharge les paramèetres du server pour un chemin spécifique 
+{
+    std::string path; //"préfixe" aucquel cette location s'applique 
+    --> le router va comparer avec l'URL demandé par le client pour trouver la location la plus spéficique 
+    std::string root; //surchage le root du server
+    std::string index; //surcharge l'index du server
+    std::vector<std::string> allowMethods; //méthode autorisé dans cette location
+    bool hasAutoindex; //active l'indexation des dossiers
+    ...
+}
+
+Aucun attributs de location est obligatoire, on peut avoir une location vide mais qui existe
+--> si pas de root dans location on prend le root de server et ainsi de suite
+
+
+Autres attributs de locations qu'on peut gerer plus tard si on veut aller plus loins:
+- cgi
+- upload path
+- return 
+-client_max_body_size 
+--> pour l'instant trop complexe 
