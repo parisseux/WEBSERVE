@@ -20,7 +20,7 @@ Attributs obligatoire:
 Attributs facultatifs
     - error page (peut en avoir plusieurs)
     - locations: location est particulier car il fait aussi
-    l'objet d'une classe ConfigLocation et a ses propres Attributs
+    l'objet d'une classe ConfigLocation et a ses propres Attributs (peut en avoir plusieurs)
 
 ServerConfig.cpp
 --> contient toutes les fonctions qui permettent de venir 
@@ -28,8 +28,7 @@ parser les attributs de chaque server
 
 LocationsConfig.cpp
 --> contient toutes les fonctions qui permettent de venir 
-parser les attributs de chaque locations (potentiellement plusieurs
-par server)
+parser les attributs de chaque locations 
 
     Structures importantes
 --------------------------------
@@ -49,7 +48,6 @@ struct ServerConfig
     ...
 };
 
-
 struct LocationConfig //surcharge les paramèetres du server pour un chemin spécifique 
 {
     std::string path; //"préfixe" aucquel cette location s'applique 
@@ -63,7 +61,6 @@ struct LocationConfig //surcharge les paramèetres du server pour un chemin spé
 
 Aucun attributs de location est obligatoire, on peut avoir une location vide mais qui existe
 --> si pas de root dans location on prend le root de server et ainsi de suite
-
 
 Autres attributs de locations qu'on peut gerer plus tard si on veut aller plus loins:
 - cgi
