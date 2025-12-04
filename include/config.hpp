@@ -1,5 +1,5 @@
-#ifndef PARSING_HPP
-#define PARSING_HPP
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
 # include <iostream>
 # include <fstream>
@@ -54,7 +54,7 @@ struct ServerConfig
 };
 
 //ConfigFile
-bool initServer(const std::string &configFile);
+bool initServers(const std::string &configFile, std::vector<ServerConfig> &servers);
 
 //ServerConfig
 void parseServerLine(ServerConfig &server, const std::string &t);

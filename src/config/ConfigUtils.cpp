@@ -1,5 +1,6 @@
-#include "../../include/parsing.hpp"
+#include "../../include/config.hpp"
 
+//sert à vérifier si une chaîne de caractères est une adresse IPv4 valide.
 bool isValidIPv4(const std::string &ip)
 {
     struct sockaddr_in sa;

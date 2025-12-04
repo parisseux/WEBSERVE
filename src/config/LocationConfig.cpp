@@ -1,4 +1,4 @@
-#include "../../include/parsing.hpp"
+#include "../../include/config.hpp"
 
 static void parseLocationRoot(LocationConfig &loc, const std::string &s)
 {

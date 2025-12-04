@@ -10,10 +10,8 @@ PINK = \033[1;95m
 GREEN = \033[1;32m
 RESET = \033[0m
 
-# Trouve TOUS les .cpp dans src/ et sous-dossiers
 SRCS = $(shell find $(SRC_DIR) -type f -name "*.cpp")
 
-# Génère les chemins équivalents dans obj/
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(NAME)
