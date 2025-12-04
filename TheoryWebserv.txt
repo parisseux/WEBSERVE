@@ -2,9 +2,10 @@
 --------------------------------
 
 Partie 1: Setup & config (PARISSA) --> FAIT 
-    - lire les arguments et structure du main
-    - Parser la config minimale (server, port, root)
+    - ouvrir config file
+    - Parser config file
     - créer structure ServerConfig, LocationConfig
+    - fonction debug print_server_attributs pour checker les attributs de servers
 
 Partie 2: Serveur réseau minimal 
     - Créer socket d'écoute, bind(), listen()
@@ -70,13 +71,12 @@ Partie 8: clean, finish, check
     Socket -> Client
 
 
-        Objets/strucutre 
---------------------------------
+    Objets/strucutre courants dans webserv
+-------------------------------------------------
 
 Configuratioin: 
     ServerConfig --> fait dans config.hpp
     LocationConfig --> fait dans config.hpp
-
 
 Server/Reseau :
     EventLoop
