@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "../include/config.hpp"
+#include "../include/socket_calc.hpp"
 
 void print_servers_attributes(std::vector<ServerConfig> &servers)
 {
@@ -48,13 +49,16 @@ int mess_error(std::string mess, int exit_code)
 
 int main(int ac, char **av)
 {
-    if (ac != 2)
-        return(mess_error("usage: ./webserv [configuration file]", 1));
-    std::vector<ServerConfig> servers;
-    if (!initServers(av[1], servers))
-        return(mess_error("server initialisation failed.", 1));
-    //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
-    print_servers_attributes(servers);
+    (void)ac;
+    (void)av;
+    // if (ac != 2)
+    //     return(mess_error("usage: ./webserv [configuration file]", 1));
+    // std::vector<ServerConfig> servers;
+    // if (!initServers(av[1], servers))
+    //     return(mess_error("server initialisation failed.", 1));
+    // //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
+    // print_servers_attributes(servers);
     std::cout << "Lets start webserv!!!!!" <<std::endl;
+    calculator();
     return (0);
 }
