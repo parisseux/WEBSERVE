@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket_calc.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: masase <masase@student.42.fr>              +#+  +:+       +#+        */
+/*   By: parissachatagny <parissachatagny@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 19:02:48 by masase            #+#    #+#             */
-/*   Updated: 2025/12/10 20:47:45 by masase           ###   ########.fr       */
+/*   Updated: 2025/12/12 16:53:50 by parissachat      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
