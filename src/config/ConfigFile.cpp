@@ -1,5 +1,29 @@
 #include "../../include/config.hpp"
 
+static void applyLocationDefaults(LocationConfig &loca, const ServerConfig &server)
+{
+    if (!loca.hasAutoindex)
+        loca.autoindex = false;
+    if (!loca.hasAllowMethods)
+        loca.allowMethods.push_back("GET");
+    if (!loca.hasIndex)
+        loca.index = server.index;
+    if (!loca.hasRoot)
+        loca.root = server.root;
+}
+
+static void applyServersDefaults(ServerConfig &server)
+{
+    if (!server.hasRoot)
+        server.root = "./www";
+    if (!server.hasIndex)
+        server.index = "index.html";
+    if (!server.hasServerName)
+        server.serverName = "";
+    for (size_t i = 0; i < server.locations.size(); ++i)
+        applyLocationDefaults(server.locations[i], server);
+}
+
 static ServerConfig parseServer(std::ifstream &file)
 {
     ServerConfig server;
@@ -37,13 +61,12 @@ bool initServers(const std::string &configFile, std::vector<ServerConfig> &serve
             if (isServerStart(line))
             {
                 ServerConfig server = parseServer(file);
-
-                if (!server.hasIndex || !server.hasListen
-                    || !server.hasRoot || !server.hasServerName)
+                if (!server.hasListen)
                 {
-                    std::cerr << "Error: missing informations in [configuration file]\n";
+                    std::cerr << "Error: missing listen port in [configuration file]\n";
                     return false;
                 }
+                applyServersDefaults(server);
                 servers.push_back(server);
             }
         }
