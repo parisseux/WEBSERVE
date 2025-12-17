@@ -1,0 +1,58 @@
+
+#include "../include/basic_socket.hpp"
+
+void basic_socket()
+{
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
+    if (sockfd == -1)
+    {
+        std::cout << "couldn't create a scoket" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    // setup socket adress parameters 
+    sockaddr_in sockaddr;
+    sockaddr.sin_family = AF_INET;
+    sockaddr.sin_port = htons(8080);
+    sockaddr.sin_addr.s_addr = INADDR_ANY;
+    if (bind(sockfd, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0) // on attache les parametre setup a la socket 
+    {
+        std::cout << "couldn't bind" << std::endl;
+        exit(EXIT_FAILURE);       
+    }
+    if (listen(sockfd, 5) < 0) // la socket peut mtn accpeter les connections avec une queue d'attente de 5 maximum
+    {
+        std::cout << "couldn't listen" << std::endl;
+        exit(EXIT_FAILURE);        
+    }    
+    while (1)
+    {
+        socklen_t addrlen = sizeof(sockaddr); // avoir la taille de la struct de l'adresse de la socket
+
+        std::cout << "en attente d'une connection..." <<  std::endl;
+        int clientfd = accept(sockfd, (struct sockaddr*)&sockaddr, &addrlen); //  on attent une connection et on lui donne un fd
+        if (clientfd < 0)
+        {
+            std::cout << "couldn't accept" << std::endl;
+            //exit(EXIT_FAILURE);                
+        }
+        char request[MAXBYTE - 1];
+        int read_byte;
+        while ((read_byte = read(clientfd, request, MAXBYTE - 1)) > 0) // on lit le message de request
+        {
+            std::cout << request << std::endl;
+            if (request[read_byte - 1] == '\n')
+            {
+                break;
+            }
+
+        }
+        if (read_byte < 0)
+            std::cout << "Error with read loop" << std::endl;
+        std::string reponse = "HTTP/1.0 200 OK\r\n\r\nHELLO"; // message de reponse basqiue
+        // send(clientfd, reponse.c_str(), reponse.size(), 0);
+        write(clientfd, reponse.c_str(), reponse.size());
+        close(clientfd);
+    }
+    // close(connection);
+    close(sockfd);
+}

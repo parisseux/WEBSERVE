@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "../include/config.hpp"
-#include "../include/socket_calc.hpp"
+#include "../include/basic_socket.hpp"
 
 void print_servers_attributes(std::vector<ServerConfig> &servers)
 {
@@ -59,6 +59,6 @@ int main(int ac, char **av)
     // //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
     // print_servers_attributes(servers);
     std::cout << "Lets start webserv!!!!!" <<std::endl;
-    calculator();
+    basic_socket();
     return (0);
 }
