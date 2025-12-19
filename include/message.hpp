@@ -1,4 +1,8 @@
+#ifndef MESSAGE_HPP
+# define MESSAGE_HPP
+
 # include "config.hpp"
+# include <fstream>
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body
@@ -10,13 +14,20 @@ struct header
     std::map<std::string, std::string> header;
 };
 
-struct request
+class request
 {
-    std::string method; // GET, POST, PUT....
-    std::string request_target; // element sur lequel va etre applique la methode
-    std::string protocol; // HTTP/1.1. en general
-    header header;
-    std::string body; // pas sur de devoir le stocker comme cela
+    private:
+        std::string method; // GET, POST, PUT....
+        std::string request_target; // element sur lequel va etre applique la methode
+        std::string protocol; // HTTP/1.1. en general
+        header header;
+        std::string body; // pas sur de devoir le stocker comme cela
+    public:
+        request(std::string);
+        request(const request &obj);
+        ~request();
+        request& operator=(const request &obj);
+        void parseRequest(char *request);
 };
 
 struct response
@@ -28,4 +39,4 @@ struct response
     std::string body; // pas sur de devoir le stocker comme cela    
 };
 
-
+#endif
