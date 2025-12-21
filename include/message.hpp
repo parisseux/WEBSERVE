@@ -8,7 +8,6 @@
 // Only PATCH, POST, and PUT requests have a body
 //The presence of a message body in a request is signaled by a Content-Length or Transfer-Encoding header field
 
-
 struct header
 {
     std::map<std::string, std::string> header;
