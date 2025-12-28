@@ -1,64 +1,90 @@
 #include "../include/request/request.hpp"
+#include "../include/utils/utils_1.hpp"
 
 request::request()
 {
     
 }
 
-request::request(std::string)
+request::~request()
 {
     
 }
 
-void    request::parseRequest(char *request)
+request::request(std::string request)
 {
-    std::ifstream request_stream(request);
-    std::string line;
-
-    if (!request)
-        throw std::runtime_error("couldn't open the request");
-    while (std::getline(request_stream, line))
-    {
-        parse_request_first_line(request_stream);
-        parse_header(request_stream);
-    }   
+    parseRequest(request.c_str());
 }
 
-void    request::parse_request_first_line(std::ifstream &stream)
+
+
+void    request::parseRequest(std::string request)
+{
+    std::stringstream request_stream(request);
+    std::string line;
+
+    if (!request_stream)
+        throw std::runtime_error("couldn't open the request");
+    parse_request_first_line(request_stream);
+    parse_header(request_stream);
+}
+
+void    request::parse_request_first_line(std::stringstream &stream)
 {
     std::string word;
 
-    stream >> word;
+
+    stream >> word;  
     _method = word;
-    stream >> word;
+    stream >> word;    
     _request_target = word;
-    stream >> word;
+    stream >> word;    
     _protocol = word;
 }
 
-void request::parse_header(std::ifstream &stream)
+void request::parse_header(std::stringstream &stream)
 {
     std::string key;
+    std::string value;
     std::string line;
-    while (std::getline(stream, key, ':'))
-    {
+    std::string trash;
+    size_t found;
+    // while (std::getline(stream, key, ':'))
+    // {
 
-        while(std::getline(stream, line, '\n'))
+    //     while(std::getline(stream, line, '\n'))
+    //     {
+    //         _header[key] = line;
+    //     }
+    // }
+    std::getline(stream, line); // skip  \r \n line 
+    while (std::getline(stream, line))
+    {
+        // std::cout << "line to parse: " << line << std::endl;
+        // std::cout << "line to parse (ascii): ";
+        // writeInAscii(line);
+        // std::cout << std::endl;
+        found = line.find_first_of(':');
+        if (found == std::string::npos)
         {
-            _header[key] = line;
+            break ;
         }
+        key = line.substr(0, found);
+        value = line.substr(found + 2, line.size());
+        _header[key] = value;
     }
 }
 
 void request::display_request()
 {
     std::map<std::string, std::string>::iterator it = _header.begin();
+    std::cout << "* SERVER JUST RECEIVED A REQUEST *" << std::endl;
     std::cout << _method << " "
             <<  _request_target << " "
             << _protocol << std::endl;
     while (it != _header.end())
     {
-        std::cout << it->first << " : " << it->second << std::endl;
+        std::cout << it->first << ": " << it->second << std::endl;
         ++it;
     }
     // body

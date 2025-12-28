@@ -20,7 +20,7 @@ void basic_socket()
         std::cout << "couldn't bind" << std::endl;
         exit(EXIT_FAILURE);       
     }
-    if (listen(sockfd, 5) < 0) // la socket peut mtn accpeter les connections avec une queue d'attente de 5 maximum
+    if (listen(sockfd, 100) < 0) // la socket peut mtn accpeter les connections avec une queue d'attente de 5 maximum
     {
         std::cout << "couldn't listen" << std::endl;
         exit(EXIT_FAILURE);        
@@ -48,8 +48,9 @@ void basic_socket()
                 break ;
             }
         }
-        std::cout << total_request << std::endl;
+        // std::cout << total_request << std::endl;
         request current_request(total_request);
+        current_request.display_request();
         if (read_byte < 0)
             std::cout << "Error with read loop" << std::endl;
         std::string reponse = "HTTP/1.0 200 OK\r\n\r\nHELLO"; // message de reponse basqiue
