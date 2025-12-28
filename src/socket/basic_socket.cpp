@@ -1,5 +1,6 @@
 
-#include "../include/basic_socket.hpp"
+#include "../include/socket/basic_socket.hpp"
+#include "../include/request/request.hpp"
 
 void basic_socket()
 {
@@ -35,17 +36,20 @@ void basic_socket()
             std::cout << "couldn't accept" << std::endl;
             //exit(EXIT_FAILURE);                
         }
-        char request[MAXBYTE - 1];
+        char buffer[MAXBYTE - 1];
         int read_byte;
-        while ((read_byte = read(clientfd, request, MAXBYTE - 1)) > 0) // on lit le message de request
+        std::string total_request;
+        while ((read_byte = read(clientfd, buffer, MAXBYTE - 1)) > 0) // on lit le message de request
         {
-            std::cout << request << std::endl;
-            if (request[read_byte - 1] == '\n')
+            total_request += buffer;
+            // std::cout << request << std::endl;
+            if (buffer[read_byte - 1] == '\n')
             {
-                break;
+                break ;
             }
-
         }
+        std::cout << total_request << std::endl;
+        request current_request(total_request);
         if (read_byte < 0)
             std::cout << "Error with read loop" << std::endl;
         std::string reponse = "HTTP/1.0 200 OK\r\n\r\nHELLO"; // message de reponse basqiue

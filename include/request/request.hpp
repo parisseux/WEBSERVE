@@ -1,5 +1,5 @@
-#ifndef MESSAGE_HPP
-# define MESSAGE_HPP
+#ifndef REQUEST_HPP
+# define REQUEST_HPP
 
 # include "config.hpp"
 # include <fstream>
@@ -17,6 +17,7 @@ class request
         std::map<std::string, std::string> _header;
         std::string _body; // pas sur de devoir le stocker comme cela
     public:
+        request();
         request(std::string);
         request(const request &obj);
         ~request();

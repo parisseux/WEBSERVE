@@ -1,4 +1,9 @@
-#include "../include/message.hpp"
+#include "../include/request/request.hpp"
+
+request::request()
+{
+    
+}
 
 request::request(std::string)
 {

@@ -3,7 +3,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "../include/config.hpp"
-#include "../include/basic_socket.hpp"
+#include "../include/socket/basic_socket.hpp"
+#include "../include/request/request.hpp"
 
 void print_servers_attributes(std::vector<ServerConfig> &servers)
 {
