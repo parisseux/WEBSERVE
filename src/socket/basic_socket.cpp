@@ -1,6 +1,7 @@
 
 #include "../include/socket/basic_socket.hpp"
 #include "../include/request/request.hpp"
+#include <string>
 
 void basic_socket()
 {
@@ -51,11 +52,25 @@ void basic_socket()
         // std::cout << total_request << std::endl;
         request current_request(total_request);
         current_request.display_request();
+        std::string up = "HOP suisse 1";
         if (read_byte < 0)
             std::cout << "Error with read loop" << std::endl;
-        std::string reponse = "HTTP/1.0 200 OK\r\n\r\nHELLO"; // message de reponse basqiue
+        // std::string reponse = "HTTP/1.0 200 OK\r\n\r\nHELLO"; // message de reponse basqiue
+        // std::string reponse = "HTTP/1.0 200 OK\r\n\r\n <!DOCTYPE html>\n<html>\n<body>\n<h1>My First Heading</h1>\n<p>My first paragraph.</p>\n</body>\n <a href=https://www.w3schools.com>This is a link</a> \n</html>";
+        std::string response =
+        "HTTP/1.0 200 OK\r\n"
+        "Content-Type: text/html\r\n\r\n"
+        "<!DOCTYPE html>"
+        "<html>"
+        "<body>"
+        "<h1>Upvotes: " + up + "</h1>"
+        "<form method=\"post\">"
+        "<input type=\"submit\" name=\"upvote\" value=\"Upvote\" />"
+        "</form>"
+        "</body>"
+        "</html>";            
         // send(clientfd, reponse.c_str(), reponse.size(), 0);
-        write(clientfd, reponse.c_str(), reponse.size());
+        write(clientfd, response.c_str(), response.size());
         close(clientfd);
     }
     // close(connection);

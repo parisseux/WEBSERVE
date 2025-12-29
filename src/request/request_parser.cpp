@@ -16,8 +16,6 @@ request::request(std::string request)
     parseRequest(request.c_str());
 }
 
-
-
 void    request::parseRequest(std::string request)
 {
     std::stringstream request_stream(request);
@@ -32,12 +30,17 @@ void    request::parseRequest(std::string request)
 void    request::parse_request_first_line(std::stringstream &stream)
 {
     std::string word;
-
+    size_t found;    
 
     stream >> word;  
     _method = word;
     stream >> word;    
     _request_target = word;
+    if ((found = word.find('?')) != std::string::npos)
+    {
+        _query = _request_target.substr(found + 1, _request_target.size());
+        _request_target = _request_target.substr(0, found);
+    }
     stream >> word;    
     _protocol = word;
 }
@@ -49,14 +52,7 @@ void request::parse_header(std::stringstream &stream)
     std::string line;
     std::string trash;
     size_t found;
-    // while (std::getline(stream, key, ':'))
-    // {
 
-    //     while(std::getline(stream, line, '\n'))
-    //     {
-    //         _header[key] = line;
-    //     }
-    // }
     std::getline(stream, line); // skip  \r \n line 
     while (std::getline(stream, line))
     {
