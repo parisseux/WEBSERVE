@@ -25,6 +25,7 @@ void    request::parseRequest(std::string request)
         throw std::runtime_error("couldn't open the request");
     parse_request_first_line(request_stream);
     parse_header(request_stream);
+    parse_body(request_stream);
 }
 
 void    request::parse_request_first_line(std::stringstream &stream)
@@ -71,6 +72,14 @@ void request::parse_header(std::stringstream &stream)
     }
 }
 
+void request::parse_body(std::stringstream &stream)
+{
+    std::string line;
+
+    while (std::getline(stream, line))
+        _body += line;
+}
+
 void request::display_request()
 {
     std::map<std::string, std::string>::iterator it = _header.begin();
@@ -83,5 +92,10 @@ void request::display_request()
         std::cout << it->first << ": " << it->second << std::endl;
         ++it;
     }
-    // body
+    if (_body.empty() == 0)
+    {
+        std::cout << std::endl;
+        std::cout << _body;
+    }
+    std::cout << std::endl;
 }
