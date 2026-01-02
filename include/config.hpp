@@ -28,7 +28,7 @@ struct LocationConfig
           autoindex(false), hasAutoindex(false),
           hasAllowMethods(false) {}
 };
-
+ 
 struct ServerConfig
 {
     int listenPort;
