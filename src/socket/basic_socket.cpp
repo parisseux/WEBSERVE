@@ -1,9 +1,7 @@
 
-#include "../include/socket/basic_socket.hpp"
-#include "../include/request/request.hpp"
-#include <string>
+#include "webserv.hpp"
 
-void basic_socket()
+request basic_socket()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
     if (sockfd == -1)
@@ -48,9 +46,9 @@ void basic_socket()
                 break ;
             }
         }
-        std::cout << total_request << std::endl;
+        // std::cout << total_request << std::endl;
         request current_request(total_request);
-        current_request.display_request();
+        // current_request.display_request();
         if (read_byte < 0)
             std::cout << "Error with read loop" << std::endl;
         std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO"; //message de reponse basqiue
@@ -69,10 +67,10 @@ void basic_socket()
         // "</script>"
         // "</body>"
         // "</html>";              
-        // // send(clientfd, reponse.c_str(), reponse.size(), 0);
         write(clientfd, response.c_str(), response.size());
         close(clientfd);
+        return (current_request);        
     }
-    // close(connection);
     close(sockfd);
+
 }

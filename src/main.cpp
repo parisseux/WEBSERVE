@@ -1,10 +1,5 @@
-#include <iostream>
-#include <string>
-#include <unistd.h>
-#include <stdlib.h>
-#include "../include/config.hpp"
-#include "../include/socket/basic_socket.hpp"
-#include "../include/request/request.hpp"
+
+#include "../include/webserv.hpp"
 
 void print_servers_attributes(std::vector<ServerConfig> &servers)
 {
@@ -42,24 +37,58 @@ void print_servers_attributes(std::vector<ServerConfig> &servers)
     }
 }
 
+void eventLoop()//listeners, clients, servers
+{
+
+    //attendre evenements (Select)
+    // WaitForEvents();
+
+    // if (listenerReady)
+    //     acceptNewClient
+
+    // if (clientReadyToRead)
+    // {
+    //     readFromClient();
+
+        request Request = basic_socket();
+        Request.display_request();
+//         Res = handleRequest();
+// //}
+//     if (clientReadyToWrite)
+//     {
+//         writeToClient();
+//     }
+}
+
+void startWebserv(std::vector<ServerConfig> servers)
+{
+    //créer sockets d'écoute 
+    std::cout << "Setup Listeners" << std::endl;
+
+    //map pour stocker les clients connectés
+    std::cout << "créer structure pour clients connectés" << std::endl;
+    (void)servers;
+    //lancer boucle principale
+    eventLoop();
+}
+
 int mess_error(std::string mess, int exit_code)
 {
     std::cerr << "Error: " << mess << std::endl;
     return exit_code;
 }
 
+
 int main(int ac, char **av)
 {
-    (void)ac;
-    (void)av;
-    // if (ac != 2)
-    //     return(mess_error("usage: ./webserv [configuration file]", 1));
-    // std::vector<ServerConfig> servers;
-    // if (!initServers(av[1], servers))
-    //     return(mess_error("server initialisation failed.", 1));
-    // //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
-    // print_servers_attributes(servers);
-    std::cout << "Lets start webserv!!!!!" <<std::endl;
-    basic_socket();
+    if (ac != 2)
+        return(mess_error("usage: ./webserv [configuration file]", 1));
+    std::vector<ServerConfig> servers;
+    if (!initServers(av[1], servers))
+        return(mess_error("server initialisation failed.", 1));
+    //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
+    //print_servers_attributes(servers);
+    std::cout << "Lets start webserv!!!!!" <<std::endl;    
+    startWebserv(servers);
     return (0);
 }

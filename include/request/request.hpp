@@ -15,12 +15,6 @@ enum method // a voir peut-etre a utliser
     DELETE
 };
 
-class client
-{
-    int fd;
-
-
-};
 
 class request
 {

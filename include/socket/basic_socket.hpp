@@ -7,8 +7,9 @@
 # include <iostream>
 # include <unistd.h>
 # include <cstdlib>
+#include "../include/request/request.hpp"
 # define MAXBYTE 1024
 
-void basic_socket();
+request basic_socket();
 
 #endif
