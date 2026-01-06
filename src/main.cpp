@@ -1,94 +1,70 @@
 
 #include "../include/webserv.hpp"
 
-void print_servers_attributes(std::vector<ServerConfig> &servers)
+//partie DAVID
+static void eventLoop(std::vector<ServerConfig> servers, const std::vector<int>& listeners)
 {
-    for (size_t i = 0; i < servers.size(); ++i)
+    std::map<int, Client> clients;
+
+    while (true)
     {
-        const ServerConfig &server = servers[i];
-        std::cout << "Parsed server: " << i + 1<< std::endl;
-        std::cout << "  Host  = " << server.listenHost << std::endl;
-        std::cout << "  Port  = " << server.listenPort << std::endl;
-        std::cout << "  Name  = " << server.serverName << std::endl;
-        std::cout << "  Root  = " << server.root << std::endl;
-        std::cout << "  Index = " << server.index << std::endl;
-        if (!server.errorPages.empty())
-        {
-            std::cout << "  Error Pages:" << std::endl;
-            for (std::map<int, std::string>::const_iterator it = server.errorPages.begin();
-                it != server.errorPages.end(); ++it)
-                std::cout << "    " << it->first << " -> " << it->second << std::endl;
-        }
-        else
-            std::cout << "  Error Pages: none" << std::endl;
+        fd_set read_fds;
+        fd_set write_fds;
+        FD_ZERO(&read_fds);
+        FD_ZERO(&write_fds);
 
-        if (server.locations.empty())
-            std::cout << "  No locations defined." << std::endl;
+        int max_fd = 0;
 
-        for (size_t i = 0; i < server.locations.size(); i++)
-        {
-            const LocationConfig &loc = server.locations[i];
-            std::cout << "\n  Location " << i << ":" << std::endl;
-            std::cout << "    path      = " << loc.path << std::endl;
-            std::cout << "    root      = " << loc.root << std::endl;
-            std::cout << "    index     = " << loc.index << std::endl;
-            std::cout << "    autoindex = " << (loc.autoindex ? "on" : "off") << std::endl;
-        }
+        // Ajouter listeners
+
+        // Ajouter clients
+
+        // Attendre événements
+
+        // Nouvelles connexions
+
+        // Lecture/écriture clients
+
+        
     }
+
 }
 
-void eventLoop()//listeners, clients, servers
-{
 
-    //attendre evenements (Select)
-    // WaitForEvents();
-
-    // if (listenerReady)
-    //     acceptNewClient
-
-    // if (clientReadyToRead)
-    // {
-    //     readFromClient();
-
-        request Request = basic_socket();
-        Request.display_request();
-//         Res = handleRequest();
-// //}
-//     if (clientReadyToWrite)
-//     {
-//         writeToClient();
-//     }
-}
-
-void startWebserv(std::vector<ServerConfig> servers)
+static void startWebserv(std::vector<ServerConfig> servers)
 {
     //créer sockets d'écoute 
-    std::cout << "Setup Listeners" << std::endl;
+    std::vector<int> listener_fds;
+    for (size_t i = 0; i < servers.size(); i++)
+    {
+        int listener = createListener(servers[i]);
+        listener_fds.push_back(listener);
+    }
 
-    //map pour stocker les clients connectés
-    std::cout << "créer structure pour clients connectés" << std::endl;
-    (void)servers;
     //lancer boucle principale
-    eventLoop();
-}
+    std::cout << "Lancement de la boucle principale" << std::endl;
+    eventLoop(servers, listener_fds);
 
-int mess_error(std::string mess, int exit_code)
-{
-    std::cerr << "Error: " << mess << std::endl;
-    return exit_code;
+    //fermer les sockets d'écoute
+    for (size_t i = 0; i < listener_fds.size(); i++)
+        close(listener_fds[i]);
 }
-
 
 int main(int ac, char **av)
 {
-    if (ac != 2)
-        return(mess_error("usage: ./webserv [configuration file]", 1));
-    std::vector<ServerConfig> servers;
-    if (!initServers(av[1], servers))
-        return(mess_error("server initialisation failed.", 1));
-    //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
-    //print_servers_attributes(servers);
-    std::cout << "Lets start webserv!!!!!" <<std::endl;    
-    startWebserv(servers);
+    try 
+    {
+        if (ac != 2)
+            throw std::runtime_error("usage: ./webserv [configuration file]");
+        std::vector<ServerConfig> servers;
+        initServers(av[1], servers);
+        //print_servers_attributes(servers);
+        startWebserv(servers);
+    }
+    catch (const std::exception& e) 
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return (1);
+    }
     return (0);
 }

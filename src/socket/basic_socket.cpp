@@ -5,25 +5,19 @@ request basic_socket()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
     if (sockfd == -1)
-    {
-        std::cout << "couldn't create a scoket" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+        throw std::runtime_error("couldn't create socket");
+    //rajouter des options 
+    int opt = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     // setup socket adress parameters 
     sockaddr_in sockaddr;
     sockaddr.sin_family = AF_INET;
     sockaddr.sin_port = htons(8080);
     sockaddr.sin_addr.s_addr = INADDR_ANY;
     if (bind(sockfd, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0) // on attache les parametre setup a la socket 
-    {
-        std::cout << "couldn't bind" << std::endl;
-        exit(EXIT_FAILURE);       
-    }
+        throw std::runtime_error("couldn't bind");     
     if (listen(sockfd, 100) < 0) // la socket peut mtn accpeter les connections avec une queue d'attente de 5 maximum
-    {
-        std::cout << "couldn't listen" << std::endl;
-        exit(EXIT_FAILURE);        
-    }    
+        throw std::runtime_error("couldn't listen");  
     while (1)
     {
         socklen_t addrlen = sizeof(sockaddr); // avoir la taille de la struct de l'adresse de la socket
@@ -72,5 +66,4 @@ request basic_socket()
         return (current_request);        
     }
     close(sockfd);
-
 }

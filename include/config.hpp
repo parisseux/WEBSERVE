@@ -54,7 +54,7 @@ struct ServerConfig
 };
 
 //ConfigFile
-bool initServers(const std::string &configFile, std::vector<ServerConfig> &servers);
+void initServers(const std::string &configFile, std::vector<ServerConfig> &servers);
 
 //ServerConfig
 void parseServerLine(ServerConfig &server, const std::string &t);

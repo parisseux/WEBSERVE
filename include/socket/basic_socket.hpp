@@ -11,5 +11,7 @@
 # define MAXBYTE 1024
 
 request basic_socket();
+int createListener(const ServerConfig &server);
+void setNonBlocking(int fd);
 
 #endif
