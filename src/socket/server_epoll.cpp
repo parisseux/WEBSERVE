@@ -37,6 +37,9 @@ int main ()
                 ev.events = EPOLLIN;
                 ev.data.fd = client_sckt;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client_sckt, &ev);
+            }
+            else
+            {
                 if (events[i].events & EPOLLIN)
                 {
                     char buf[1024]; 
@@ -49,8 +52,9 @@ int main ()
                         "\r\n"
                         "Server Respond\n";
                     send(events[i].data.fd, response, std::strlen(response), 0);
+                    close(events[i].data.fd);
+                    // Faut encore fermer les clients
                 }
-                close(events[i].data.fd);
             }
         }
     }
