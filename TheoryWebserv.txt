@@ -7,24 +7,24 @@ Partie 1: Setup & config (PARISSA) --> FAIT
     - créer structure ServerConfig, LocationConfig
     - fonction debug print_server_attributs pour checker les attributs de servers
 
-Partie 2: Serveur réseau minimal 
+Partie 2: Serveur réseau minimal - DAVID
     - Créer socket d'écoute, bind(), listen()
     - passer en non-blocking
     - mettre en place select()/poll()
     - accepter les connexions et recevevoir des données brutes
 
-Partie 3: Parsing HTTP de base
+Partie 3: Parsing HTTP de base - MAWULI --> FAIT 
     - Parser ligne de requête
     - Parser les headers
     - Gérer un body simple avec Content-Length
     - Créer HttpRequest
 
-Partie 4: Réponse minimale
+Partie 4: Réponse minimale - MAWULI
     - construire réponse simple style Hello (200 ok)
     - Vérifier que le naviguateur/curl reçoit bien la réponse
     - intégrer un HttpResponse
 
-Partie 5: Fichiers statiques & routing 
+Partie 5: Fichiers statiques & routing - PARISSA
     - trouver le fichier root(), path()
     - Gérer fichier inexistant (404)
     - si path = répertoire (si index)

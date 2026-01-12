@@ -38,7 +38,7 @@ void parseServerNameDirective(ServerConfig &server, const std::string &t)
 {
     if (server.hasServerName)
         throw std::runtime_error("Duplicate 'server_name' directive");
-    server.serverName = trim(t.substr(12));
+    server.serverName = removeSemicolon(t.substr(12));
     if (server.serverName.empty())
         throw std::runtime_error("server_name is empty");
     server.hasServerName = true;
@@ -48,7 +48,7 @@ void parseRootDirective(ServerConfig &server, const std::string &t)
 {
     if (server.hasRoot)
         throw std::runtime_error("Duplicate 'root' directive");
-    server.root = trim(t.substr(5));
+    server.root = removeSemicolon(t.substr(5));
     if (server.root.empty())
         throw std::runtime_error("root is empty");
     server.hasRoot = true;
@@ -58,7 +58,7 @@ void parseIndexDirective(ServerConfig &server, const std::string &t)
 {
     if (server.hasIndex)
         throw std::runtime_error("Duplicate 'index' directive");
-    server.index = trim(t.substr(6));
+    server.index = removeSemicolon(t.substr(6));
     if (server.index.empty())
         throw std::runtime_error("index is empty");
     server.hasIndex = true;
@@ -66,13 +66,12 @@ void parseIndexDirective(ServerConfig &server, const std::string &t)
 
 void parseErrorPageDirective(ServerConfig &server, const std::string &t)
 {
-    std::string rest = trim(t.substr(10));
+    std::string rest = removeSemicolon(t.substr(10));
     if (rest.empty())
         throw std::runtime_error("error_page: missing arguments");
     std::istringstream iss(rest);
     std::string codeStr;
     std::string uri;
-
     if (!(iss >> codeStr))
         throw std::runtime_error("error_page: missing status code");
     if (!(iss >> uri))
