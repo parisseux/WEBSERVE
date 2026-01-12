@@ -45,14 +45,6 @@ int main ()
                     char buf[1024]; 
                     recv(events[i].data.fd, buf, sizeof(buf), 0);
                     std::cout << "Requête reçue:\n" << buf << std::endl;
-                    const char *response =
-                        "HTTP/1.1 200 OK\r\n"
-                        "Content-Length: 15\r\n"
-                        "Connection: close\r\n"
-                        "\r\n"
-                        "Server Respond\n";
-                    send(events[i].data.fd, response, std::strlen(response), 0);
-                    close(events[i].data.fd);
                     // Faut encore fermer les clients
                 }
             }
