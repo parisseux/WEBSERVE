@@ -9,6 +9,9 @@
 # include <vector>
 # include <sstream>
 # include <map>
+# include <sys/epoll.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
 
 struct LocationConfig
 {
@@ -28,7 +31,7 @@ struct LocationConfig
           autoindex(false), hasAutoindex(false),
           hasAllowMethods(false) {}
 };
- 
+
 struct ServerConfig
 {
     int listenPort;

@@ -14,26 +14,15 @@ static void eventLoop(std::vector<ServerConfig> servers, const std::vector<int>&
         FD_ZERO(&write_fds);
 
         int max_fd = 0;
-
-        // Ajouter listeners
-
-        // Ajouter clients
-
-        // Attendre événements
-
-        // Nouvelles connexions
-
-        // Lecture/écriture clients
-
         
     }
 
 }
 
-
 static void startWebserv(std::vector<ServerConfig> servers)
 {
-    //créer sockets d'écoute 
+    //créer sockets d'écoute
+    // pas sur qu'on aie bsn d'un vecteur ici
     std::vector<int> listener_fds;
     for (size_t i = 0; i < servers.size(); i++)
     {
