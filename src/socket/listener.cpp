@@ -36,14 +36,14 @@ int createListener(const ServerConfig &server)
     if (bind(sockfd, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0) // on attache les parametre setup a la socket 
     {
         close(sockfd);
-        throw std::runtime_error("couldn't bind on port " + std::to_string(server.listenPort));
+        // throw std::runtime_error("couldn't bind on port " + std::to_string(server.listenPort));
     }
     if (listen(sockfd, 100) < 0) // la socket peut mtn accpeter les connections avec une queue d'attente de 5 maximum
     {
         close(sockfd);
-        throw std::runtime_error("couldn't listen on port " + std::to_string(server.listenPort));
+        // throw std::runtime_error("couldn't listen on port " + std::to_string(server.listenPort));
     }
-    setNonBlocking(sockfd);
+    // setNonBlocking(sockfd); // se fait dans la boucle de epoll
     std::cout << "Listener ready on " << server.listenHost << ":" << server.listenPort << std::endl;
     return sockfd;
 }

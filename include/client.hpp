@@ -8,7 +8,14 @@
 
 class Client 
 {
+    private:
+        int         _fd;
+        int         _flags;
+        std::string _requestBuffer;
+        std::string _responseBuffer;
+        bool        _ReadyToWrite;    
     public:
+        request     _request;    
         void set_fd(int fd);
         void set_flags(int flags);
         void set_requestBuffer(std::string requestBuffer);
@@ -19,12 +26,6 @@ class Client
         std::string get_requestBuffer();
         std::string get_responseBuffer();
         bool        get_ReadyToWrite(); 
-        int         _fd;
-        int         _flags;
-        request     _request;
-        std::string _requestBuffer;
-        std::string _responseBuffer;
-        bool        _ReadyToWrite;
         Client();
         ~Client();
 };
@@ -36,5 +37,7 @@ struct Epoll
     struct  epoll_event ev;
     struct  epoll_event events[10];
 };
+
+void epoll_managment (int listener_fd, std::map<int, Client*>& Clients_map);
 
 #endif

@@ -67,7 +67,7 @@ void initServers(const std::string &configFile, std::vector<ServerConfig> &serve
         }
         catch (const std::exception& e) 
         {
-            throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
+            // throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
         }
     }
     if (servers.empty())

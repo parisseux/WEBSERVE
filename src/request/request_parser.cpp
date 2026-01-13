@@ -26,6 +26,7 @@ void    request::parseRequest(std::string request)
     parse_request_first_line(request_stream);
     parse_header(request_stream);
     parse_body(request_stream);
+    
 }
 
 void    request::parse_request_first_line(std::stringstream &stream)
