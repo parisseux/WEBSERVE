@@ -4,7 +4,7 @@
 //partie DAVID
 static void eventLoop(std::vector<ServerConfig> servers, const std::vector<int>& listeners)
 {
-    std::map<int, Client> clients;
+    std::map<int, Client*> clients_map;
 
     while (true)
     {
@@ -16,27 +16,25 @@ static void eventLoop(std::vector<ServerConfig> servers, const std::vector<int>&
         int max_fd = 0;
         
     }
-
 }
 
 static void startWebserv(std::vector<ServerConfig> servers)
 {
     //créer sockets d'écoute
     // pas sur qu'on aie bsn d'un vecteur ici
-    std::vector<int> listener_fds;
-    for (size_t i = 0; i < servers.size(); i++)
-    {
-        int listener = createListener(servers[i]);
-        listener_fds.push_back(listener);
-    }
+    // for (size_t i = 0; i < servers.size(); i++)
+    // {
+        int listener_fd = createListener(servers[i]);
+        // listener_fds.push_back(listener);
+    // }
 
     //lancer boucle principale
     std::cout << "Lancement de la boucle principale" << std::endl;
-    eventLoop(servers, listener_fds);
+    // eventLoop(servers, listener_fd);
 
     //fermer les sockets d'écoute
-    for (size_t i = 0; i < listener_fds.size(); i++)
-        close(listener_fds[i]);
+    // for (size_t i = 0; i < listener_fd.size(); i++)
+        close(listener_fd);
 }
 
 int main(int ac, char **av)
