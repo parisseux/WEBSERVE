@@ -2,25 +2,29 @@
 
 static void creat_epoll_fd_listeners(Epoll& epoll, std::vector<int>& listener_fds)
 {
-    epoll.ep_fd = epoll_create(10);
+    epoll._ep_fd = epoll_create(10);
     for (int i = 0; i < listener_fds.size(); i++)
     {
-        epoll.ev.data.fd = listener_fds.at(i); 
-        epoll.ev.events = EPOLLIN;
-        epoll_ctl(epoll.ep_fd, EPOLL_CTL_ADD, listener_fds.at(i), &epoll.ev);
+        epoll._ev.data.fd = listener_fds.at(i); 
+        epoll._ev.events = EPOLLIN;
+        epoll_ctl(epoll._ep_fd, EPOLL_CTL_ADD, listener_fds.at(i), &epoll._ev);
     }
 }
 
 static void creact_new_client(Epoll& epoll, std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map, int j)
 {
     Client* client = new Client;
-    client->_fd = accept(listener_fds.at(j), nullptr, nullptr);
-    Clients_map.insert({client->_fd, client});
-    int flags = fcntl(Clients_map.at(client->_fd)->_fd, F_GETFL, 0);
-    fcntl(Clients_map.at(client->_fd)->_fd, F_SETFL, flags | O_NONBLOCK);
-    epoll.ev.events = EPOLLIN;
-    epoll.ev.data.fd = Clients_map.at(client->_fd)->_fd;
-    epoll_ctl(epoll.ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->_fd)->_fd, &epoll.ev);
+    client->get_fd() = accept(listener_fds.at(j), nullptr, nullptr);
+    Clients_map.insert({client->get_fd(), client});
+    int flags = fcntl(Clients_map.at(client->get_fd())->get_fd(), F_GETFL, 0);
+    fcntl(Clients_map.at(client->get_fd())->get_fd(), F_SETFL, flags | O_NONBLOCK);
+    epoll._ev.events = EPOLLIN;
+    epoll._ev.data.fd = Clients_map.at(client->get_fd())->get_fd();
+    epoll_ctl(epoll._ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->get_fd())->get_fd(), &epoll._ev);
+}
+
+static void manage_client_request()
+{
 }
 
 void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map)
@@ -42,16 +46,16 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
     creat_epoll_fd_listeners(epoll, listener_fds);
     while (1)
     {
-        epoll.event_wait = epoll_wait(epoll.ep_fd, epoll.events, 10, -1);
-        for (int i = 0; i < epoll.event_wait; i++)
+        epoll._event_wait = epoll_wait(epoll._ep_fd, epoll._events, 10, -1);
+        for (int i = 0; i < epoll._event_wait; i++)
         {
             for (int j = 0; j < listener_fds.size(); j++)
-                if (epoll.events[i].data.fd == listener_fds.at(j))
+                if (epoll._events[i].data.fd == listener_fds.at(j))
                     creact_new_client(epoll, listener_fds, Clients_map, j);
-            if (epoll.events[i].events & EPOLLIN)
+            if (epoll._events[i].events & EPOLLIN)
             {
                 char buf[1024];
-                recv(epoll.events[i].data.fd, buf, sizeof(buf), 0);
+                recv(epoll._events[i].data.fd, buf, sizeof(buf), 0);
                 std::cout << "Requête reçue:\n" << buf << std::endl;
                 // Clients_map.at(epoll.events[i].data.fd)->_requestBuffer.append(buf, std::strlen(buf));
                 // Clients_map.at(epoll.events[i].data.fd)->_request.parseRequest(buf);
