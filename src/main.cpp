@@ -21,20 +21,20 @@ static void eventLoop(std::vector<ServerConfig> servers, const std::vector<int>&
 static void startWebserv(std::vector<ServerConfig> servers)
 {
     //créer sockets d'écoute
-    // pas sur qu'on aie bsn d'un vecteur ici
-    // for (size_t i = 0; i < servers.size(); i++)
-    // {
+    std::vector<int> listener_fds;
+    for (size_t i = 0; i < servers.size(); i++)
+    {
         int listener_fd = createListener(servers[i]);
-        // listener_fds.push_back(listener);
-    // }
+        listener_fds.push_back(listener_fd);
+    }
 
     //lancer boucle principale
     std::cout << "Lancement de la boucle principale" << std::endl;
     // eventLoop(servers, listener_fd);
 
     //fermer les sockets d'écoute
-    // for (size_t i = 0; i < listener_fd.size(); i++)
-        close(listener_fd);
+    for (size_t i = 0; i < listener_fds.size(); i++)
+        close(listener_fds.at(i));
 }
 
 int main(int ac, char **av)
