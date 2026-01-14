@@ -37,4 +37,6 @@ struct Epoll
     struct  epoll_event events[10];
 };
 
+void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map);
+
 #endif

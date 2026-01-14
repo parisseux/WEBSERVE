@@ -11,8 +11,16 @@ static void creat_epoll_fd_listeners(Epoll& epoll, std::vector<int>& listener_fd
     }
 }
 
-static void check_new_connexion(Epoll& epoll, std::vector<int>& listener_fds)
+static void creact_new_client(Epoll& epoll, std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map, int j)
 {
+    Client* client = new Client;
+    client->_fd = accept(listener_fds.at(j), nullptr, nullptr);
+    Clients_map.insert({client->_fd, client});
+    int flags = fcntl(Clients_map.at(client->_fd)->_fd, F_GETFL, 0);
+    fcntl(Clients_map.at(client->_fd)->_fd, F_SETFL, flags | O_NONBLOCK);
+    epoll.ev.events = EPOLLIN;
+    epoll.ev.data.fd = Clients_map.at(client->_fd)->_fd;
+    epoll_ctl(epoll.ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->_fd)->_fd, &epoll.ev);
 }
 
 void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map)
@@ -38,19 +46,8 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
         for (int i = 0; i < epoll.event_wait; i++)
         {
             for (int j = 0; j < listener_fds.size(); j++)
-            {
                 if (epoll.events[i].data.fd == listener_fds.at(j))
-                {
-                    Client* client = new Client;
-                    client->_fd = accept(listener_fds.at(j), nullptr, nullptr);
-                    Clients_map.insert({client->_fd, client});
-                    int flags = fcntl(Clients_map.at(client->_fd)->_fd, F_GETFL, 0);
-                    fcntl(Clients_map.at(client->_fd)->_fd, F_SETFL, flags | O_NONBLOCK);
-                    epoll.ev.events = EPOLLIN;
-                    epoll.ev.data.fd = Clients_map.at(client->_fd)->_fd;
-                    epoll_ctl(epoll.ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->_fd)->_fd, &epoll.ev);
-                }
-            }
+                    creact_new_client(epoll, listener_fds, Clients_map, j);
             if (epoll.events[i].events & EPOLLIN)
             {
                 char buf[1024];
