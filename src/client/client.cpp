@@ -42,27 +42,27 @@ void Client::set_ReadyToWrite(bool ReadytoWrite)
 
 // ALL THE GETTERS
 
-int Client::get_fd()
+int& Client::get_fd()
 {
     return (this->_fd);
 }
 
-int Client::get_flags()
+int& Client::get_flags()
 {
     return (this->_flags);
 }
 
-std::string Client::get_requestBuffer()
+std::string& Client::get_requestBuffer()
 {
     return (this->_requestBuffer);
 }
 
-std::string Client::get_responseBuffer()
+std::string& Client::get_responseBuffer()
 {
     return (this->_responseBuffer);
 }
 
-bool Client::get_ReadyToWrite()
+bool& Client::get_ReadyToWrite()
 {
     return (this->_ReadyToWrite);
 }
