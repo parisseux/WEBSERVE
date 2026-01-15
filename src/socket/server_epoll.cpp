@@ -23,6 +23,7 @@ static void creact_new_client(Epoll& epoll, std::vector<int>& listener_fds, std:
     epoll_ctl(epoll._ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->get_fd())->get_fd(), &epoll._ev);
 }
 
+// fonction a call pour gerer EPOLLIN
 static void manage_client_request()
 {
 }
@@ -49,10 +50,17 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
         epoll._event_wait = epoll_wait(epoll._ep_fd, epoll._events, 10, -1);
         for (int i = 0; i < epoll._event_wait; i++)
         {
+            bool is_listener = false;
             for (int j = 0; j < listener_fds.size(); j++)
+            {
                 if (epoll._events[i].data.fd == listener_fds.at(j))
+                {
                     creact_new_client(epoll, listener_fds, Clients_map, j);
-            if (epoll._events[i].events & EPOLLIN)
+                    is_listener = true;
+                    break;
+                }
+            }
+            if (!is_listener && (epoll._events[i].events & EPOLLIN))
             {
                 char buf[1024];
                 recv(epoll._events[i].data.fd, buf, sizeof(buf), 0);
