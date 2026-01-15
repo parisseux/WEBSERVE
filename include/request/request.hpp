@@ -16,7 +16,7 @@ enum method // a voir peut-etre a utliser
 };
 
 
-class request
+class Request
 {
     private:
         std::string _method; // GET, POST, DELETE (mandatory).... maybe put the enum instead of the string
@@ -27,9 +27,9 @@ class request
         std::map<std::string, std::string> _header;
         std::string _body; // pas sur de devoir le stocker comme cela
     public:
-        request();
-        request(std::string request);
-        ~request();
+        Request();
+        Request(std::string request);
+        ~Request();
         void parseRequest(std::string request);
         void parse_request_first_line(std::stringstream &stream);
         void parse_header(std::stringstream &stream);

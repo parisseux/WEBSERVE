@@ -66,3 +66,8 @@ bool& Client::get_ReadyToWrite()
 {
     return (this->_ReadyToWrite);
 }
+
+Request& Client::get_requestClass()
+{
+    return (this->_request);
+}

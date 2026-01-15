@@ -3,7 +3,7 @@
 static void creat_epoll_fd_listeners(Epoll& epoll, std::vector<int>& listener_fds)
 {
     epoll._ep_fd = epoll_create(10);
-    for (int i = 0; i < listener_fds.size(); i++)
+    for (unsigned int i = 0; i < listener_fds.size(); i++)
     {
         epoll._ev.data.fd = listener_fds.at(i); 
         epoll._ev.events = EPOLLIN;
@@ -14,8 +14,8 @@ static void creat_epoll_fd_listeners(Epoll& epoll, std::vector<int>& listener_fd
 static void creact_new_client(Epoll& epoll, std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map, int j)
 {
     Client* client = new Client;
-    client->get_fd() = accept(listener_fds.at(j), nullptr, nullptr);
-    Clients_map.insert({client->get_fd(), client});
+    client->get_fd() = accept(listener_fds.at(j), NULL, NULL);
+    Clients_map.insert(std::make_pair(client->get_fd(), client));
     int flags = fcntl(Clients_map.at(client->get_fd())->get_fd(), F_GETFL, 0);
     fcntl(Clients_map.at(client->get_fd())->get_fd(), F_SETFL, flags | O_NONBLOCK);
     epoll._ev.events = EPOLLIN;
@@ -24,9 +24,9 @@ static void creact_new_client(Epoll& epoll, std::vector<int>& listener_fds, std:
 }
 
 // fonction a call pour gerer EPOLLIN
-static void manage_client_request()
-{
-}
+// static void manage_client_request()
+// {
+// }
 
 void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map)
 {
@@ -52,7 +52,7 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
         for (int i = 0; i < epoll._event_wait; i++)
         {
             bool is_listener = false;
-            for (int j = 0; j < listener_fds.size(); j++)
+            for (unsigned int j = 0; j < listener_fds.size(); j++)
             {
                 if (epoll._events[i].data.fd == listener_fds.at(j))
                 {
@@ -69,6 +69,24 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
                 // Clients_map.at(epoll.events[i].data.fd)->_requestBuffer.append(buf, std::strlen(buf));
                 // Clients_map.at(epoll.events[i].data.fd)->_request.parseRequest(buf);
                 // Faut encore fermer les clients
+                Clients_map.at(epoll._events[i].data.fd)->get_requestClass().parseRequest(buf);                
+                // Clients_map.at(epoll._events[i].data.fd)->_request.parseRequest(buf)
+                // affichage de la requete parser dans le client
+                Clients_map.at(epoll._events[i].data.fd)->get_requestClass().display_request();                 
+                // Clients_map.at(epoll._events[i].data.fd)->_request.display_request();
+                //set automatique a true en attente de lecteur de requete en continue
+                Clients_map.at(epoll._events[i].data.fd)->set_ReadyToWrite(true);                   
+                if (Clients_map.at((epoll._events[i].data.fd))->get_ReadyToWrite() == true)
+                {
+                    //partie parissa qui recoit la recoit la requete complete et peut faire
+                    //le routing 
+                    //void routing(Clients_map.at((epoll.events[i].data.fd))) // par exemple
+
+                    //reponse basique automatique pour voir que ca marche
+                    std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO";                     
+                    write(epoll._events[i].data.fd, response.c_str(), response.size());
+                    close(epoll._events[i].data.fd); 
+                }              
             }
         }
     }

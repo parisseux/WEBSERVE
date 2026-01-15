@@ -1,7 +1,7 @@
 
 #include "webserv.hpp"
 
-request basic_socket()
+Request basic_socket()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
     if (sockfd == -1)
@@ -41,7 +41,7 @@ request basic_socket()
             }
         }
         // std::cout << total_request << std::endl;
-        request current_request(total_request);
+        Request current_request(total_request);
         // current_request.display_request();
         if (read_byte < 0)
             std::cout << "Error with read loop" << std::endl;

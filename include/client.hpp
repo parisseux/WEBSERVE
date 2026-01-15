@@ -11,7 +11,7 @@ class Client
     private:
         int         _fd;
         int         _flags;
-        request     _request;
+        Request     _request;
         std::string _requestBuffer;
         std::string _responseBuffer;
         bool        _ReadyToWrite;
@@ -27,7 +27,8 @@ class Client
         int&         get_flags();
         std::string& get_requestBuffer();
         std::string& get_responseBuffer();
-        bool&        get_ReadyToWrite(); 
+        bool&        get_ReadyToWrite();
+        Request&     get_requestClass(); 
 };
 
 struct Epoll

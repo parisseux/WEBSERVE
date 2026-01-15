@@ -1,22 +1,22 @@
 #include "../include/request/request.hpp"
 #include "../include/utils/utils_1.hpp"
 
-request::request()
+Request::Request()
 {
     
 }
 
-request::~request()
+Request::~Request()
 {
     
 }
 
-request::request(std::string request)
+Request::Request(std::string request)
 {
     parseRequest(request.c_str());
 }
 
-void    request::parseRequest(std::string request)
+void    Request::parseRequest(std::string request)
 {
     std::stringstream request_stream(request);
     std::string line;
@@ -29,7 +29,7 @@ void    request::parseRequest(std::string request)
     
 }
 
-void    request::parse_request_first_line(std::stringstream &stream)
+void    Request::parse_request_first_line(std::stringstream &stream)
 {
     std::string word;
     size_t found;    
@@ -47,7 +47,7 @@ void    request::parse_request_first_line(std::stringstream &stream)
     _protocol = word;
 }
 
-void request::parse_header(std::stringstream &stream)
+void Request::parse_header(std::stringstream &stream)
 {
     std::string key;
     std::string value;
@@ -73,7 +73,7 @@ void request::parse_header(std::stringstream &stream)
     }
 }
 
-void request::parse_body(std::stringstream &stream)
+void Request::parse_body(std::stringstream &stream)
 {
     std::string line;
 
@@ -81,7 +81,7 @@ void request::parse_body(std::stringstream &stream)
         _body += line;
 }
 
-void request::display_request()
+void Request::display_request()
 {
     std::map<std::string, std::string>::iterator it = _header.begin();
     std::cout << "* SERVER JUST RECEIVED A REQUEST *" << std::endl;

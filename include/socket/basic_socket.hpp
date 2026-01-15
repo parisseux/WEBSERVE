@@ -10,7 +10,7 @@
 #include "../include/request/request.hpp"
 # define MAXBYTE 1024
 
-request basic_socket();
+Request basic_socket();
 int createListener(const ServerConfig &server);
 void setNonBlocking(int fd);
 
