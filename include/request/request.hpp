@@ -25,7 +25,7 @@ class Request
         std::string _query;
         std::string _protocol; // HTTP/1.1. en general
         std::map<std::string, std::string> _header;
-        std::string _body; // pas sur de devoir le stocker comme cela
+        std::string _body;
     public:
         Request();
         Request(std::string request);
@@ -35,6 +35,12 @@ class Request
         void parse_header(std::stringstream &stream);
         void parse_body(std::stringstream &stream);
         void display_request();
+        std::string& getMethod();
+        std::string& getRequestTarget();
+        std::string& getPath();
+        std::string& getQuery();
+        std::string& getProtocol();
+        std::string& getBody();                   
 };
 
 #endif

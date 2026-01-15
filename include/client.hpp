@@ -6,6 +6,13 @@
 
 # define MAX_PENDING 20
 
+enum ClientState
+{
+    WAITING,
+    READING_HEADER,
+    READING_BODY
+};
+
 class Client 
 {
     private:
@@ -13,8 +20,9 @@ class Client
         int         _flags;
         Request     _request;
         std::string _requestBuffer;
-        std::string _responseBuffer;
+        std::string _responseBuffer;    
         bool        _ReadyToWrite;
+        ClientState _state;            
     public:
         Client();
         ~Client();
@@ -23,12 +31,14 @@ class Client
         void         set_requestBuffer(std::string requestBuffer);
         void         set_responseBuffer(std::string _responseBuffer);
         void         set_ReadyToWrite(bool ReadyToWrite);
+        void         set_clientState(ClientState state); 
         int&         get_fd();
         int&         get_flags();
         std::string& get_requestBuffer();
         std::string& get_responseBuffer();
         bool&        get_ReadyToWrite();
-        Request&     get_requestClass(); 
+        Request&     get_requestClass();
+        ClientState  get_clientState();
 };
 
 struct Epoll

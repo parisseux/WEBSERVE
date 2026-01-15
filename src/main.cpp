@@ -6,7 +6,8 @@ static void startWebserv(std::vector<ServerConfig> servers)
     //créer sockets d'écoute
     std::vector<int> listener_fds;
     // créer map de clients du server
-    std::map<int, Client*> clients_map;    
+    std::map<int, Client*> clients_map;
+    
     for (size_t i = 0; i < servers.size(); i++)
     {
         int listener_fd = createListener(servers[i]);

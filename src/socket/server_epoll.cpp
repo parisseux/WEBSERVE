@@ -63,20 +63,40 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
             }
             if (!is_listener && (epoll._events[i].events & EPOLLIN))
             {
-                char buf[1024];
+                char buf[10];
                 recv(epoll._events[i].data.fd, buf, sizeof(buf), 0);
-                std::cout << "Requête reçue:\n" << buf << std::endl;
-                // Clients_map.at(epoll.events[i].data.fd)->_requestBuffer.append(buf, std::strlen(buf));
-                // Clients_map.at(epoll.events[i].data.fd)->_request.parseRequest(buf);
-                // Faut encore fermer les clients
-                Clients_map.at(epoll._events[i].data.fd)->get_requestClass().parseRequest(buf);                
-                // Clients_map.at(epoll._events[i].data.fd)->_request.parseRequest(buf)
-                // affichage de la requete parser dans le client
-                Clients_map.at(epoll._events[i].data.fd)->get_requestClass().display_request();                 
-                // Clients_map.at(epoll._events[i].data.fd)->_request.display_request();
-                //set automatique a true en attente de lecteur de requete en continue
-                Clients_map.at(epoll._events[i].data.fd)->set_ReadyToWrite(true);                   
-                if (Clients_map.at((epoll._events[i].data.fd))->get_ReadyToWrite() == true)
+                // std::cout << "Requête reçue:\n" << buf << std::endl;                
+                std::string bufferString(buf);
+                Client* client = Clients_map.at(epoll._events[i].data.fd);
+
+                if (client->get_clientState() == WAITING || client->get_clientState() == READING_HEADER)
+                {
+                    std::cout << "WE APPEND" << std::endl;
+                    client->get_requestBuffer().append(bufferString);
+                    client->set_clientState(READING_HEADER);
+                }
+                if (bufferString.find("\r\n\r\n"))
+                {
+                    std::cout << "WE FOUND DOUVLE CARRIAGE" << std::endl;                    
+                    int found = bufferString.find("\r\n\r\n");                    
+                    client->get_requestBuffer().append(bufferString.substr(0, found));                    
+                    client->get_requestClass().parseRequest(buf);
+                    client->get_requestBuffer().clear();
+                    client->get_requestBuffer().append(bufferString.substr(found + 4));
+                    client->set_clientState(READING_BODY);
+                }
+
+                if (client->get_clientState() == READING_BODY)
+                {
+                    if (client->get_requestClass().getMethod() == "GET")
+                    {
+                        client->set_clientState(WAITING);
+                        client->set_ReadyToWrite(true);                           
+                        Clients_map.at(epoll._events[i].data.fd)->get_requestClass().display_request(); 
+                    }
+                    client->get_requestBuffer().append(bufferString);              
+                }
+                if (client->get_ReadyToWrite() == true)
                 {
                     //partie parissa qui recoit la recoit la requete complete et peut faire
                     //le routing 

@@ -3,7 +3,7 @@
 // CONSTRUCTOR / DESTRUCTOR
 
 Client::Client()
-: _ReadyToWrite(false)
+: _ReadyToWrite(false), _state(WAITING)
 {
     std::cout << "Client created" << std::endl;
 }
@@ -40,6 +40,11 @@ void Client::set_ReadyToWrite(bool ReadytoWrite)
     this->_ReadyToWrite = ReadytoWrite;
 }
 
+void Client::set_clientState(ClientState state)
+{
+    this->_state = state;
+}
+
 // ALL THE GETTERS
 
 int& Client::get_fd()
@@ -70,4 +75,9 @@ bool& Client::get_ReadyToWrite()
 Request& Client::get_requestClass()
 {
     return (this->_request);
+}
+
+ClientState Client::get_clientState()
+{
+    return(this->_state);
 }

@@ -1,21 +1,6 @@
 #include "../include/request/request.hpp"
 #include "../include/utils/utils_1.hpp"
 
-Request::Request()
-{
-    
-}
-
-Request::~Request()
-{
-    
-}
-
-Request::Request(std::string request)
-{
-    parseRequest(request.c_str());
-}
-
 void    Request::parseRequest(std::string request)
 {
     std::stringstream request_stream(request);
@@ -23,10 +8,12 @@ void    Request::parseRequest(std::string request)
 
     if (!request_stream)
         throw std::runtime_error("couldn't open the request");
-    parse_request_first_line(request_stream);
-    parse_header(request_stream);
+    if (_method.empty())
+    {
+        parse_request_first_line(request_stream);
+        parse_header(request_stream);
+    }
     parse_body(request_stream);
-    
 }
 
 void    Request::parse_request_first_line(std::stringstream &stream)
@@ -40,9 +27,10 @@ void    Request::parse_request_first_line(std::stringstream &stream)
     _request_target = word;
     if ((found = word.find('?')) != std::string::npos)
     {
-        _query = _request_target.substr(found + 1, _request_target.size());
+        _query = _request_target.substr(found + 1);
         _request_target = _request_target.substr(0, found);
     }
+    _path = _request_target;
     stream >> word;    
     _protocol = word;
 }
