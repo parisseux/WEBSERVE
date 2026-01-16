@@ -19,7 +19,7 @@ void    Request::parseRequest(std::string request)
 void    Request::parse_request_first_line(std::stringstream &stream)
 {
     std::string word;
-    size_t found;    
+    size_t found;
 
     stream >> word;  
     _method = word;
@@ -86,5 +86,5 @@ void Request::display_request()
         std::cout << std::endl;
         std::cout << _body;
     }
-    std::cout << std::endl;
+    std::cout << "* END OF REQUEST *"<< std::endl;
 }

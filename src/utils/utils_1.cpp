@@ -9,6 +9,7 @@ void writeInAscii(std::string string)
         c = string.at(i);
         std::cout << int(c) << ' ';
     }
+    std::cout << std::endl;
 }
 
 void print_servers_attributes(std::vector<ServerConfig> &servers)

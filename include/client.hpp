@@ -39,6 +39,7 @@ class Client
         bool&        get_ReadyToWrite();
         Request&     get_requestClass();
         ClientState  get_clientState();
+        void         clearRequest();
 };
 
 struct Epoll

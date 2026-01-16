@@ -81,3 +81,14 @@ ClientState Client::get_clientState()
 {
     return(this->_state);
 }
+
+void Client::clearRequest()
+{
+    get_requestClass().getMethod().clear();
+    get_requestClass().getRequestTarget().clear();
+    get_requestClass().getPath().clear();
+    get_requestClass().getQuery().clear();
+    get_requestClass().getProtocol().clear();                     
+    get_requestClass().getBody().clear();
+    get_requestClass().getHeader().clear();    
+}

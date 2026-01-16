@@ -40,7 +40,8 @@ class Request
         std::string& getPath();
         std::string& getQuery();
         std::string& getProtocol();
-        std::string& getBody();                   
+        std::string& getBody();
+        std::map<std::string, std::string>& getHeader();                        
 };
 
 #endif

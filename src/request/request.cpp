@@ -47,3 +47,8 @@ std::string&    Request::getBody()
     return(_body);
 }
 
+std::map<std::string, std::string>& Request::getHeader()
+{
+    return (_header);
+}
+
