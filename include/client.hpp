@@ -59,6 +59,6 @@ struct Epoll
         int&    get_event_wait();
 };
 
-void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map);
+void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map, std::vector<ServerConfig> servers);
 
 #endif

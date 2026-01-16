@@ -7,8 +7,10 @@
 # include "request/request.hpp"
 # include "client.hpp"
 # include <utility>
+# include "response.hpp"
 
 #include <fcntl.h>
 #include <stdexcept>
+Response HandleRequest(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
 
 #endif

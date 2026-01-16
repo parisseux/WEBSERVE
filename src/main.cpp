@@ -15,13 +15,13 @@ static void startWebserv(std::vector<ServerConfig> servers)
     }
     //lancer boucle principale
     std::cout << "Lancement de la boucle principale" << std::endl;
-    epoll_managment(listener_fds, clients_map);
+    epoll_managment(listener_fds, clients_map, servers);
 
     //fermer les sockets d'écoute
     for (size_t i = 0; i < listener_fds.size(); i++)
         close(listener_fds.at(i));
 }
-
+Response HandleRequest(const Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
 int main(int ac, char **av)
 {
     try 

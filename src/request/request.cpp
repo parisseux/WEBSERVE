@@ -32,12 +32,12 @@ std::string&    Request::getPath()
     return(_path);
 }
 
-std::string&    Request::getQuery()
+std::string&    Request::getQuery()  
 {
     return(_query);
 }
 
-std::string&    Request::getProtocol()
+std::string&    Request::getProtocol() 
 {
     return(_protocol);
 }

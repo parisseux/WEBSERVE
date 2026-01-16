@@ -15,7 +15,6 @@ enum method // a voir peut-etre a utliser
     DELETE
 };
 
-
 class Request
 {
     private:

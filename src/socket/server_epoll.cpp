@@ -40,7 +40,7 @@ void HeaderEnd(Client *client, std::string bufferString)
 }
 
 // fonction a call pour gerer EPOLLIN
-static void manage_client_request(Client *client, int byteReads, char *buf)
+static void manage_client_request(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers)
 {         
     std::string bufferString(buf, 0, byteReads);
     if ((bufferString.find("\r\n\r\n"))!=std::string::npos)
@@ -56,36 +56,39 @@ static void manage_client_request(Client *client, int byteReads, char *buf)
         {
             client->set_clientState(WAITING);
             client->set_ReadyToWrite(true);                 
-            client->get_requestClass().display_request(); 
+            // client->get_requestClass().display_request(); // affichage requete complete
         }
         else
         {
             // client->get_requestBuffer().append(bufferString);
         }
     }
-    if (client->get_ReadyToWrite() == true)
+    if (client->get_ReadyToWrite() == true) // client prêt a recevoir une reponse
     {
-        //partie parissa qui recoit la recoit la requete complete et peut faire
-        //le routing 
-        //void routing(Clients_map.at((epoll.events[i].data.fd))) // par exemple
+        //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
+        Response Res = HandleRequest(client->get_requestClass(), servers[0].locations, servers[0]);
+        // Res.display_response(); 
+        std::string responseString = Res.constructResponse();
+        // std::cout << "string response" << std::endl;
+        // std::cout << responseString << std::endl;   
 
         //reponse basique automatique pour voir que ca marche
-        std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO";                     
-        write(client->get_fd(), response.c_str(), response.size());
+        // std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO";
+        write(client->get_fd(), responseString.c_str(), responseString.size());
         client->set_ReadyToWrite(false);
-        client->clearRequest();                   
+        client->clearRequest();   
         close(client->get_fd()); 
     }                            
 }
 
-void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map)
+void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map, std::vector<ServerConfig> servers)
 {
-    std::cout << "waiting request..." << std::endl;
+    // std::cout << "waiting request..." << std::endl;
     Epoll epoll;
     creat_epoll_fd_listeners(epoll, listener_fds);
     while (1)
     {
-        // std::cout << "waiting request..." << std::endl;
+        std::cout << "waiting request..." << std::endl;
         epoll._event_wait = epoll_wait(epoll._ep_fd, epoll._events, 10, -1);
         for (int i = 0; i < epoll._event_wait; i++)
         {
@@ -101,10 +104,10 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
             }
             if (!is_listener && (epoll._events[i].events & EPOLLIN))
             {
-                char buf[10];
+                char buf[1024];
                 size_t byteReads = recv(epoll._events[i].data.fd, buf, sizeof(buf), 0);
                 if (byteReads > 0)
-                    manage_client_request(Clients_map.at(epoll._events[i].data.fd), byteReads, buf);
+                    manage_client_request(Clients_map.at(epoll._events[i].data.fd), byteReads, buf, servers);
             }
         }
     }
