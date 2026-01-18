@@ -5,6 +5,7 @@
 # include "utils/utils_1.hpp"
 # include "socket/basic_socket.hpp"
 # include "request/request.hpp"
+# include "cgi/cgi.hpp"
 # include "client.hpp"
 # include <utility>
 # include "response.hpp"
