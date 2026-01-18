@@ -8,6 +8,7 @@
 # include "client.hpp"
 # include <utility>
 # include "response.hpp"
+# include <sys/epoll.h>
 
 #include <fcntl.h>
 #include <stdexcept>

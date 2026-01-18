@@ -88,7 +88,7 @@ void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Cl
     creat_epoll_fd_listeners(epoll, listener_fds);
     while (1)
     {
-        std::cout << "waiting request..." << std::endl;
+        // std::cout << "waiting request..." << std::endl;
         epoll._event_wait = epoll_wait(epoll._ep_fd, epoll._events, 10, -1);
         for (int i = 0; i < epoll._event_wait; i++)
         {
