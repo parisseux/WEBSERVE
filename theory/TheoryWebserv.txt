@@ -13,7 +13,7 @@ Partie 2: Serveur réseau minimal - DAVID
     - mettre en place select()/poll()
     - accepter les connexions et recevevoir des données brutes
 
-Partie 3: Parsing HTTP de base
+Partie 3: Parsing HTTP de base - MAWULI --> FAIT 
     - Parser ligne de requête
     - Parser les headers
     - Gérer un body simple avec Content-Length

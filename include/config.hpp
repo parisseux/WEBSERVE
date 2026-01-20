@@ -4,11 +4,15 @@
 # include <iostream>
 # include <fstream>
 # include <string>
+# include <cstring>
 # include <cstdlib>
 # include <arpa/inet.h>
 # include <vector>
 # include <sstream>
 # include <map>
+# include <sys/epoll.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
 
 struct LocationConfig
 {
@@ -54,7 +58,7 @@ struct ServerConfig
 };
 
 //ConfigFile
-bool initServers(const std::string &configFile, std::vector<ServerConfig> &servers);
+void initServers(const std::string &configFile, std::vector<ServerConfig> &servers);
 
 //ServerConfig
 void parseServerLine(ServerConfig &server, const std::string &t);

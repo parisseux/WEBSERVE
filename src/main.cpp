@@ -1,60 +1,39 @@
-#include <iostream>
-#include <string>
-#include <unistd.h>
-#include <stdlib.h>
-#include "../include/config.hpp"
+#include "../include/webserv.hpp"
 
-void print_servers_attributes(std::vector<ServerConfig> &servers)
+static void startWebserv(std::vector<ServerConfig> servers)
 {
-    for (size_t i = 0; i < servers.size(); ++i)
+    //créer sockets d'écoute
+    std::vector<int> listener_fds;
+    for (size_t i = 0; i < servers.size(); i++)
     {
-        const ServerConfig &server = servers[i];
-        std::cout << "Parsed server: " << i + 1<< std::endl;
-        std::cout << "  Host  = " << server.listenHost << std::endl;
-        std::cout << "  Port  = " << server.listenPort << std::endl;
-        std::cout << "  Name  = " << server.serverName << std::endl;
-        std::cout << "  Root  = " << server.root << std::endl;
-        std::cout << "  Index = " << server.index << std::endl;
-        if (!server.errorPages.empty())
-        {
-            std::cout << "  Error Pages:" << std::endl;
-            for (std::map<int, std::string>::const_iterator it = server.errorPages.begin();
-                it != server.errorPages.end(); ++it)
-                std::cout << "    " << it->first << " -> " << it->second << std::endl;
-        }
-        else
-            std::cout << "  Error Pages: none" << std::endl;
-
-        if (server.locations.empty())
-            std::cout << "  No locations defined." << std::endl;
-
-        for (size_t i = 0; i < server.locations.size(); i++)
-        {
-            const LocationConfig &loc = server.locations[i];
-            std::cout << "\n  Location " << i << ":" << std::endl;
-            std::cout << "    path      = " << loc.path << std::endl;
-            std::cout << "    root      = " << loc.root << std::endl;
-            std::cout << "    index     = " << loc.index << std::endl;
-            std::cout << "    autoindex = " << (loc.autoindex ? "on" : "off") << std::endl;
-        }
+        int listener_fd = createListener(servers[i]);
+        listener_fds.push_back(listener_fd);
     }
+    
+    //lancer boucle principale
+    std::cout << "Lancement de la boucle principale" << std::endl;
+    epollManagment(listener_fds, servers);
+
+    //fermer les sockets d'écoute
+    for (size_t i = 0; i < listener_fds.size(); i++)
+        close(listener_fds.at(i));
 }
 
-int mess_error(std::string mess, int exit_code)
-{
-    std::cerr << "Error: " << mess << std::endl;
-    return exit_code;
-}
 
 int main(int ac, char **av)
 {
-    if (ac != 2)
-        return(mess_error("usage: ./webserv [configuration file]", 1));
-    std::vector<ServerConfig> servers;
-    if (!initServers(av[1], servers))
-        return(mess_error("server initialisation failed.", 1));
-    //vous pouvez mettre en commentaire cest juste pour du debug de PARSING
-    print_servers_attributes(servers);
-    std::cout << "Lets start webserv!!!!!" <<std::endl;
+    try 
+    {
+        if (ac != 2)
+            throw std::runtime_error("usage: ./webserv [configuration file]");
+        std::vector<ServerConfig> servers;
+        initServers(av[1], servers);
+        startWebserv(servers);
+    }
+    catch (const std::exception& e) 
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return (1);
+    }
     return (0);
 }
