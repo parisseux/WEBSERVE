@@ -61,8 +61,19 @@ static const LocationConfig *MatchLocation(const std::string &reqLoc, const std:
     return (bestLoc);
 }
 
+static int checkBodySize(Request &req,  const LocationConfig *loc)
+{
+    size_t bodySize = req.getBody().size();
+    size_t MaxSize = loc->_maxBodySize;
+    if (bodySize > MaxSize)
+        return (413);
+    else 
+        return (200);
+}
+
 Response HandleRequest(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server)
 {
+    req.displayRequest();
     int status = validateRequest(req);
     if (status == 400)
         return (Response::Error(400, "400 Bad Request"));
@@ -74,6 +85,10 @@ Response HandleRequest(Request &req, const std::vector<LocationConfig>& location
     status = MethodAllowed(req, loc);
     if (status == 405)
         return (Response::Error(405, "405 Method Not Allowed"));
+    if (req.getMethod() == "POST")
+        status = checkBodySize(req, loc);
+    if (status == 413)
+        return (Response::Error(413, "413 Payload  Too Large"));
 
     // buildRedirectResponse(loc);
 
@@ -81,7 +96,9 @@ Response HandleRequest(Request &req, const std::vector<LocationConfig>& location
     // handleCgi(req, server, *loc);
 
     //upload handler (="POST") va venir écrire dans un fichier
-    // handleUpload(req, server, *loc);
+    if (req.getMethod() == "POST")
+        std::cout << "Lets post some stufff" << std::endl;
+        //handleUpload(req, server, *loc);
 
     // static handler va lire un fichier
     //Ici on se charge de trouver la réponse quon doit envoyer au clients

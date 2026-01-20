@@ -20,17 +20,19 @@ struct LocationConfig
     std::string root;
     std::string index;
     std::vector<std::string> allowMethods;
+    size_t _maxBodySize;
 
     bool hasRoot;
     bool hasIndex;
     bool autoindex;
     bool hasAutoindex;
     bool hasAllowMethods;
+    bool hasMaxBodySize;
 
     LocationConfig()
         : hasRoot(false), hasIndex(false),
           autoindex(false), hasAutoindex(false),
-          hasAllowMethods(false) {}
+          hasAllowMethods(false), hasMaxBodySize(false) {}
 };
 
 struct ServerConfig

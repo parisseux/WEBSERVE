@@ -41,7 +41,8 @@ void HeaderEnd(Client *client, std::string bufferString)
 
 // fonction a call pour gerer EPOLLIN
 static void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers)
-{         
+{
+    std::cout << "nouveau parsing de requete" << std::endl;       
     std::string bufferString(buf, 0, byteReads);
     if ((bufferString.find("\r\n\r\n"))!=std::string::npos)
         HeaderEnd(client, bufferString);
@@ -58,6 +59,13 @@ static void manageClientRequest(Client *client, int byteReads, char *buf, std::v
             client->setReadyToWrite(true);                 
             client->getRequestClass().displayRequest(); // affichage requete complete
         }
+        if (client->getRequestClass().getMethod() == "POST") 
+        {
+            client->getRequestBuffer().append(bufferString);
+            client->getRequestClass().parseRequest(client->getRequestBuffer());
+            client->setReadyToWrite(true);                 
+            client->getRequestClass().displayRequest(); // affichage requete complete
+        }        
         else
         {
             // client->get_requestBuffer().append(bufferString);
@@ -105,7 +113,7 @@ void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> s
             }
             if (!is_listener && (epoll._events[i].events & EPOLLIN))
             {
-                char buf[1024];
+                char buf[4000];
                 size_t byteReads = recv(epoll._events[i].data.fd, buf, sizeof(buf), 0);
                 if (byteReads > 0)
                     manageClientRequest(Clients_map.at(epoll._events[i].data.fd), byteReads, buf, servers);

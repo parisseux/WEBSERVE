@@ -53,6 +53,7 @@ void initServers(const std::string &configFile, std::vector<ServerConfig> &serve
     servers.clear();
     std::string line;
     size_t serverCount = 0;
+    std::cout << "Test" << std::endl;
     while (std::getline(file, line))
     {
         if (isServerStart(line))
@@ -60,14 +61,17 @@ void initServers(const std::string &configFile, std::vector<ServerConfig> &serve
         try 
         {
             ServerConfig server = parseServer(file);
+            std::cout << "Test" << std::endl;
             if (!server.hasListen)
                 throw std::runtime_error("missing listen directive");
+            std::cout << "Test" << std::endl;
             applyServersDefaults(server);
+            std::cout << "Test" << std::endl;
             servers.push_back(server);
         }
         catch (const std::exception& e) 
         {
-            // throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
+            //throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
         }
     }
     if (servers.empty())

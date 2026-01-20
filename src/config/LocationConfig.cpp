@@ -1,5 +1,27 @@
 #include "../../include/webserv.hpp"
 
+static void parseLocationMaxBodySize(LocationConfig &loc, const std::string &s)
+{
+    if (loc.hasMaxBodySize)
+        throw std::runtime_error("Duplicate 'client_max_body_size' in location " + loc.path);
+    std::string val = removeSemicolon(s.substr(20));
+    if (val.empty())
+        throw std::runtime_error("Empty client_max_body_size in location " + loc.path);
+    size_t multiplier = 1;
+    char lastChar = val[val.size() - 1];
+    if (lastChar == 'K' || lastChar == 'k')
+        multiplier = 1024;
+    else if (lastChar == 'M' || lastChar == 'm')
+        multiplier = 1024*1024;
+    else if (lastChar == 'G' || lastChar == 'g')
+        multiplier = 1024*1024*1024;
+    std::string numStr = val;
+    if (!isdigit(lastChar))
+        numStr = val.substr(0, val.size() - 1);
+    loc._maxBodySize = strtoul(numStr.c_str(), NULL, 10) * multiplier;
+    loc.hasMaxBodySize = true;
+}
+
 static void parseLocationRoot(LocationConfig &loc, const std::string &s)
 {
     if (loc.hasRoot)
@@ -75,6 +97,8 @@ static void parseLocationLine(LocationConfig &loc, const std::string &s)
         parseLocationIndex(loc, s);
     else if (s.find("autoindex ") == 0)
         parseLocationAutoindex(loc, s);
+    else if (s.find("client_max_body_size ") == 0)
+        parseLocationMaxBodySize(loc, s);
     else if (s.find("allow_methods ") == 0)
         parseLocationAllowMethods(loc, s);
     else
