@@ -1,4 +1,4 @@
-#include "../../include/config.hpp"
+#include "../../include/webserv.hpp"
 
 void parseListenDirective(ServerConfig &server, const std::string &t)
 {

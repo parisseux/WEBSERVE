@@ -1,4 +1,4 @@
-#include "webserv.hpp"
+#include "../../include/webserv.hpp"
 
 // CONSTRUCTOR / DESTRUCTOR
 
@@ -15,80 +15,79 @@ Client::~Client()
 
 // ALL THE SETTESS
 
-void Client::set_fd(int fd)
+void Client::setFd(int fd)
 {
     this->_fd = fd;
 }
 
-void Client::set_flags(int flags)
+void Client::setFlags(int flags)
 {
     this->_flags = flags;
 }
 
-void Client::set_requestBuffer(std::string requestBuffer)
+void Client::setRequestBuffer(std::string requestBuffer)
 {
     this->_requestBuffer = requestBuffer;
 }
 
-void Client::set_responseBuffer(std::string responseBuffer)
+void Client::setResponseBuffer(std::string responseBuffer)
 {
     this->_responseBuffer = responseBuffer;
 }
 
-void Client::set_ReadyToWrite(bool ReadytoWrite)
+void Client::setReadyToWrite(bool ReadytoWrite)
 {
     this->_ReadyToWrite = ReadytoWrite;
 }
 
-void Client::set_clientState(ClientState state)
+void Client::setClientState(ClientState state)
 {
     this->_state = state;
 }
 
 // ALL THE GETTERS
 
-int& Client::get_fd()
+int& Client::getFd()
 {
     return (this->_fd);
 }
 
-int& Client::get_flags()
+int& Client::getFlags()
 {
     return (this->_flags);
 }
 
-std::string& Client::get_requestBuffer()
+std::string& Client::getRequestBuffer()
 {
     return (this->_requestBuffer);
 }
 
-std::string& Client::get_responseBuffer()
+std::string& Client::getResponseBuffer()
 {
     return (this->_responseBuffer);
 }
 
-bool& Client::get_ReadyToWrite()
+bool& Client::getReadyToWrite()
 {
     return (this->_ReadyToWrite);
 }
 
-Request& Client::get_requestClass()
+Request& Client::getRequestClass()
 {
     return (this->_request);
 }
 
-ClientState Client::get_clientState()
+ClientState Client::getClientState()
 {
     return(this->_state);
 }
 
 void Client::clearRequest()
 {
-    get_requestClass().getMethod().clear();
-    get_requestClass().getRequestTarget().clear();
-    get_requestClass().getPath().clear();
-    get_requestClass().getQuery().clear();
-    get_requestClass().getProtocol().clear();                     
-    get_requestClass().getBody().clear();
-    get_requestClass().getHeader().clear();    
+    getRequestClass().getMethod().clear();
+    getRequestClass().getRequestTarget().clear();
+    getRequestClass().getPath().clear();
+    getRequestClass().getQuery().clear();
+    getRequestClass().getProtocol().clear();                     
+    getRequestClass().getBody().clear();
 }

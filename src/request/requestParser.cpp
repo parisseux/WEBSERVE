@@ -1,5 +1,4 @@
-#include "../include/request/request.hpp"
-#include "../include/utils/utils_1.hpp"
+#include "../../include/webserv.hpp"
 
 void    Request::parseRequest(std::string request)
 {
@@ -10,13 +9,13 @@ void    Request::parseRequest(std::string request)
         throw std::runtime_error("couldn't open the request");
     if (_method.empty())
     {
-        parse_request_first_line(request_stream);
-        parse_header(request_stream);
+        parseRequestFirstLine(request_stream);
+        parseHeader(request_stream);
     }
-    parse_body(request_stream);
+    parseBody(request_stream);
 }
 
-void    Request::parse_request_first_line(std::stringstream &stream)
+void    Request::parseRequestFirstLine(std::stringstream &stream)
 {
     std::string word;
     size_t found;
@@ -24,18 +23,18 @@ void    Request::parse_request_first_line(std::stringstream &stream)
     stream >> word;  
     _method = word;
     stream >> word;    
-    _request_target = word;
+    _requestTarget = word;
     if ((found = word.find('?')) != std::string::npos)
     {
-        _query = _request_target.substr(found + 1);
-        _request_target = _request_target.substr(0, found);
+        _query = _requestTarget.substr(found + 1);
+        _requestTarget = _requestTarget.substr(0, found);
     }
-    _path = _request_target;
+    _path = _requestTarget;
     stream >> word;    
     _protocol = word;
 }
 
-void Request::parse_header(std::stringstream &stream)
+void Request::parseHeader(std::stringstream &stream)
 {
     std::string key;
     std::string value;
@@ -61,7 +60,7 @@ void Request::parse_header(std::stringstream &stream)
     }
 }
 
-void Request::parse_body(std::stringstream &stream)
+void Request::parseBody(std::stringstream &stream)
 {
     std::string line;
 
@@ -69,12 +68,12 @@ void Request::parse_body(std::stringstream &stream)
         _body += line;
 }
 
-void Request::display_request()
+void Request::displayRequest()
 {
     std::map<std::string, std::string>::iterator it = _header.begin();
     std::cout << "* SERVER JUST RECEIVED A REQUEST *" << std::endl;
     std::cout << _method << " "
-            <<  _request_target << " "
+            <<  _requestTarget << " "
             << _protocol << std::endl;
     while (it != _header.end())
     {

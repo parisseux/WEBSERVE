@@ -26,19 +26,19 @@ class Client
     public:
         Client();
         ~Client();
-        void         set_fd(int fd);
-        void         set_flags(int flags);
-        void         set_requestBuffer(std::string requestBuffer);
-        void         set_responseBuffer(std::string _responseBuffer);
-        void         set_ReadyToWrite(bool ReadyToWrite);
-        void         set_clientState(ClientState state); 
-        int&         get_fd();
-        int&         get_flags();
-        std::string& get_requestBuffer();
-        std::string& get_responseBuffer();
-        bool&        get_ReadyToWrite();
-        Request&     get_requestClass();
-        ClientState  get_clientState();
+        void         setFd(int fd);
+        void         setFlags(int flags);
+        void         setRequestBuffer(std::string requestBuffer);
+        void         setResponseBuffer(std::string _responseBuffer);
+        void         setReadyToWrite(bool ReadyToWrite);
+        void         setClientState(ClientState state); 
+        int&         getFd();
+        int&         getFlags();
+        std::string& getRequestBuffer();
+        std::string& getResponseBuffer();
+        bool&        getReadyToWrite();
+        Request&     getRequestClass();
+        ClientState  getClientState();
         void         clearRequest();
 };
 
@@ -53,12 +53,12 @@ struct Epoll
     // public:
         Epoll();
         ~Epoll();
-        void    set_epfd(int ep_fd);
-        void    set_event_wait(int event_wait);
-        int&    get_epfd();
-        int&    get_event_wait();
+        void    setEpFd(int ep_fd);
+        void    setEventWait(int event_wait);
+        int&    getEpFd();
+        int&    getEventWait();
 };
 
-void epoll_managment (std::vector<int>& listener_fds, std::map<int, Client*>& Clients_map, std::vector<ServerConfig> servers);
+void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
 
 #endif

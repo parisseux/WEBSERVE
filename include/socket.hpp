@@ -1,16 +1,16 @@
-
-#ifndef SOCKET_CALC_HPP
-# define SOCKET_CALC_HPP
+#ifndef SOCKET_HPP
+# define SOCKET_HPP
 
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <iostream>
 # include <unistd.h>
 # include <cstdlib>
-#include "../include/request/request.hpp"
+
+#include "request.hpp"
 # define MAXBYTE 1024
 
-Request basic_socket();
+Request basicSocket();
 int createListener(const ServerConfig &server);
 void setNonBlocking(int fd);
 

@@ -1,13 +1,19 @@
-#include "response.hpp"
+#include "../../include/webserv.hpp"
 
 std::string Response::makeStatusLine(int code)
 {
-        if (code == 200) return "HTTP/1.1 200 OK";
-        if (code == 400) return "HTTP/1.1 400 Bad Request";
-        if (code == 403) return "HTTP/1.1 403 Forbidden";
-        if (code == 404) return "HTTP/1.1 404 Not Found";
-        if (code == 405) return "HTTP/1.1 405 Method Not Allowed";
-        if (code == 501) return "HTTP/1.1 501 Not Implemented";
+        if (code == 200)
+            return "HTTP/1.1 200 OK";
+        if (code == 400)
+            return "HTTP/1.1 400 Bad Request";
+        if (code == 403)
+            return "HTTP/1.1 403 Forbidden";
+        if (code == 404)
+            return "HTTP/1.1 404 Not Found";
+        if (code == 405)
+            return "HTTP/1.1 405 Method Not Allowed";
+        if (code == 501)
+            return "HTTP/1.1 501 Not Implemented";
         return "HTTP/1.1 500 Internal Server Error";
 }
 
@@ -21,6 +27,7 @@ void Response::setHeader(const std::string& k, const std::string& v)
 {
     _headers[k] = v;
 }
+
 void Response::setBody(const std::string& b)
 {
     _body = b;
@@ -35,7 +42,7 @@ Response Response::Error(int code, const std::string &s)
     return (res);
 }
 
-void Response::display_response()
+void Response::displayResponse()
 {
     std::map<std::string, std::string>::iterator it = _headers.begin();
     std::cout << "* SERVER JUST create A Response *" << std::endl;
@@ -76,3 +83,31 @@ std::string Response::constructResponse()
     return (response);
 }
 
+//-----THEORY----------
+//API --> facon standardisé de demander qlc à un programme 
+// et d'obtenir une réponse
+//en gros un programme peut faire des choses, mais personne ne peut pas lui parler
+//une API définit comment on lui parle, définit ce quon peut lui demander, 
+//définit ce quil réponse 
+//Attention une API est destiné à un programme pas à un humain
+
+
+//------THEORY-------
+//lien youtube: https://www.youtube.com/watch?v=qmpUfWN7hh4
+//HTTP status code (IMPORTANT)
+//1XX --> informational 
+//2XX --> succes 
+    //200 succesful 
+    //201 something created 
+    // 204 something deleted (as asked)
+//3XX -->  Redirection 
+//4XX --> Client error (le server dit au client de vérifier sa request)
+    //400 bad request
+    //401 unauthorized 
+    //403 Forbiden (privacy)
+    //404 not found 
+    //429 too many request --> asked the client to slow down
+//5XX --> Servor error 
+    //500 server error 
+    //502 bad gateway (server overload, misconfiguration, ...)
+    //503 service unvaliable (at the moment)

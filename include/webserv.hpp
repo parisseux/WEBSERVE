@@ -2,16 +2,18 @@
 # define WEBSERV_HPP
 
 # include "config.hpp"
-# include "utils/utils_1.hpp"
-# include "socket/basic_socket.hpp"
-# include "request/request.hpp"
-# include "client.hpp"
-# include <utility>
+# include "utils.hpp"
+# include "socket.hpp"
+# include "request.hpp"
 # include "response.hpp"
-# include <sys/epoll.h>
+# include "client.hpp"
 
-#include <fcntl.h>
-#include <stdexcept>
+# include <utility>
+# include <sys/epoll.h>
+# include <fcntl.h>
+# include <stdexcept>
+
 Response HandleRequest(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
+// Response HandleRequest(const Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
 
 #endif

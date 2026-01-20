@@ -1,4 +1,4 @@
-#include "../../include/config.hpp"
+#include "../../include/webserv.hpp"
 
 static void applyLocationDefaults(LocationConfig &loca, const ServerConfig &server)
 {

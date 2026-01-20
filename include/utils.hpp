@@ -1,7 +1,7 @@
-#ifndef UTILS_1_HPP
-# define UTILS_1_HPP
+#ifndef UTILS_HPP
+# define UTILS_HPP
 
-#include "../config.hpp"
+#include "config.hpp"
 
 void writeInAscii(std::string string);
 

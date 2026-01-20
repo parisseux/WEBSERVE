@@ -1,4 +1,4 @@
-#include "webserv.hpp"
+#include "../../include/webserv.hpp"
 
 Epoll::Epoll()
 {
@@ -12,24 +12,24 @@ Epoll::~Epoll()
 
 // EPOLL SETTERS
 
-void Epoll::set_epfd(int ep_fd)
+void Epoll::setEpFd(int ep_fd)
 {
     this->_ep_fd = ep_fd;
 }
 
-void Epoll::set_event_wait(int event_wait)
+void Epoll::setEventWait(int event_wait)
 {
     this->_event_wait = event_wait;
 }
 
 // EPOLL GETTERS
 
-int& Epoll::get_epfd()
+int& Epoll::getEpFd()
 {
     return (this->_ep_fd);
 }
 
-int& Epoll::get_event_wait()
+int& Epoll::getEventWait()
 {
     return (this->_event_wait);
 }

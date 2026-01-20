@@ -1,7 +1,6 @@
+#include "../../include/webserv.hpp"
 
-#include "webserv.hpp"
-
-Request basic_socket()
+Request basicSocket()
 {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
     if (sockfd == -1)

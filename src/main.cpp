@@ -1,27 +1,25 @@
-
 #include "../include/webserv.hpp"
 
 static void startWebserv(std::vector<ServerConfig> servers)
 {
     //créer sockets d'écoute
     std::vector<int> listener_fds;
-    // créer map de clients du server
-    std::map<int, Client*> clients_map;
-    
     for (size_t i = 0; i < servers.size(); i++)
     {
         int listener_fd = createListener(servers[i]);
         listener_fds.push_back(listener_fd);
     }
+    
     //lancer boucle principale
     std::cout << "Lancement de la boucle principale" << std::endl;
-    epoll_managment(listener_fds, clients_map, servers);
+    epollManagment(listener_fds, servers);
 
     //fermer les sockets d'écoute
     for (size_t i = 0; i < listener_fds.size(); i++)
         close(listener_fds.at(i));
 }
-Response HandleRequest(const Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
+
+
 int main(int ac, char **av)
 {
     try 
@@ -30,7 +28,6 @@ int main(int ac, char **av)
             throw std::runtime_error("usage: ./webserv [configuration file]");
         std::vector<ServerConfig> servers;
         initServers(av[1], servers);
-        //print_servers_attributes(servers);
         startWebserv(servers);
     }
     catch (const std::exception& e) 
