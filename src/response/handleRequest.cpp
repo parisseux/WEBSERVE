@@ -78,7 +78,8 @@ Response HandleRequest(Request &req, const std::vector<LocationConfig>& location
     // buildRedirectResponse(loc);
 
     //CGI handler va executer un script ou un process
-    // handleCgi(req, server, *loc);
+    if (isCgi(req, server, *loc))  
+        return (handleCgi(req, server, *loc));
 
     //upload handler (="POST") va venir écrire dans un fichier
     // handleUpload(req, server, *loc);
