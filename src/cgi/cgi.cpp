@@ -12,15 +12,22 @@ bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig 
     return (false);
 }
 
-static void readFd(int fd, std::string &content)
+void readFd(int fd, std::string &content)
 {
-    char buff[100];
-    while (read(fd, buff, 100))
+    char buff[100 + 1];
+    int byteRead;
+    while ((byteRead = read(fd, buff, 100)) > 0)
     {
+        if (byteRead == 0)
+            break;
+        buff[byteRead] = '\0';
         std::string buffString(buff);
         content += buffString;
+         std::cout << content << std::endl;       
+        buffString.clear();
         std::cout << "read" << std::endl;
     }
+    std::cout << "sortie de fonction" << std::endl;
 }
 
 
@@ -53,14 +60,16 @@ Response handleCgi(const Request &req, const ServerConfig &server, const Locatio
         case 0:
             std::cout << "Child Process" << std::endl;         
             dup2(fd[1], STDOUT_FILENO);
-            execve(pythonPath, args, NULL);
             close(fd[0]);
-            close(fd[1]);   
+            close(fd[1]);                       
+            execve(pythonPath, args, server.env);
+            exit(EXIT_SUCCESS);
         default:
             std::cout << "Parent Process" << std::endl;        
             waitpid(pid, &status, 0);
             std::string content;
             readFd(fd[0], content);
+            std::cout << content << std::endl;
             close(fd[0]);
             close(fd[1]);               
             Response res;
@@ -71,7 +80,7 @@ Response handleCgi(const Request &req, const ServerConfig &server, const Locatio
             // res.setHeader("Content-Length", len.str());
             res.setBody(content);
             res.displayResponse();
-            return res;               
+            return res;           
     }
          
 }

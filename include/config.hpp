@@ -42,6 +42,7 @@ struct ServerConfig
     std::string index;
     std::vector<LocationConfig> locations;
     std::map<int, std::string> errorPages;
+    char **env;
 
     bool hasListen;
     bool hasServerName;

@@ -20,7 +20,7 @@ static void startWebserv(std::vector<ServerConfig> servers)
 }
 
 
-int main(int ac, char **av)
+int main(int ac, char **av, char **env)
 {
     try 
     {
@@ -28,6 +28,7 @@ int main(int ac, char **av)
             throw std::runtime_error("usage: ./webserv [configuration file]");
         std::vector<ServerConfig> servers;
         initServers(av[1], servers);
+        servers[0].env = env;
         startWebserv(servers);
     }
     catch (const std::exception& e) 
