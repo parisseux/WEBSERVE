@@ -67,7 +67,7 @@ static void manage_client_request(Client *client, int byteReads, char *buf, std:
     {
         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
         Response Res = HandleRequest(client->get_requestClass(), servers[0].locations, servers[0]);
-        // Res.display_response(); 
+        Res.display_response(); 
         std::string responseString = Res.constructResponse();
         // std::cout << "string response" << std::endl;
         // std::cout << responseString << std::endl;   
