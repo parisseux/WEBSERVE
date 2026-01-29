@@ -1,4 +1,5 @@
 #include "../../include/webserv.hpp"
+#include "../response/requestHandler.hpp"
 
 static void creatEpollFdListeners(Epoll& epoll, std::vector<int>& listener_fds)
 {
@@ -74,9 +75,10 @@ static void manageClientRequest(Client *client, int byteReads, char *buf, std::v
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
-        Response Res = HandleRequest(client->getRequestClass(), servers[0].locations, servers[0]);
-        Res.displayResponse(); 
-        std::string responseString = Res.constructResponse();
+        RequestHandler handler(client->getRequestClass(), servers[0].locations, servers[0]);
+        Response res = handler.handle();
+        res.displayResponse();
+        std::string responseString = res.constructResponse();
         // std::cout << "string response" << std::endl;
         // std::cout << responseString << std::endl;   
 

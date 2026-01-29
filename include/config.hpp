@@ -21,6 +21,7 @@ struct LocationConfig
     std::string index;
     std::vector<std::string> allowMethods;
     size_t _maxBodySize;
+    std::string upload_path;
 
     bool hasRoot;
     bool hasIndex;
@@ -28,11 +29,12 @@ struct LocationConfig
     bool hasAutoindex;
     bool hasAllowMethods;
     bool hasMaxBodySize;
+    bool hasUploadPath;
 
     LocationConfig()
         : hasRoot(false), hasIndex(false),
           autoindex(false), hasAutoindex(false),
-          hasAllowMethods(false), hasMaxBodySize(false) {}
+          hasAllowMethods(false), hasMaxBodySize(false), hasUploadPath(false) {}
 };
 
 struct ServerConfig

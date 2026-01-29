@@ -1,6 +1,6 @@
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -Iinclude
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -Iinclude -g
 RM = rm -f
 
 SRC_DIR = src

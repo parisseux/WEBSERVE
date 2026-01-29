@@ -29,6 +29,7 @@ int main(int ac, char **av)
         std::vector<ServerConfig> servers;
         initServers(av[1], servers);
         // print_servers_attributes(servers);
+        
         startWebserv(servers);
     }
     catch (const std::exception& e) 

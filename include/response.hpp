@@ -62,4 +62,5 @@ Response HandleRequest(const Request &req, const std::vector<LocationConfig>& lo
 Response buildStaticResponse(const Request& req, const ResolvedTarget& target);
 ResolvedTarget resolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
 
+
 #endif

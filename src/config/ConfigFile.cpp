@@ -68,6 +68,7 @@ void initServers(const std::string &configFile, std::vector<ServerConfig> &serve
             applyServersDefaults(server);
             std::cout << "Test" << std::endl;
             servers.push_back(server);
+            std::cout << "lala" << std::endl; //si jenleve ce lala ca seg fault??
         }
         catch (const std::exception& e) 
         {

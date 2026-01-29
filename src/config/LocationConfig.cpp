@@ -32,6 +32,16 @@ static void parseLocationRoot(LocationConfig &loc, const std::string &s)
     loc.hasRoot = true;
 }
 
+static void parseLocationUploadPath(LocationConfig &loc, const std::string &s)
+{
+    if (loc.hasUploadPath)
+        throw std::runtime_error("Duplicate 'upload_path' directive in location " + loc.path);
+    loc.upload_path = removeSemicolon(s.substr(12));
+    if (loc.upload_path.empty())
+        throw std::runtime_error("Empty upload_path in location " + loc.path);
+    loc.hasUploadPath = true;
+}
+
 static void parseLocationIndex(LocationConfig &loc, const std::string &s)
 {
     if (loc.hasIndex)
@@ -99,6 +109,8 @@ static void parseLocationLine(LocationConfig &loc, const std::string &s)
         parseLocationAutoindex(loc, s);
     else if (s.find("client_max_body_size ") == 0)
         parseLocationMaxBodySize(loc, s);
+    else if (s.find("upload_path ") == 0)
+        parseLocationUploadPath(loc, s);
     else if (s.find("allow_methods ") == 0)
         parseLocationAllowMethods(loc, s);
     else
