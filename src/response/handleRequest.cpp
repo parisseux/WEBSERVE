@@ -91,12 +91,17 @@ Response HandleRequest(Request &req, const std::vector<LocationConfig>& location
         return (Response::Error(413, "413 Payload  Too Large"));
 
     // buildRedirectResponse(loc);
-
     //CGI handler va executer un script ou un process
     // handleCgi(req, server, *loc);
-
     //upload handler (="POST") va venir écrire dans un fichier
     if (req.getMethod() == "POST")
+    {
+        // if (isCGI(req.getTarget(), locations))
+        //     return HandleCGI(request);
+        
+        std::cout << "Lets post some stufff" << std::endl;
+        // return (Response::Error(415, "Unsupported Media Type"));
+    }
         std::cout << "Lets post some stufff" << std::endl;
         //handleUpload(req, server, *loc);
 

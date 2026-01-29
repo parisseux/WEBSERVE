@@ -7,6 +7,7 @@
 # include "request.hpp"
 # include "response.hpp"
 # include "client.hpp"
+# include "cgi.hpp"
 
 # include <utility>
 # include <sys/epoll.h>

@@ -28,7 +28,7 @@ int main(int ac, char **av)
             throw std::runtime_error("usage: ./webserv [configuration file]");
         std::vector<ServerConfig> servers;
         initServers(av[1], servers);
-        print_servers_attributes(servers);
+        // print_servers_attributes(servers);
         startWebserv(servers);
     }
     catch (const std::exception& e) 
