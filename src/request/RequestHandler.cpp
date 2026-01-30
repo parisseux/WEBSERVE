@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "Request.hpp"
 
 int Request::ValidateRequest(const Request &req)
 {

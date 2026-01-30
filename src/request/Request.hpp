@@ -3,8 +3,10 @@
 
 # include "../config/config.hpp"
 # include <fstream>
-# include "webserv.hpp"
 # include "../src/response/Response.hpp"
+# include "../src/response/StaticTarget.hpp"
+
+class Response;
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body

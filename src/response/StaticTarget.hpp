@@ -3,9 +3,16 @@
 
 # include <iostream>
 # include <string>
+# include <sstream>
+# include <iostream>
+# include <fstream>
+# include "../response/Response.hpp"
 
-# include "../../include/webserv.hpp"
-
+class Request;
+class Response;
+struct ResolvedTarget;
+struct ServerConfig;
+struct LocationConfig;
 
 class StaticTarget {
 private:
