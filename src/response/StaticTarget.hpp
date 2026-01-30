@@ -1,0 +1,22 @@
+#ifndef STATICTARGET_HPP
+# define STATICTARGET_HPP
+
+# include <iostream>
+# include <string>
+
+# include "../../include/webserv.hpp"
+
+
+class StaticTarget {
+private:
+    std::string getContentType(const std::string& path);
+    bool ReadFile(const std::string &path, std::string &content);
+    std::string JoinPath(const std::string &root, const std::string &relativPath);
+    std::string GetRelativPath(const std::string &reqPath, const std::string &locPath);
+    std::string GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
+public:
+    Response BuildStaticResponse(const Request& req, const ResolvedTarget& target);
+    ResolvedTarget ResolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
+};
+
+#endif
