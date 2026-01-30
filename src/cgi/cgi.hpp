@@ -1,6 +1,6 @@
 #ifndef CGI_HPP
 # define CGI_HPP
-# include "../response/response.hpp"
+# include "../response/Response.hpp"
 # include "unistd.h"
 
 class cgi

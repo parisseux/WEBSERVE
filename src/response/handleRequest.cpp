@@ -1,4 +1,4 @@
-#include "response.hpp"
+#include "Response.hpp"
 #include "../cgi/cgi.hpp"
 
 static int validateRequest(const Request &req)

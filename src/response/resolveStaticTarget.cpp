@@ -1,4 +1,4 @@
-#include "response.hpp"
+#include "Response.hpp"
 
 std::string getEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
 {

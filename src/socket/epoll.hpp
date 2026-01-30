@@ -8,8 +8,8 @@
 # include <sys/epoll.h>
 # include "../client/client.hpp"
 # include "../config/config.hpp"
-# include "../response/response.hpp"
-# include "../request/request.hpp"
+# include "../response/Response.hpp"
+# include "../request/Request.hpp"
 
 
 class Epoll
