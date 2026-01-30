@@ -1,27 +1,27 @@
 #include "ConfigFile.hpp"
 
-static void applyLocationDefaults(LocationConfig &loca, const ServerConfig &server)
+static void applyLocationDefaults(LocationConfig &loca, ServerConfig &server)
 {
     if (!loca.hasAutoindex)
         loca.autoindex = false;
     if (!loca.hasAllowMethods)
         loca.allowMethods.push_back("GET");
     if (!loca.hasIndex)
-        loca.index = server.index;
+        loca.index = server.getIndex();
     if (!loca.hasRoot)
-        loca.root = server.root;
+        loca.root = server.getRoot();
 }
 
 static void applyServersDefaults(ServerConfig &server)
 {
-    if (!server.hasRoot)
-        server.root = "./www";
-    if (!server.hasIndex)
-        server.index = "index.html";
-    if (!server.hasServerName)
-        server.serverName = "";
-    for (size_t i = 0; i < server.locations.size(); ++i)
-        applyLocationDefaults(server.locations[i], server);
+    if (!server.getHasRoot())
+        server.getRoot() = "./www";
+    if (!server.getHasIndex())
+        server.getIndex() = "index.html";
+    if (!server.getHasServerName())
+        server.getServerName() = "";
+    for (size_t i = 0; i < server.getLocations().size(); ++i)
+        applyLocationDefaults(server.getLocations()[i], server);
 }
 
 static ServerConfig parseServer(std::ifstream &file)

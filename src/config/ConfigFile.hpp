@@ -21,15 +21,15 @@ class ServerConfig
         int                         listenPort;
         std::string                 listenHost;
         std::string                 serverName;
-        std::string root;
-        std::string index;
+        std::string                 root;
+        std::string                 index;
         std::vector<LocationConfig> locations;
-        std::map<int, std::string> errorPages;
+        std::map<int, std::string>  errorPages;
 
-        bool hasListen;
-        bool hasServerName;
-        bool hasRoot;
-        bool hasIndex;
+        bool                        hasListen;
+        bool                        hasServerName;
+        bool                        hasRoot;
+        bool                        hasIndex;
 
     public:
         ServerConfig()
@@ -43,6 +43,14 @@ class ServerConfig
         int getListenPort() {return (listenPort);};
         std::string getListenHost() {return (listenHost);};
         std::string getServerName() {return (serverName);};
+        std::string getRoot() {return (root);};
+        std::string getIndex() {return (index);};
+        std::vector<LocationConfig> getLocations() {return (locations);};
+        std::map<int, std::string> getErrorPages() {return (errorPages);};
+        bool        getHasListen() {return (hasListen);};
+        bool        getHasServerName() {return (hasServerName);};
+        bool        getHasRoot() {return (hasRoot);};
+        bool        getHasIndex() {return (hasIndex);};
 };
 
 //ConfigFiles
