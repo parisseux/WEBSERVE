@@ -85,5 +85,33 @@ void Request::displayRequest()
         std::cout << std::endl;
         std::cout << _body;
     }
+    std::cout << std::endl;
     std::cout << "* END OF REQUEST *"<< std::endl;
+}
+
+std::string Request::constructRequest()
+{
+    std::map<std::string, std::string>::iterator it = _header.begin();
+    std::string request;
+    request.append(_method);
+    request.append(" ");
+    request.append(_requestTarget);
+    request.append(" ");
+    request.append(_protocol);
+    request.append("\r\n");           
+
+    while (it != _header.end())
+    {
+        request.append(it->first);
+        request.append(": ");
+        request.append(it->second);
+        request.append("\r\n");
+        ++it;                            
+    }
+        request.append("\r\n");    
+    if (_body.empty() == 0)
+    {
+        request.append(_body);
+    }
+    return (request);
 }

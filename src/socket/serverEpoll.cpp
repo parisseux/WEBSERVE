@@ -16,6 +16,14 @@ static void creactNewClient(Epoll& epoll, std::vector<int>& listener_fds, std::m
     Client* client = new Client;
     client->getFd() = accept(listener_fds.at(j), NULL, NULL);
     Clients_map.insert(std::make_pair(client->getFd(), client));
+    std::cout << "**CLIETN MAP" << std::endl;
+    std::map<int, Client*>::iterator it;
+    unsigned int i = 0;
+    for (it = Clients_map.begin(); i < Clients_map.size(); ++it)
+    {
+        std::cout << it->first << std::endl;
+        ++i;
+    }
     int flags = fcntl(Clients_map.at(client->getFd())->getFd(), F_GETFL, 0);
     fcntl(Clients_map.at(client->getFd())->getFd(), F_SETFL, flags | O_NONBLOCK);
     epoll._ev.events = EPOLLIN;
@@ -58,6 +66,16 @@ static void manageClientRequest(Client *client, int byteReads, char *buf, std::v
             client->setReadyToWrite(true);                 
             client->getRequestClass().displayRequest(); // affichage requete complete
         }
+        if (client->getRequestClass().getMethod() == "POST") 
+        {
+            //client->getRequestBuffer().append(bufferString);
+            client->getRequestClass().parseRequest(client->getRequestBuffer());
+                 
+            client->setClientState(WAITING);
+            client->setReadyToWrite(true);                            
+            client->getRequestClass().displayRequest(); // affichage requete complete
+            std::cout << client->getRequestClass().getBody() << std::endl;
+        }        
         else
         {
             // client->get_requestBuffer().append(bufferString);
@@ -67,7 +85,7 @@ static void manageClientRequest(Client *client, int byteReads, char *buf, std::v
     {
         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
         Response Res = HandleRequest(client->getRequestClass(), servers[0].locations, servers[0]);
-        Res.displayResponse(); 
+        // Res.displayResponse(); 
         std::string responseString = Res.constructResponse();
         // std::cout << "string response" << std::endl;
         // std::cout << responseString << std::endl;   
@@ -105,7 +123,7 @@ void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> s
             }
             if (!is_listener && (epoll._events[i].events & EPOLLIN))
             {
-                char buf[1024];
+                char buf[4000];
                 size_t byteReads = recv(epoll._events[i].data.fd, buf, sizeof(buf), 0);
                 if (byteReads > 0)
                     manageClientRequest(Clients_map.at(epoll._events[i].data.fd), byteReads, buf, servers);

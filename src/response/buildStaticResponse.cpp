@@ -40,6 +40,7 @@ static std::string getContentType(const std::string& path)
 
 Response buildStaticResponse(const Request& req, const ResolvedTarget& target)
 {
+    std::cout << target.path << std::endl;    
     if (target.status != 200)
     {
         if (target.status == 404)

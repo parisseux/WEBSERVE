@@ -20,7 +20,7 @@ class Client
         int         _flags;
         Request     _request;
         std::string _requestBuffer;
-        std::string _responseBuffer;    
+        std::string _responseBuffer;
         bool        _ReadyToWrite;
         ClientState _state;            
     public:
@@ -40,6 +40,7 @@ class Client
         Request&     getRequestClass();
         ClientState  getClientState();
         void         clearRequest();
+        int          getContentLength();
 };
 
 struct Epoll

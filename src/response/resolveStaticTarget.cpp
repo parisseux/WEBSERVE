@@ -13,8 +13,9 @@ std::string getEffectiveRoot(const ServerConfig &server, const LocationConfig &l
 std::string getRelativPath(const std::string &reqPath, const std::string &locPath)
 {
     std::string relativePath = reqPath;
-    if (relativePath.find(locPath) == 0)
-        relativePath.erase(0, locPath.size());
+    (void)locPath;
+    // if (relativePath.find(locPath) == 0) // empeche d'acceder directement a une image par exemple
+    //     relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;
@@ -43,6 +44,10 @@ ResolvedTarget resolveStaticTarget(const Request &req, const ServerConfig &serve
     std::string rel  = getRelativPath(req.getPath(), loc.path);
     std::string path = joinPath(root, rel);
 
+    std::cout << root << std::endl;
+    std::cout << rel << std::endl;
+    std::cout << path << std::endl;
+    std::cout << loc.path << std::endl;    
     struct stat st;
     if (stat(path.c_str(), &st) != 0)
     {

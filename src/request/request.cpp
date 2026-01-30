@@ -16,36 +16,19 @@ Request::Request(std::string request)
     parseRequest(request.c_str());
 }
 
-
-// std::string&    Request::getMethod()
-// {
-//     return(_method);
-// }
-
-// std::string&    Request::getRequestTarget()
-// {
-//     return(_request_target);
-// }
-
-// std::string&    Request::getPath()
-// {
-//     return(_path);
-// }
-
-// std::string&    Request::getQuery()  
-// {
-//     return(_query);
-// }
-
-// std::string&    Request::getProtocol() 
-// {
-//     return(_protocol);
-// }
-
-// std::string&    Request::getBody()
-// {
-//     return(_body);
-// }
-
-
+std::string headerValue(std::string key, Request &req)
+{
+    std::cout << "header Value" << std::endl;    
+    std::map<std::string, std::string>::iterator it = req.getHeaders().begin();
+    while(it != req.getHeaders().end())
+    {
+        if (it->first == key)
+        {
+            std::cout << "found an occurrence" << std::endl;
+            return(it->second);
+        }
+        it++;
+    }
+    return("");
+}
 

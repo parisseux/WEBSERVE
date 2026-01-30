@@ -39,8 +39,9 @@ class Request
         std::string& getRequestTarget() { return _requestTarget; }
         std::string& getPath() { return _path; }
         std::string& getQuery() { return _query; }
-        std::string& getProtocol(){ return _method; }
-        std::string& getBody() { return _protocol; }
+        std::string& getProtocol(){ return _protocol; }
+        std::string& getBody() { return _body; }
+        std::map<std::string,std::string>& getHeaders() { return _header; }    
   
         //lecture seule
         const std::string& getMethod()  const { return _method; }
@@ -62,6 +63,9 @@ class Request
 
         bool hasHeader(const std::string& k) const { return _header.find(k) != _header.end(); }
         void displayRequest();
+        std::string constructRequest();
 };
+
+std::string headerValue(std::string key, Request &req);
 
 #endif

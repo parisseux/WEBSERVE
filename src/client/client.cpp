@@ -82,6 +82,15 @@ ClientState Client::getClientState()
     return(this->_state);
 }
 
+int Client::getContentLength()
+{
+    std::string length;
+    int content_length;
+    length = headerValue("Content-Length", this->getRequestClass());
+    content_length = std::stoi(length);
+    return (content_length);
+}
+
 void Client::clearRequest()
 {
     getRequestClass().getMethod().clear();
@@ -90,4 +99,5 @@ void Client::clearRequest()
     getRequestClass().getQuery().clear();
     getRequestClass().getProtocol().clear();                     
     getRequestClass().getBody().clear();
+    getRequestClass().getHeaders().clear();
 }
