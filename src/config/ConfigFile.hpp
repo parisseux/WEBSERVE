@@ -8,6 +8,7 @@
 # include <cstdlib>
 # include <arpa/inet.h>
 # include <vector>
+#include <unistd.h>
 # include <sstream>
 # include <map>
 # include <sys/epoll.h>
@@ -18,43 +19,59 @@
 class ServerConfig
 {
     private :
-        int                         listenPort;
-        std::string                 listenHost;
-        std::string                 serverName;
-        std::string                 root;
-        std::string                 index;
-        std::vector<LocationConfig> locations;
-        std::map<int, std::string>  errorPages;
+        int                         _listenPort;
+        std::string                 _listenHost;
+        std::string                 _serverName;
+        std::string                 _root;
+        std::string                 _index;
+        std::vector<LocationConfig> _locations;
+        std::map<int, std::string>  _errorPages;
 
-        bool                        hasListen;
-        bool                        hasServerName;
-        bool                        hasRoot;
-        bool                        hasIndex;
+        bool                        _hasListen;
+        bool                        _hasServerName;
+        bool                        _hasRoot;
+        bool                        _hasIndex;
 
     public:
+        int createListener();
+        void parseServer(std::ifstream &file);
         ServerConfig()
-            : listenPort(0),
-            hasListen(false),
-            hasServerName(false),
-            hasRoot(false),
-            hasIndex(false)
+            : _listenPort(0),
+            _hasListen(false),
+            _hasServerName(false),
+            _hasRoot(false),
+            _hasIndex(false)
         {std::cout << "Server Config constructor called" << std::endl;};
         ~ServerConfig() {std::cout << "Server Config destructor called" << std::endl;};
-        int getListenPort() {return (listenPort);};
-        std::string getListenHost() {return (listenHost);};
-        std::string getServerName() {return (serverName);};
-        std::string getRoot() {return (root);};
-        std::string getIndex() {return (index);};
-        std::vector<LocationConfig> getLocations() {return (locations);};
-        std::map<int, std::string> getErrorPages() {return (errorPages);};
-        bool        getHasListen() {return (hasListen);};
-        bool        getHasServerName() {return (hasServerName);};
-        bool        getHasRoot() {return (hasRoot);};
-        bool        getHasIndex() {return (hasIndex);};
-};
 
-//ConfigFiles
-void initServers(const std::string &configFile, std::vector<ServerConfig> &servers);
+        // //GETTER
+        // const int         getListenPort() const {return (_listenPort);};
+        // const std::string& getListenHost() const {return (_listenHost);};
+        // const std::string& getServerName() const {return (_serverName);};
+        // const std::string& getRoot() const {return (_root);};
+        // const std::string& getIndex() const {return (_index);};
+        // const std::vector<LocationConfig>& getLocations() const {return (_locations);};
+        // const std::map<int, std::string>& getErrorPages() const {return (_errorPages);};
+        const bool&        getHasListen() const {return (_hasListen);};
+        // const bool&        getHasServerName() const {return (_hasServerName);};
+        // const bool&        getHasRoot() const {return (_hasRoot);};
+        // const bool&        getHasIndex() const {return (_hasIndex);};
+
+        // //SETTER
+        // void setListenPort(int listenPort) {this->_listenPort = listenPort;};
+        // void setListenHost(std::string listenHost) {this->_listenHost = listenHost;};
+        // void setServerName(std::string serverName) {this->_serverName = serverName;};
+        // void setRoot(std::string root) {this->_root = root;};
+        // void setIndex(std::string index) {this->_index = index;};
+        // void setLocations(std::vector<LocationConfig> locations) {this->_locations = locations;};
+        // void setErrorPages(std::map<int, std::string> errorPages) {this->_errorPages = errorPages;};
+        // void setHasListen(bool hasListen) {this->_hasListen = hasListen;};
+        // void setHasServerName(bool hasServerName) {this->_hasServerName = hasServerName;};
+        // void setHasRoot(bool hasRoot) {this->_hasRoot = hasRoot;};
+        // void setHasIndex(bool hasIndex) {this->_hasIndex =  hasIndex;};
+
+        void applyServersDefaults();
+};
 
 //ServerConfig
 void parseServerLine(ServerConfig &server, const std::string &t);
