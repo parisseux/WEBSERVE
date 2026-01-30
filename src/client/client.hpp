@@ -3,6 +3,8 @@
 
 # include <iostream>
 # include <string>
+# include <fcntl.h>
+# include "../request/request.hpp"
 
 # define MAX_PENDING 20
 
@@ -43,22 +45,22 @@ class Client
         int          getContentLength();
 };
 
-struct Epoll
-{
-    public:
-    // private:
-        int                 _ep_fd;
-        int                 _event_wait;
-        struct  epoll_event _ev;
-        struct  epoll_event _events[10];
-    // public:
-        Epoll();
-        ~Epoll();
-        void    setEpFd(int ep_fd);
-        void    setEventWait(int event_wait);
-        int&    getEpFd();
-        int&    getEventWait();
-};
+// struct Epoll
+// {
+//     public:
+//     // private:
+//         int                 _ep_fd;
+//         int                 _event_wait;
+//         struct  epoll_event _ev;
+//         struct  epoll_event _events[10];
+//     // public:
+//         Epoll();
+//         ~Epoll();
+//         void    setEpFd(int ep_fd);
+//         void    setEventWait(int event_wait);
+//         int&    getEpFd();
+//         int&    getEventWait();
+// };
 
 void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
 

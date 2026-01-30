@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "request.hpp"
 
 void    Request::parseRequest(std::string request)
 {

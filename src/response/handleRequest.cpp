@@ -1,4 +1,5 @@
-#include "../../include/webserv.hpp"
+#include "response.hpp"
+#include "../cgi/cgi.hpp"
 
 static int validateRequest(const Request &req)
 {
@@ -76,10 +77,12 @@ Response HandleRequest(Request &req, const std::vector<LocationConfig>& location
         return (Response::Error(405, "405 Method Not Allowed"));
 
     // buildRedirectResponse(loc);
-
     //CGI handler va executer un script ou un process
-    if (isCgi(req, server, *loc))  
-        return (handleCgi(req, server, *loc));
+    if (isCgi(req, server, *loc))
+    {
+        cgi cgi;
+        return (cgi.handleCgi(req, server, *loc));        
+    } 
 
     //upload handler (="POST") va venir écrire dans un fichier
     // handleUpload(req, server, *loc);

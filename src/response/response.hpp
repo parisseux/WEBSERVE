@@ -13,7 +13,7 @@
 # include <fstream>
 # include <sstream>
 
-# include "request.hpp"
+# include "../request/request.hpp"
 
 struct ResolvedTarget {
     int status;
@@ -58,7 +58,7 @@ public:
     std::string constructResponse();
 };
 
-Response HandleRequest(const Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
+Response HandleRequest(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
 Response buildStaticResponse(const Request& req, const ResolvedTarget& target);
 std::string getEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
 std::string getRelativPath(const std::string &reqPath, const std::string &locPath);

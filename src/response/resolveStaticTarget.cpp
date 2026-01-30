@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "response.hpp"
 
 std::string getEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
 {
@@ -14,8 +14,8 @@ std::string getRelativPath(const std::string &reqPath, const std::string &locPat
 {
     std::string relativePath = reqPath;
     (void)locPath;
-    // if (relativePath.find(locPath) == 0) // empeche d'acceder directement a une image par exemple
-    //     relativePath.erase(0, locPath.size());
+    if (relativePath.find(locPath) == 0) // empeche d'acceder directement a une image par exemple
+        relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;

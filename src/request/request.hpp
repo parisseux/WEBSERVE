@@ -1,7 +1,7 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include "config.hpp"
+# include "../config/config.hpp"
 # include <fstream>
 
 // * INFO UTILE EN VRAC *

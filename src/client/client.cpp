@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "client.hpp"
 
 // CONSTRUCTOR / DESTRUCTOR
 
@@ -86,8 +86,13 @@ int Client::getContentLength()
 {
     std::string length;
     int content_length;
+    char *pEnd;
     length = headerValue("Content-Length", this->getRequestClass());
-    content_length = std::stoi(length);
+    content_length = std::strtol(length.c_str(), &pEnd, 0);
+	if (*pEnd != '\0')
+	{    
+		std::cout << "Erreur conversion en int dans calcul content length" << std::endl;              
+	}    
     return (content_length);
 }
 

@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "cgi.hpp"
 
 bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig &loc)
 {
@@ -12,7 +12,7 @@ bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig 
     return (false);
 }
 
-void readFd(int fd, std::string &content)
+void cgi::readFd(int fd, std::string &content)
 {
     char buff[100 + 1];
     int byteRead;
@@ -27,7 +27,7 @@ void readFd(int fd, std::string &content)
     }
 }
 
-void makeCgiEnv(Request &req, std::string path, char **cgiEnv)
+void cgi::makeCgiEnv(Request &req, std::string path, char **cgiEnv)
 {
     std::cout << "MakeCGI ENV" << std::endl;
     std::string ENV[5] = {
@@ -49,7 +49,7 @@ void makeCgiEnv(Request &req, std::string path, char **cgiEnv)
     cgiEnv[6] = NULL;
 }
 
-void makeCgi(Request &req, std::string path, std::vector<std::string> &envCgiString)
+void cgi::makeCgi(Request &req, std::string path, std::vector<std::string> &envCgiString)
 {
     std::cout << "MakeCGI ENV" << std::endl;
     std::string ENV[5] = {
@@ -65,17 +65,18 @@ void makeCgi(Request &req, std::string path, std::vector<std::string> &envCgiStr
     envCgiString.push_back(ENV[3] += path);
     envCgiString.push_back(ENV[4] += req.getProtocol());
 }
-Response handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc)
+Response cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc)
 {
     std::string root = getEffectiveRoot(server, loc);
     std::string rel  = getRelativPath(req.getPath(), loc.path);
     std::string path = joinPath(root, rel);
     std::cout << root << std::endl;
     std::cout << rel << std::endl;
-    std::cout << path << std::endl;     
+    std::cout << path << std::endl;
+    cgi cgi; 
     pid_t pid;
     int		fd[2];
-    int status = 0;
+    // int status = 0;
     const char *pythonPath = "/usr/bin/python3";
     char *args[] = {
         (char*)"python3", 
@@ -92,7 +93,7 @@ Response handleCgi(Request &req, const ServerConfig &server, const LocationConfi
         std::string line(server.env[i]);
         envCgiString.push_back(line);
     }
-    makeCgi(req, path, envCgiString);
+    cgi.makeCgi(req, path, envCgiString);
     std::vector<char*> envCgi;
     for (unsigned int i = 0; i < envCgiString.size(); ++i)
         envCgi.push_back((char *)envCgiString[i].c_str());

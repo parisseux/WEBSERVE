@@ -1,5 +1,5 @@
 
-#include "../../include/webserv.hpp"
+#include "request.hpp"
 
 Request::Request()
 {
