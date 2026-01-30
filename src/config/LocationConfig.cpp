@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "ConfigFile.hpp"
 
 static void parseLocationMaxBodySize(LocationConfig &loc, const std::string &s)
 {

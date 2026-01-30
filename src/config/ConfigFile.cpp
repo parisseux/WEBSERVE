@@ -1,4 +1,4 @@
-#include "../../include/webserv.hpp"
+#include "ConfigFile.hpp"
 
 static void applyLocationDefaults(LocationConfig &loca, const ServerConfig &server)
 {
@@ -57,8 +57,8 @@ void initServers(const std::string &configFile, std::vector<ServerConfig> &serve
     while (std::getline(file, line))
     {
         if (isServerStart(line))
-        ++serverCount;
-        try 
+            ++serverCount;
+        try
         {
             ServerConfig server = parseServer(file);
             std::cout << "Test" << std::endl;
