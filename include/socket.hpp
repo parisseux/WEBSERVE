@@ -7,7 +7,9 @@
 # include <unistd.h>
 # include <cstdlib>
 
-#include "request.hpp"
+#include "webserv.hpp"
+#include "../src/request/Request.hpp"
+
 # define MAXBYTE 1024
 
 Request basicSocket();

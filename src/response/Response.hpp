@@ -13,7 +13,7 @@
 # include <fstream>
 # include <sstream>
 
-# include "request.hpp"
+# include "../request/Request.hpp"
 
 struct ResolvedTarget {
     int status;
@@ -57,9 +57,5 @@ public:
     void displayResponse();
     std::string constructResponse();
 };
-
-Response HandleRequest(const Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
-Response buildStaticResponse(const Request& req, const ResolvedTarget& target);
-ResolvedTarget resolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
 
 #endif
