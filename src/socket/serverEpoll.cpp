@@ -79,8 +79,8 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
-        Response Res = HandleRequest(client->getRequestClass(), servers[0].locations, servers[0]);
-        // Res.displayResponse(); 
+        Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].locations, servers[0]);
+        Res.displayResponse(); 
         std::string responseString = Res.constructResponse();
         // std::cout << "string response" << std::endl;
         // std::cout << responseString << std::endl;   

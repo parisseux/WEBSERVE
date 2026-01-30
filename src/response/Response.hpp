@@ -58,11 +58,4 @@ public:
     std::string constructResponse();
 };
 
-Response HandleRequest(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
-Response buildStaticResponse(const Request& req, const ResolvedTarget& target);
-std::string getEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
-std::string getRelativPath(const std::string &reqPath, const std::string &locPath);
-std::string joinPath(const std::string &root, const std::string &relativPath);
-ResolvedTarget resolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
-
 #endif

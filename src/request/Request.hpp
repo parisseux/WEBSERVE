@@ -3,6 +3,8 @@
 
 # include "../config/config.hpp"
 # include <fstream>
+# include "webserv.hpp"
+# include "../src/response/Response.hpp"
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body
@@ -33,6 +35,13 @@ class Request
         void parseRequestFirstLine(std::stringstream &stream);
         void parseHeader(std::stringstream &stream);
         void parseBody(std::stringstream &stream);
+
+        //handler
+        bool StartsWith(const std::string& s, const std::string& prefix);
+        Response Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
+        const LocationConfig *MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations);
+        int MethodAllowed(const Request& req, const LocationConfig* loc);
+        int ValidateRequest(const Request &req);
 
         //modifiable
         std::string& getMethod() { return _method; }
