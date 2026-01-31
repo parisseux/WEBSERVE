@@ -1,4 +1,5 @@
 #include "ConfigFile.hpp"
+#include "LocationConfig.hpp"
 
 static void parseLocationMaxBodySize(LocationConfig &loc, const std::string &s)
 {
@@ -105,7 +106,7 @@ static void parseLocationLine(LocationConfig &loc, const std::string &s)
         throw std::runtime_error("Unknown directive in location " + loc.getPath() + ": " + s);
 }
 
-void parseLocationDirective(ServerConfig &server, std::ifstream &file, const std::string &firstLine)
+void LocationConfig::parseLocationDirective(std::ifstream &file, const std::string &firstLine)
 {
     LocationConfig loc;
     parseLocationHeader(loc, firstLine);

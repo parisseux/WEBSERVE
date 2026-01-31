@@ -16,7 +16,7 @@ std::string trim(const std::string &s)
     return s.substr(start, end - start + 1);
 }
 
-bool isServerStart(const std::string &line)
+bool ServerConfig::isServerStart(const std::string &line)
 {
     std::string t = trim(line);
     if (t.rfind("server", 0) != 0)
@@ -56,6 +56,7 @@ void ServerConfig::applyServersDefaults()
     for (size_t i = 0; i < server.getLocations().size(); ++i)
         applyLocationDefaults(server.getLocations()[i], server);
 }
+
 void ServerConfig::parseServer(std::ifstream &file)
 {
     ServerConfig server;
@@ -70,9 +71,13 @@ void ServerConfig::parseServer(std::ifstream &file)
         if (t.empty())
             continue;
         if (t.rfind("location ", 0) == 0)
-            parseLocationDirective(server, file, t);
+        {
+            LocationConfig location;
+            location.parseLocationDirective(file, t);
+            this->_locations.push_back(location);
+        }
         else
-            parseServerLine(server, t);
+            parseServerLine(t);
     }
     // return server;
 }

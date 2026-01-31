@@ -32,9 +32,9 @@ class ServerConfig
         bool                        _hasRoot;
         bool                        _hasIndex;
 
+
     public:
         int createListener();
-        void parseServer(std::ifstream &file);
         ServerConfig()
             : _listenPort(0),
             _hasListen(false),
@@ -70,11 +70,13 @@ class ServerConfig
         // void setHasRoot(bool hasRoot) {this->_hasRoot = hasRoot;};
         // void setHasIndex(bool hasIndex) {this->_hasIndex =  hasIndex;};
 
-        void applyServersDefaults();
-};
 
-//ServerConfig
-void parseServerLine(ServerConfig &server, const std::string &t);
+        bool isServerStart(const std::string &line);
+        void parseServer(std::ifstream &file);
+        void applyServersDefaults();
+        //ServerConfig
+        void parseServerLine(const std::string &t);
+};
 
 //LocationConfig
 void parseLocationDirective(ServerConfig &server, std::ifstream &file, const std::string &firstLine);
@@ -83,6 +85,5 @@ void parseLocationDirective(ServerConfig &server, std::ifstream &file, const std
 bool isValidIPv4(const std::string &ip);
 std::string trim(const std::string &s);
 std::string removeSemicolon(const std::string &s);
-bool isServerStart(const std::string &line);
 
 #endif

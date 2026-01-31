@@ -38,31 +38,33 @@ class LocationConfig
         {std::cout << "Location Config constructor called" << std::endl;};
     ~LocationConfig() {std::cout << "Location Config destructor called" << std::endl;};
 
-    //GETTERS
-    const std::string&               getPath() const {return (_path);};
-    const std::string&               getRoot() const {return (_root);};
-    const std::string&               getIndex() const {return (_index);};
-    const std::vector<std::string>&  getAllowMethods() const {return (_allowMethods);};
-    const size_t&                    getMaxBodySize() const {return (_maxBodySize);};
-    const bool&                      getHasRoot() const {return (_hasRoot);};
-    const bool&                      getHasIndex() const {return (_hasIndex);};
-    const bool&                      getAutoIndex() const {return (_autoindex);};
-    const bool&                      getHasAutoIndex() const {return (_hasAutoindex);};
-    const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
-    const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
+    // //GETTERS
+    // const std::string&               getPath() const {return (_path);};
+    // const std::string&               getRoot() const {return (_root);};
+    // const std::string&               getIndex() const {return (_index);};
+    // const std::vector<std::string>&  getAllowMethods() const {return (_allowMethods);};
+    // const size_t&                    getMaxBodySize() const {return (_maxBodySize);};
+    // const bool&                      getHasRoot() const {return (_hasRoot);};
+    // const bool&                      getHasIndex() const {return (_hasIndex);};
+    // const bool&                      getAutoIndex() const {return (_autoindex);};
+    // const bool&                      getHasAutoIndex() const {return (_hasAutoindex);};
+    // const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
+    // const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
 
-    //SETTERS
-    void                       setPath(std::string path) {this->_path =  path;};
-    void                       setRoot(std::string root) {this->_root =  root;};
-    void                       setIndex(std::string index) {this->_index = index;};
-    void                       setAllowMethods( std::vector<std::string> allowMethods) {this->_allowMethods = allowMethods;};
-    void                       setMaxBodySize(size_t maxBodySize) {this->_maxBodySize = maxBodySize;};
-    void                       setHasRoot(const bool hasRoot) {this->_hasRoot = hasRoot;};
-    void                       setHasIndex(const bool hasIndex) {this->_hasIndex = hasIndex;};
-    void                       setAutoIndex(const bool autoindex) {this->_autoindex = autoindex;};
-    void                       setHasAutoIndex(const bool hasAutoindex) {this->_hasAutoindex = hasAutoindex;};
-    void                       setHasAllowMethods(const bool hasAllowMethods) {this->_hasAllowMethods = hasAllowMethods;};
-    void                       setHasMaxBodySize(const bool hasMaxBodySize) {this->_hasMaxBodySize = hasMaxBodySize;};
+    // //SETTERS
+    // void                       setPath(std::string path) {this->_path =  path;};
+    // void                       setRoot(std::string root) {this->_root =  root;};
+    // void                       setIndex(std::string index) {this->_index = index;};
+    // void                       setAllowMethods( std::vector<std::string> allowMethods) {this->_allowMethods = allowMethods;};
+    // void                       setMaxBodySize(size_t maxBodySize) {this->_maxBodySize = maxBodySize;};
+    // void                       setHasRoot(const bool hasRoot) {this->_hasRoot = hasRoot;};
+    // void                       setHasIndex(const bool hasIndex) {this->_hasIndex = hasIndex;};
+    // void                       setAutoIndex(const bool autoindex) {this->_autoindex = autoindex;};
+    // void                       setHasAutoIndex(const bool hasAutoindex) {this->_hasAutoindex = hasAutoindex;};
+    // void                       setHasAllowMethods(const bool hasAllowMethods) {this->_hasAllowMethods = hasAllowMethods;};
+    // void                       setHasMaxBodySize(const bool hasMaxBodySize) {this->_hasMaxBodySize = hasMaxBodySize;};
+
+    void  parseLocationDirective(std::ifstream &file, const std::string &firstLine);
 };
 
 #endif

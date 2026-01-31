@@ -1,7 +1,7 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-# include "config.hpp"
+# include "../src/config/ConfigFile.hpp"
 # include "utils.hpp"
 # include "socket.hpp"
 # include "request.hpp"

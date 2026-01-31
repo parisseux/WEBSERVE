@@ -17,11 +17,9 @@ void Manager::startWebserv()
     epollManagment(_listener_fds, _servers);
 
     //fermer les sockets d'écoute
-    for (size_t i = 0; i < listener_fds.size(); i++)
-        close(listener_fds.at(i));
+    for (size_t i = 0; i < _listener_fds.size(); i++)
+        close(_listener_fds.at(i));
 }
-
-
 
 void Manager::initServers(const std::string &configFile)
 {
@@ -34,7 +32,7 @@ void Manager::initServers(const std::string &configFile)
     std::cout << "Test" << std::endl;
     while (std::getline(file, line))
     {
-        if (isServerStart(line))
+        if (this->_servers[serverCount].isServerStart(line))
             ++serverCount;
         try
         {

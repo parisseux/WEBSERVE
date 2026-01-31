@@ -87,7 +87,7 @@ void parseErrorPageDirective(ServerConfig &server, const std::string &t)
     server.errorPages[code] = uri;
 }
 
-void parseServerLine(ServerConfig &server, const std::string &t)
+void ServerConfig::parseServerLine(const std::string &t)
 {
     if (t.empty())
         return;
