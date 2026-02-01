@@ -42,7 +42,7 @@ void ServerConfig::applyServersDefaults()
     if (!this->_hasServerName)
         this->_serverName = "";
     for (size_t i = 0; i < this->_locations.size(); ++i)
-        this->_locations[i].applyLocationDefaults();
+        this->_locations[i].applyLocationDefaults(*this);
 }
 
 void ServerConfig::parseServer(std::ifstream &file)
@@ -60,7 +60,7 @@ void ServerConfig::parseServer(std::ifstream &file)
         if (t.rfind("location ", 0) == 0)
         {
             LocationConfig location;
-            location.parseLocationDirective(file, t);
+            location.parseLocationDirective(*this ,file, t);
             this->_locations.push_back(location);
         }
         else

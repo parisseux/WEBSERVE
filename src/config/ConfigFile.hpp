@@ -8,13 +8,14 @@
 # include <cstdlib>
 # include <arpa/inet.h>
 # include <vector>
-#include <unistd.h>
+# include <unistd.h>
 # include <sstream>
 # include <map>
 # include <sys/epoll.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
-# include <LocationConfig.hpp>
+# include "LocationConfig.hpp"
+
 
 class ServerConfig
 {
@@ -48,14 +49,14 @@ class ServerConfig
         // const int         getListenPort() const {return (_listenPort);};
         // const std::string& getListenHost() const {return (_listenHost);};
         // const std::string& getServerName() const {return (_serverName);};
-        // const std::string& getRoot() const {return (_root);};
-        // const std::string& getIndex() const {return (_index);};
-        // const std::vector<LocationConfig>& getLocations() const {return (_locations);};
+        const std::string& getRoot() const {return (_root);};
+        const std::string& getIndex() const {return (_index);};
+        std::vector<LocationConfig>& getLocations() {return (_locations);}; // plus de const :(
         // const std::map<int, std::string>& getErrorPages() const {return (_errorPages);};
         const bool&        getHasListen() const {return (_hasListen);};
         // const bool&        getHasServerName() const {return (_hasServerName);};
-        // const bool&        getHasRoot() const {return (_hasRoot);};
-        // const bool&        getHasIndex() const {return (_hasIndex);};
+        const bool&        getHasRoot() const {return (_hasRoot);};
+        const bool&        getHasIndex() const {return (_hasIndex);};
 
         // //SETTER
         // void setListenPort(int listenPort) {this->_listenPort = listenPort;};

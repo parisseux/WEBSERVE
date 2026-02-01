@@ -111,7 +111,7 @@ void LocationConfig::parseLocationLine(const std::string &s)
 //passer le serverconfig en parametre,
 //Est ce qu on fait une class location qui herite de server pour avoir
 //les getters?
-void LocationConfig::parseLocationDirective(std::ifstream &file, const std::string &firstLine)
+void LocationConfig::parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine)
 {
     this->parseLocationHeader(firstLine);
     std::string line;
@@ -124,7 +124,7 @@ void LocationConfig::parseLocationDirective(std::ifstream &file, const std::stri
     }
     if (!this->_hasRoot)
         this->_root = server.getRoot();
-    server.getLocations().push_back(loc);
+    server.getLocations().push_back(*this);
 }
 
 
@@ -132,14 +132,14 @@ void LocationConfig::parseLocationDirective(std::ifstream &file, const std::stri
 //passer le serverconfig en parametre,
 //Est ce qu on fait une class location qui herite de server pour avoir
 //les getters?
-void LocationConfig::applyLocationDefaults()
+void LocationConfig::applyLocationDefaults(ServerConfig& server)
 {
     if (!this->_hasAutoindex)
         this->_autoindex = false;
     if (!this->_hasAllowMethods)
         this->_allowMethods.push_back("GET");
     if (!this->_hasIndex)
-        this->_index = server.getIndex());
-    if (!loca.getHasRoot())
-        loca.setRoot(server.getRoot());
+        this->_index = server.getIndex();
+    if (!this->_hasRoot)
+        this->_root = server.getRoot();
 }

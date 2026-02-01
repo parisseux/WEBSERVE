@@ -14,6 +14,8 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 
+class ServerConfig;
+
 class LocationConfig
 {
 	private:
@@ -70,10 +72,11 @@ class LocationConfig
 		void parseLocationMaxBodySize(const std::string &s);
 		void parseLocationAllowMethods(const std::string &s);
 		void parseLocationLine(const std::string &s);
+		
 		void parseLocationHeader(const std::string &firstLine);
-		void parseLocationDirective(std::ifstream &file, const std::string &firstLine);
+		void parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine);
 
-		void applyLocationDefaults();
+		void applyLocationDefaults(ServerConfig& server);
 };
 
 #endif
