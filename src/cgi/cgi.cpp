@@ -1,136 +1,171 @@
 #include "cgi.hpp"
+#include "../socket/epoll.hpp"
 
-// bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig &loc)
-// {
-//     // std::string root = req.Get(server, loc);
-//     // std::string rel  = getRelativPath(req.getPath(), loc.path);
-//     // std::string path = joinPath(root, rel);    
-//     // size_t dot = path.rfind('.');
-//     // std::string ext = path.substr(dot + 1);
-//     // if (ext == "py")
-//     //     return (true);
-//     return (false);
-// }
 
-// void cgi::readFd(int fd, std::string &content)
-// {
-//     char buff[100 + 1];
-//     int byteRead;
-//     while ((byteRead = read(fd, buff, 100)) > 0)
-//     {
-//         if (byteRead == 0)
-//             break;
-//         buff[byteRead] = '\0';
-//         std::string buffString(buff);
-//         content += buffString;
-//         buffString.clear();
-//     }
-// }
+std::string Cgi::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
+{
+    if (loc.hasRoot)
+        return (loc.root);
+    else 
+        return (server.root);
+}
 
-// void cgi::makeCgiEnv(Request &req, std::string path, char **cgiEnv)
-// {
-//     std::cout << "MakeCGI ENV" << std::endl;
-//     std::string ENV[5] = {
-//         "REQUEST_METHOD=", "CONTENT_LENGTH=",
-//         "CONTENT_TYPE=", "SCRIPT_NAME=", "SERVER_PROTOCOL=",
-//     };
-//     ENV[0] += req.getMethod();
-//     if (req.getMethod() == "POST" || req.getMethod() == "DELETE")
-//     {
-//         ENV[1] += headerValue("Content-Length", req);
-//         ENV[2] += headerValue("Content-Type", req);
-//     }
-//     ENV[3] += path;
-//     ENV[4] += req.getProtocol();
-//     for (int i = 0; i < 5; ++i)
-//     {
-//         cgiEnv[i] = (char *)ENV[i].c_str();
-//     }
-//     cgiEnv[6] = NULL;
-// }
+//relativPath = req.path - matchloc.path
+//cat.png = /image/cat.png - /images/
+std::string Cgi::GetRelativPath(const std::string &reqPath, const std::string &locPath)
+{
+    std::string relativePath = reqPath;
+    if (relativePath.find(locPath) == 0)
+        relativePath.erase(0, locPath.size());
+    if (!relativePath.empty() && relativePath[0] == '/')
+        relativePath.erase(0, 1);
+    return relativePath;
+}
 
-// void cgi::makeCgi(Request &req, std::string path, std::vector<std::string> &envCgiString)
-// {
-//     std::cout << "MakeCGI ENV" << std::endl;
-//     std::string ENV[5] = {
-//         "REQUEST_METHOD=", "CONTENT_LENGTH=",
-//         "CONTENT_TYPE=", "SCRIPT_NAME=", "SERVER_PROTOCOL=",
-//     };
-//     envCgiString.push_back(ENV[0] += req.getMethod());
-//     if (req.getMethod() == "POST" || req.getMethod() == "DELETE")
-//     {
-//         envCgiString.push_back(ENV[1] += headerValue("Content-Length", req));
-//         envCgiString.push_back(ENV[2] += headerValue("Content-Type", req));       
-//     }
-//     envCgiString.push_back(ENV[3] += path);
-//     envCgiString.push_back(ENV[4] += req.getProtocol());
-// }
-// Response cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc)
-// {
-//     // std::string root = getEffectiveRoot(server, loc);
-//     // std::string rel  = getRelativPath(req.getPath(), loc.path);
-//     // std::string path = joinPath(root, rel);
-//     // std::cout << root << std::endl;
-//     // std::cout << rel << std::endl;
-//     // std::cout << path << std::endl;
-//     cgi cgi; 
-//     pid_t pid;
-//     int		fd[2];
-//     // int status = 0;
-//     const char *pythonPath = "/usr/bin/python3";
-//     char *args[] = {
-//         (char*)"python3", 
-//         (char*)path.c_str(), 
-//         NULL 
-//     };
-//     if (pipe(fd) == -1)
-//         std::cout << "Pipe function error" << std::endl;
-//     pid = fork();
-//     Response res;
-//     std::vector<std::string> envCgiString;
-//     for (int i = 0; server.env[i] != NULL; ++i)
-//     {
-//         std::string line(server.env[i]);
-//         envCgiString.push_back(line);
-//     }
-//     cgi.makeCgi(req, path, envCgiString);
-//     std::vector<char*> envCgi;
-//     for (unsigned int i = 0; i < envCgiString.size(); ++i)
-//         envCgi.push_back((char *)envCgiString[i].c_str());
-//     envCgi.push_back(NULL);
-//     switch (pid)
-//     {
-//         case -1:
-//             std::cout << "fork error" << std::endl;
-//             break ;
-//         case 0:
-//             std::cout << "Child Process" << std::endl;      
-//             dup2(fd[0], STDIN_FILENO);
-//             dup2(fd[1], STDOUT_FILENO);   
-//             close(fd[0]);
-//             close(fd[1]);                   
-//             execve(pythonPath, args, envCgi.data());
-//             exit(EXIT_SUCCESS);
-//             break ;
-//         default:
-//             std::cout << "Parent Process" << std::endl;
+//./root/relativPath
+std::string Cgi::JoinPath(const std::string &root, const std::string &relativPath)
+{
+    if (relativPath.empty())
+        return root;
+    std::string r = root;
+    std::string p = relativPath;
+    if (!root.empty() && root[root.size() - 1] == '/')
+        r.erase(r.size() - 1);
+    if (!p.empty() && p[0] == '/')
+        p.erase(0, 1);
+    return r + "/" + p;
+}
 
-//             close(fd[0]);
-//             write(fd[1], req.getBody().c_str(), req.getBody().size());
-//             close(fd[1]);                      
-//             // std::string content;            
-//             // waitpid(pid, &status, 0);
-//             // // readFd(fd[0], content);
-//             // // close(fd[0]);                    
-//             // res.setStatus(200);
-//             // res.setHeader("Content-Type", "text/html");
-//             // int len = content.size();
-//             // std::stringstream ss;
-//             // ss << len;
-//             // res.setHeader("Content-Length", ss.str());
-//             // res.setBody(content);
-//             std::cout << "DONE with CGI" << std::endl;           
-//             return res;        
-//     } 
-//     return res;
-// }
+bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig &loc)
+{
+    Cgi cgi; 
+    std::string root = cgi.GetEffectiveRoot(server, loc);
+    std::string rel  = cgi.GetRelativPath(req.getPath(), loc.path);
+    std::string path = cgi.JoinPath(root, rel);    
+    size_t dot = path.rfind('.');
+    std::string ext = path.substr(dot + 1);
+    if (ext == "py")
+        return (true);
+    return (false);
+}
+
+void Cgi::readFd(int fd, std::string &content)
+{
+    char buff[100 + 1];
+    int byteRead;
+    while ((byteRead = read(fd, buff, 100)) > 0)
+    {
+        if (byteRead == 0)
+            break;
+        buff[byteRead] = '\0';
+        std::string buffString(buff);
+        content += buffString;
+        buffString.clear();
+    }
+}
+
+void Cgi::addCgiEnv(Request &req, std::string path, std::vector<std::string> &envCgiString)
+{
+    std::cout << "MakeCGI ENV" << std::endl;
+    std::string ENV[5] = {
+        "REQUEST_METHOD=", "CONTENT_LENGTH=",
+        "CONTENT_TYPE=", "SCRIPT_NAME=", "SERVER_PROTOCOL=",
+    };
+    envCgiString.push_back(ENV[0] += req.getMethod());
+    if (req.getMethod() == "POST" || req.getMethod() == "DELETE")
+    {
+        envCgiString.push_back(ENV[1] += headerValue("Content-Length", req));
+        envCgiString.push_back(ENV[2] += headerValue("Content-Type", req));       
+    }
+    envCgiString.push_back(ENV[3] += path);
+    envCgiString.push_back(ENV[4] += req.getProtocol());
+}
+
+void Cgi::MakeCgiEnv(Request &req, const ServerConfig &server)
+{
+    for (int i = 0; server.env[i] != NULL; ++i)
+    {
+        std::string line(server.env[i]);
+        _envCgiString.push_back(line);
+    }
+    addCgiEnv(req, _path, _envCgiString);
+    for (unsigned int i = 0; i < _envCgiString.size(); ++i)
+        _envCgi.push_back((char *)_envCgiString[i].c_str());
+    _envCgi.push_back(NULL);
+}
+
+Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap)
+{
+    std::string root = GetEffectiveRoot(server, loc);
+    std::string rel  = GetRelativPath(req.getPath(), loc.path);
+    _path = JoinPath(root, rel);
+    // std::cout << root << std::endl;
+    // std::cout << rel << std::endl;
+    // std::cout << path << std::endl;
+    Cgi cgi; 
+    pid_t pid;
+    int		fd[2];
+    // int status = 0;
+    const char *pythonPath = "/usr/bin/python3";
+    char *args[] = {
+        (char*)"python3", 
+        (char*)_path.c_str(), 
+        NULL 
+    };
+    if (pipe(fd) == -1)
+        std::cout << "Pipe function error" << std::endl;
+    pid = fork();
+    Response res;
+    MakeCgiEnv(req, server);
+    // for (int i = 0; server.env[i] != NULL; ++i)
+    // {
+    //     std::string line(server.env[i]);
+    //     _envCgiString.push_back(line);
+    // }
+    // cgi.addCgiEnv(req, _path, _envCgiString);
+    // for (unsigned int i = 0; i < _envCgiString.size(); ++i)
+    //     _envCgi.push_back((char *)_envCgiString[i].c_str());
+    // _envCgi.push_back(NULL);
+    switch (pid)
+    {
+        case -1:
+            std::cout << "fork error" << std::endl;
+            break ;
+        case 0:
+            std::cout << "Child Process" << std::endl;      
+            dup2(fd[0], STDIN_FILENO);
+            dup2(fd[1], STDOUT_FILENO);   
+            close(fd[0]);
+            close(fd[1]);                   
+            execve(pythonPath, args, _envCgi.data());
+            exit(EXIT_SUCCESS);
+            break ;
+        default:
+            std::cout << "Parent Process" << std::endl;
+
+            close(fd[0]);
+            write(fd[1], req.getBody().c_str(), req.getBody().size());
+            close(fd[1]);                      
+            // std::string content;            
+            // waitpid(pid, &status, 0);
+            // // readFd(fd[0], content);
+            // // close(fd[0]);                    
+            // res.setStatus(200);
+            // res.setHeader("Content-Type", "text/html");
+            // int len = content.size();
+            // std::stringstream ss;
+            // ss << len;
+            // res.setHeader("Content-Length", ss.str());
+            // res.setBody(content);
+            _CgiMap.insert(std::make_pair(fd[0], this));
+            int flags = fcntl(fd[0], F_GETFL, 0);
+            fcntl(fd[0], F_SETFL, flags | O_NONBLOCK);
+            // _ev.events = EPOLLIN;
+            // _ev.data.fd = fd[0];
+            // epoll_ctl(_ep_fd, EPOLL_CTL_ADD, fd[0], &_ev);
+
+            std::cout << "DONE with CGI" << std::endl;           
+            return res;        
+    } 
+    return res;
+}

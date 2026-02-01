@@ -6,6 +6,7 @@
 # include "../src/response/Response.hpp"
 # include "../src/response/StaticTarget.hpp"
 
+class Cgi;
 class Response;
 
 // * INFO UTILE EN VRAC *
@@ -40,7 +41,7 @@ class Request
 
         //handler
         bool StartsWith(const std::string& s, const std::string& prefix);
-        Response Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server);
+        Response Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap);
         const LocationConfig *MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations);
         int MethodAllowed(const Request& req, const LocationConfig* loc);
         int ValidateRequest(const Request &req);

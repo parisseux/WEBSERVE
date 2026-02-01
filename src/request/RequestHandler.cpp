@@ -1,4 +1,5 @@
 #include "Request.hpp"
+#include "../cgi/cgi.hpp"
 
 int Request::ValidateRequest(const Request &req)
 {
@@ -61,7 +62,7 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     return (bestLoc);
 }
 
-Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server)
+Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap)
 {
     int status = req.ValidateRequest(req);
     if (status == 400)
@@ -77,8 +78,13 @@ Response Request::Handle(Request &req, const std::vector<LocationConfig>& locati
 
     // buildRedirectResponse(loc);
 
-    //CGI handler va executer un script ou un process
-    // handleCgi(req, server, *loc);
+    // CGI handler va executer un script ou un process
+    if (isCgi(req, server, *loc))
+    {
+        class Cgi cgi;
+        cgi.handleCgi(req, server, *loc, _CgiMap);
+    }
+
 
     //upload handler (="POST") va venir écrire dans un fichier
     // handleUpload(req, server, *loc);

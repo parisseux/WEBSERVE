@@ -41,7 +41,7 @@ void Epoll::HeaderEnd(Client *client, std::string bufferString)
 }
 
 // fonction a call pour gerer EPOLLIN
-void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers)
+void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap)
 {         
     std::string bufferString(buf, 0, byteReads);
     if ((bufferString.find("\r\n\r\n"))!=std::string::npos)
@@ -56,8 +56,8 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
         if (client->getRequestClass().getMethod() == "GET") 
         {
             client->setClientState(WAITING);
-            client->setReadyToWrite(true);                 
-            client->getRequestClass().displayRequest(); // affichage requete complete
+            client->setReadyToWrite(true);
+            //client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST") 
         {
@@ -67,8 +67,8 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
                 client->getRequestClass().parseRequest(client->getRequestBuffer());     
                 client->setClientState(WAITING);
                 client->setReadyToWrite(true);                            
-                client->getRequestClass().displayRequest(); // affichage requete complete
-                std::cout << client->getRequestClass().getBody() << std::endl;                
+                //client->getRequestClass().displayRequest(); // affichage requete complete
+                //std::cout << client->getRequestClass().getBody() << std::endl;                
             // }
         }        
         else
@@ -79,18 +79,22 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
-        Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].locations, servers[0]);
-        Res.displayResponse(); 
-        std::string responseString = Res.constructResponse();
+        Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].locations, servers[0], _CgiMap);
+        //Res.displayResponse();
+        client->setResponseBuffer(Res.constructResponse());
+        _ev.events = EPOLLOUT ;
+        _ev.data.fd = client->getFd();            
+        epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
+
         // std::cout << "string response" << std::endl;
         // std::cout << responseString << std::endl;   
 
         //reponse basique automatique pour voir que ca marche
         // std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO";
-        write(client->getFd(), responseString.c_str(), responseString.size());
-        client->setReadyToWrite(false);
-        client->clearRequest();   
-        close(client->getFd()); 
+        // write(client->getFd(), client->getResponseBuffer().c_str(), client->getResponseBuffer().size());
+        // client->setReadyToWrite(false);
+        // client->clearRequest(); 
+        // close(client->getFd()); 
     }                            
 }
 
@@ -113,13 +117,34 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
                     break;
                 }
             }
+            if (!is_listener && (_events[i].events & EPOLLOUT))
+            {
+                std::map<int, Client*>::iterator it;
+                for (it = Clients_map.begin(); it != Clients_map.end(); ++it)
+                {
+                    //std::cout << it->first << std::endl;
+                    if (_events[i].data.fd == it->first)
+                    {
+                        //std::cout << "client found" << std::endl;
+                        Client *client;
+                        client = it->second;
+                        size_t byteReads = send(_events[i].data.fd, client->getResponseBuffer().c_str(), client->getResponseBuffer().size(), 0);
+                        if (byteReads > 0)
+                            std::cout << "send finished" << std::endl;
+                        client->setReadyToWrite(false);
+                        client->clearRequest(); 
+                        close(client->getFd());
+                    }
+                }
+            }                
             if (!is_listener && (_events[i].events & EPOLLIN))
             {
                 char buf[4000];
                 size_t byteReads = recv(_events[i].data.fd, buf, sizeof(buf), 0);
                 if (byteReads > 0)
-                    manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf, servers);
+                    manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf, servers, _CgiMap);
             }
+        
         }
     }
     return ;
