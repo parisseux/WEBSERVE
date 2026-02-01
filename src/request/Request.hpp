@@ -27,7 +27,7 @@ class Request
         std::string _requestTarget; // element sur lequel va etre applique la methode
         std::string _path;
         std::string _query;
-        std::string _protocol; // HTTP/1.1. en general
+        std::string _protocol; // HTTP/1.1. en general (parissa: selon le sujet plutot HTTP 1.0)
         std::map<std::string, std::string> _header;
         std::string _body;
     public:

@@ -1,4 +1,5 @@
 #include "../include/webserv.hpp"
+#include "../config/Manager.hpp"
 # include "config/config.hpp"
 # include "utils/utils.hpp"
 # include "socket/socket.hpp"
@@ -40,14 +41,14 @@ static void startWebserv(std::vector<ServerConfig> servers)
 
 int main(int ac, char **av, char **env)
 {
+    Manager man;
     try 
     {
         if (ac != 2)
             throw std::runtime_error("usage: ./webserv [configuration file]");
-        std::vector<ServerConfig> servers;
-        initServers(av[1], servers);
-        servers[0].env = env;
-        startWebserv(servers);
+        man.initServers(av[1]);
+        // print_servers_attributes(servers);
+        man.startWebserv();
     }
     catch (const std::exception& e) 
     {

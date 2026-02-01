@@ -35,7 +35,6 @@ void print_servers_attributes(std::vector<ServerConfig> &servers)
 
         if (server.locations.empty())
             std::cout << "  No locations defined." << std::endl;
-
         for (size_t i = 0; i < server.locations.size(); i++)
         {
             const LocationConfig &loc = server.locations[i];
@@ -44,6 +43,10 @@ void print_servers_attributes(std::vector<ServerConfig> &servers)
             std::cout << "    root      = " << loc.root << std::endl;
             std::cout << "    index     = " << loc.index << std::endl;
             std::cout << "    autoindex = " << (loc.autoindex ? "on" : "off") << std::endl;
+            std::cout << "    method allowed = " << std::endl;
+            for (size_t i = 0; i < loc.allowMethods.size(); i++)
+                std::cout << loc.allowMethods[i] << std::endl;
+            std::cout << "    max body size =   " << loc._maxBodySize << std::endl;
         }
     }
 }

@@ -3,18 +3,18 @@
 std::string Response::makeStatusLine(int code)
 {
         if (code == 200)
-            return "HTTP/1.1 200 OK";
+            return "HTTP/1.0 200 OK";
         if (code == 400)
-            return "HTTP/1.1 400 Bad Request";
+            return "HTTP/1.0 400 Bad Request";
         if (code == 403)
-            return "HTTP/1.1 403 Forbidden";
+            return "HTTP/1.0 403 Forbidden";
         if (code == 404)
-            return "HTTP/1.1 404 Not Found";
+            return "HTTP/1.0 404 Not Found";
         if (code == 405)
-            return "HTTP/1.1 405 Method Not Allowed";
+            return "HTTP/1.0 405 Method Not Allowed";
         if (code == 501)
-            return "HTTP/1.1 501 Not Implemented";
-        return "HTTP/1.1 500 Internal Server Error";
+            return "HTTP/1.0 501 Not Implemented";
+        return "HTTP/1.0 500 Internal Server Error";
 }
 
 void Response::setStatus(int code) 

@@ -1,9 +1,11 @@
+#include "../../include/webserv.hpp"
+#include "../config/Manager.hpp"
 #include "socket.hpp"
 
 //fonction pour socket(), bind(), listen(), etc...
 //Listener = socket spécial qui écoute les connexions entrantes (unique rôle)
 //socket = point de communication (style une prise)
-int createListener(const ServerConfig &server)
+int Manager::createListener(const ServerConfig &server)
 {
     std::cout << "Creating listener for port:" << server.listenPort << std::endl;
     
