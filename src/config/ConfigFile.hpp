@@ -73,13 +73,17 @@ class ServerConfig
 
         bool isServerStart(const std::string &line);
         void parseServer(std::ifstream &file);
-        void applyServersDefaults();
-        //ServerConfig
-        void parseServerLine(const std::string &t);
-};
 
-//LocationConfig
-void parseLocationDirective(ServerConfig &server, std::ifstream &file, const std::string &firstLine);
+        //ServerConfig
+        void parseListenDirective(const std::string &t);
+        void parseServerNameDirective(const std::string &t);
+        void parseRootDirective(const std::string &t);
+        void parseIndexDirective(const std::string &t);
+        void parseErrorPageDirective(const std::string &t);
+        void parseServerLine(const std::string &t);
+
+        void applyServersDefaults();
+};
 
 //utils
 bool isValidIPv4(const std::string &ip);

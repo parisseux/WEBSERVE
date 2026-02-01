@@ -33,33 +33,20 @@ std::string removeSemicolon(const std::string &s)
     return trim(out);
 }
 
-static void applyLocationDefaults(LocationConfig &loca, ServerConfig &server)
-{
-    if (!loca.getHasAutoIndex())
-        loca.setAutoIndex(false);
-    if (!loca.getHasAllowMethods())
-        loca.setAllowMethods().push_back("GET");
-    if (!loca.getHasIndex())
-        loca.setIndex(server.getIndex());
-    if (!loca.getHasRoot())
-        loca.setRoot(server.getRoot());
-}
-
 void ServerConfig::applyServersDefaults()
 {
     if (!this->_hasRoot)
-        server.getRoot() = "./www";
-    if (!server.getHasIndex())
-        server.getIndex() = "index.html";
-    if (!server.getHasServerName())
-        server.getServerName() = "";
-    for (size_t i = 0; i < server.getLocations().size(); ++i)
-        applyLocationDefaults(server.getLocations()[i], server);
+        this->_root = "./www";
+    if (!this->_hasIndex)
+        this->_index = "index.html";
+    if (!this->_hasServerName)
+        this->_serverName = "";
+    for (size_t i = 0; i < this->_locations.size(); ++i)
+        this->_locations[i].applyLocationDefaults();
 }
 
 void ServerConfig::parseServer(std::ifstream &file)
 {
-    ServerConfig server;
     std::string line;
 
     while (std::getline(file, line))
@@ -77,9 +64,8 @@ void ServerConfig::parseServer(std::ifstream &file)
             this->_locations.push_back(location);
         }
         else
-            parseServerLine(t);
+            this->parseServerLine(t);
     }
-    // return server;
 }
 
 int ServerConfig::createListener()

@@ -37,14 +37,14 @@ void Manager::initServers(const std::string &configFile)
         try
         {
             ServerConfig config;
-            _servers.push_back(config);
-            _servers[serverCount].parseServer(file);
+            this->_servers.push_back(config);
+            this->_servers[serverCount].parseServer(file);
             // servers[serverCount] = parseServer(file);
             std::cout << "Test" << std::endl;
-            if (!_servers[serverCount].getHasListen())
+            if (!this->_servers[serverCount].getHasListen())
                 throw std::runtime_error("missing listen directive");
             std::cout << "Test" << std::endl;
-            _servers[serverCount].applyServersDefaults();
+            this->_servers[serverCount].applyServersDefaults();
             // applyServersDefaults(servers[serverCount]);
             std::cout << "Test" << std::endl;
             // servers.push_back(server);
@@ -54,6 +54,6 @@ void Manager::initServers(const std::string &configFile)
             //throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
         }
     }
-    if (_servers.empty())
+    if (this->_servers.empty())
         throw std::runtime_error("no valid server block found in config");
 }

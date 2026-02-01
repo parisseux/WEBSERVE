@@ -1,8 +1,8 @@
 #include "../../include/webserv.hpp"
 
-void parseListenDirective(ServerConfig &server, const std::string &t)
+void ServerConfig::parseListenDirective(const std::string &t)
 {
-    if (server.hasListen)
+    if (this->_hasListen)
         throw std::runtime_error("Duplicate 'listen' directive");
     std::string val = trim(t.substr(7));
     if (val.empty())
@@ -29,42 +29,42 @@ void parseListenDirective(ServerConfig &server, const std::string &t)
         throw std::runtime_error("Invalid listen IP address: " + host);
     if (host == "*")
         host = "0.0.0.0";
-    server.listenHost = host;
-    server.listenPort = port;
-    server.hasListen = true;
+    this->_listenHost = host;
+    this->_listenPort = port;
+    this->_hasListen = true;
 }
 
-void parseServerNameDirective(ServerConfig &server, const std::string &t)
+void ServerConfig::parseServerNameDirective(const std::string &t)
 {
-    if (server.hasServerName)
+    if (this->_hasServerName)
         throw std::runtime_error("Duplicate 'server_name' directive");
-    server.serverName = removeSemicolon(t.substr(12));
-    if (server.serverName.empty())
+    this->_serverName = removeSemicolon(t.substr(12));
+    if (this->_serverName.empty())
         throw std::runtime_error("server_name is empty");
-    server.hasServerName = true;
+    this->_hasServerName = true;
 }
 
-void parseRootDirective(ServerConfig &server, const std::string &t)
+void ServerConfig::parseRootDirective(const std::string &t)
 {
-    if (server.hasRoot)
+    if (this->_hasRoot)
         throw std::runtime_error("Duplicate 'root' directive");
-    server.root = removeSemicolon(t.substr(5));
-    if (server.root.empty())
+    this->_root = removeSemicolon(t.substr(5));
+    if (this->_root.empty())
         throw std::runtime_error("root is empty");
-    server.hasRoot = true;
+    this->_hasRoot = true;
 }
 
-void parseIndexDirective(ServerConfig &server, const std::string &t)
+void ServerConfig::parseIndexDirective(const std::string &t)
 {
-    if (server.hasIndex)
+    if (this->_hasIndex)
         throw std::runtime_error("Duplicate 'index' directive");
-    server.index = removeSemicolon(t.substr(6));
-    if (server.index.empty())
+    this->_index = removeSemicolon(t.substr(6));
+    if (this->_index.empty())
         throw std::runtime_error("index is empty");
-    server.hasIndex = true;
+    this->_hasIndex = true;
 }
 
-void parseErrorPageDirective(ServerConfig &server, const std::string &t)
+void ServerConfig::parseErrorPageDirective(const std::string &t)
 {
     std::string rest = removeSemicolon(t.substr(10));
     if (rest.empty())
@@ -82,9 +82,9 @@ void parseErrorPageDirective(ServerConfig &server, const std::string &t)
         throw std::runtime_error("error_page: invalid status code");
     if (uri.empty())
         throw std::runtime_error("error_page: empty URI");
-    if (server.errorPages.find(code) != server.errorPages.end())
+    if (this->_errorPages.find(code) != this->_errorPages.end())
         throw std::runtime_error("error_page: duplicate definition for code " + codeStr);
-    server.errorPages[code] = uri;
+    this->_errorPages[code] = uri;
 }
 
 void ServerConfig::parseServerLine(const std::string &t)
@@ -92,15 +92,15 @@ void ServerConfig::parseServerLine(const std::string &t)
     if (t.empty())
         return;
     if (t.find("listen ") == 0)
-        parseListenDirective(server, t);
+        this->parseListenDirective(t);
     else if (t.find("server_name ") == 0)
-        parseServerNameDirective(server, t);
+        this->parseServerNameDirective(t);
     else if (t.find("root ") == 0)
-        parseRootDirective(server, t);
+        this->parseRootDirective(t);
     else if (t.find("index ") == 0)
-        parseIndexDirective(server, t);
+        this->parseIndexDirective(t);
     else if (t.find("error_page ") == 0)
-        parseErrorPageDirective(server, t);
+        this->parseErrorPageDirective(t);
     else
         throw std::runtime_error("Unknown directive inside server: " + t);
 }
