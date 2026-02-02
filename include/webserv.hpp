@@ -1,6 +1,9 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+// non utilisation d'un fichier d'header commun pour le moment 
+
+
 // # include "config.hpp"
 // # include "utils.hpp"
 // # include "socket.hpp"
