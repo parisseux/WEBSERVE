@@ -37,21 +37,21 @@ class LocationConfig
 				: _hasRoot(false), _hasIndex(false),
 					_autoindex(false), _hasAutoindex(false),
 					_hasAllowMethods(false), _hasMaxBodySize(false)
-				{std::cout << "Location Config constructor called" << std::endl;};
-		~LocationConfig() {std::cout << "Location Config destructor called" << std::endl;};
+				{/*std::cout << "Location Config constructor called" << std::endl;*/};
+		~LocationConfig() {/*std::cout << "Location Config destructor called" << std::endl;*/};
 
 		// //GETTERS
-		// const std::string&               getPath() const {return (_path);};
-		// const std::string&               getRoot() const {return (_root);};
-		// const std::string&               getIndex() const {return (_index);};
-		// const std::vector<std::string>&  getAllowMethods() const {return (_allowMethods);};
-		// const size_t&                    getMaxBodySize() const {return (_maxBodySize);};
-		// const bool&                      getHasRoot() const {return (_hasRoot);};
-		// const bool&                      getHasIndex() const {return (_hasIndex);};
-		// const bool&                      getAutoIndex() const {return (_autoindex);};
-		// const bool&                      getHasAutoIndex() const {return (_hasAutoindex);};
-		// const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
-		// const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
+		const std::string&               getPath() const {return (_path);};
+		const std::string&               getRoot() const {return (_root);};
+		const std::string&               getIndex() const {return (_index);};
+		const std::vector<std::string>&  getAllowMethods() const {return (_allowMethods);};
+		const size_t&                    getMaxBodySize() const {return (_maxBodySize);};
+		const bool&                      getHasRoot() const {return (_hasRoot);};
+		const bool&                      getHasIndex() const {return (_hasIndex);};
+		const bool&                      getAutoIndex() const {return (_autoindex);};
+		const bool&                      getHasAutoIndex() const {return (_hasAutoindex);};
+		const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
+		const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
 
 		// //SETTERS
 		// void                       setPath(std::string path) {this->_path =  path;};

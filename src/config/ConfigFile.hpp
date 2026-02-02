@@ -16,7 +16,6 @@
 # include <netinet/in.h>
 # include "LocationConfig.hpp"
 
-
 class ServerConfig
 {
     private :
@@ -72,7 +71,6 @@ class ServerConfig
         // void setHasIndex(bool hasIndex) {this->_hasIndex =  hasIndex;};
 
 
-        bool isServerStart(const std::string &line);
         void parseServer(std::ifstream &file);
 
         //ServerConfig
@@ -83,12 +81,15 @@ class ServerConfig
         void parseErrorPageDirective(const std::string &t);
         void parseServerLine(const std::string &t);
 
-        void applyServersDefaults();
+        void applyServersDefaults(); 
+
+        void print_attributes();
 };
 
 //utils
 bool isValidIPv4(const std::string &ip);
 std::string trim(const std::string &s);
 std::string removeSemicolon(const std::string &s);
+bool isServerStart(const std::string &line);
 
 #endif

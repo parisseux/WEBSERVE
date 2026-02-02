@@ -1,7 +1,7 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include "../config/config.hpp"
+# include "../config/ConfigFile.hpp"
 # include <fstream>
 # include "../src/response/Response.hpp"
 # include "../src/response/StaticTarget.hpp"

@@ -7,7 +7,7 @@
 # include <unistd.h>
 # include <sys/epoll.h>
 # include "../client/client.hpp"
-# include "../config/config.hpp"
+# include "../config/ConfigFile.hpp"
 # include "../response/Response.hpp"
 # include "../request/Request.hpp"
 # include "../cgi/cgi.hpp"

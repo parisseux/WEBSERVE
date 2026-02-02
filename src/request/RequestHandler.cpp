@@ -22,10 +22,10 @@ int Request::MethodAllowed(const Request& req, const LocationConfig* loc)
     if (!loc) 
         return 0;
     std::string m = req.getMethod();
-    if (!loc->hasAllowMethods)
+    if (!loc->getHasAllowMethods())
         return 0;
-    for (std::vector<std::string>::const_iterator it = loc->allowMethods.begin();
-         it != loc->allowMethods.end();
+    for (std::vector<std::string>::const_iterator it = loc->getAllowMethods().begin();
+         it != loc->getAllowMethods().end();
          ++it)
     {
         if (m == *it)
@@ -53,10 +53,10 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     for (size_t i = 0; i < locations.size(); ++i)
     {
         const LocationConfig& loc = locations[i];
-        if (StartsWith(reqLoc, loc.path) && loc.path.size() > bestLen)
+        if (StartsWith(reqLoc, loc.getPath()) && loc.getPath().size() > bestLen)
         {
             bestLoc = &loc;
-            bestLen = loc.path.size();
+            bestLen = loc.getPath().size();
         }
     }
     return (bestLoc);
@@ -84,8 +84,6 @@ Response Request::Handle(Request &req, const std::vector<LocationConfig>& locati
         class Cgi cgi;
         cgi.handleCgi(req, server, *loc, _CgiMap);
     }
-
-
     //upload handler (="POST") va venir écrire dans un fichier
     // handleUpload(req, server, *loc);
 

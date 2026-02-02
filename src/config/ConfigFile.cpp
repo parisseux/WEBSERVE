@@ -16,7 +16,7 @@ std::string trim(const std::string &s)
     return s.substr(start, end - start + 1);
 }
 
-bool ServerConfig::isServerStart(const std::string &line)
+bool isServerStart(const std::string &line)
 {
     std::string t = trim(line);
     if (t.rfind("server", 0) != 0)
@@ -111,4 +111,39 @@ int ServerConfig::createListener()
     // setNonBlocking(sockfd); // se fait dans la boucle de epoll
     std::cout << "Listener ready on " << _listenHost << ":" << _listenPort << std::endl;
     return sockfd;
+}
+
+
+void ServerConfig::print_attributes()
+{
+    std::cout << "  Host  = " << _listenHost << std::endl;
+    std::cout << "  Port  = " << _listenPort << std::endl;
+    std::cout << "  Name  = " << _serverName << std::endl;
+    std::cout << "  Root  = " << _root << std::endl;
+    std::cout << "  Index = " << _index << std::endl;
+    if (!_errorPages.empty())
+    {
+        std::cout << "  Error Pages:" << std::endl;
+        for (std::map<int, std::string>::const_iterator it = _errorPages.begin();
+            it != _errorPages.end(); ++it)
+            std::cout << "    " << it->first << " -> " << it->second << std::endl;
+    }
+    else
+        std::cout << "  Error Pages: none" << std::endl;
+
+    if (_locations.empty())
+        std::cout << "  No locations defined." << std::endl;
+    for (size_t i = 0; i < _locations.size(); i++)
+    {
+        const LocationConfig &loc = _locations[i];
+        std::cout << "\n  Location " << i << ":" << std::endl;
+        std::cout << "    path      = " << loc.getPath() << std::endl;
+        std::cout << "    root      = " << loc.getRoot() << std::endl;
+        std::cout << "    index     = " << loc.getIndex() << std::endl;
+        std::cout << "    autoindex = " << (loc.getAutoIndex() ? "on" : "off") << std::endl;
+        std::cout << "    method allowed = " << std::endl;
+        for (size_t i = 0; i < loc.getAllowMethods().size(); i++)
+            std::cout << loc.getAllowMethods()[i] << std::endl;
+        std::cout << "    max body size =   " << loc.getHasMaxBodySize() << std::endl;
+    }
 }

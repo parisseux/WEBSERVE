@@ -1,5 +1,6 @@
-#include "ConfigFile.hpp"
+
 #include "LocationConfig.hpp"
+#include "ConfigFile.hpp"
 
 void LocationConfig::parseLocationRoot(const std::string &s)
 {

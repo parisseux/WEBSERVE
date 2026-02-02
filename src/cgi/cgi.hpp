@@ -15,7 +15,7 @@ class Cgi
         Response handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap);
         void readFd(int fd, std::string &content);
         void addCgiEnv(Request &req, std::string path, std::vector<std::string> &envCgiString);
-        void MakeCgiEnv(Request &req, const ServerConfig &server);
+        void MakeCgiEnv(Request &req);
         std::string GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
         std::string GetRelativPath(const std::string &reqPath, const std::string &locPath);
         std::string JoinPath(const std::string &root, const std::string &relativPath);

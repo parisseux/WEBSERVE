@@ -1,13 +1,14 @@
 #include "cgi.hpp"
 #include "../socket/epoll.hpp"
 
+extern char** environ;
 
 std::string Cgi::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
 {
-    if (loc.hasRoot)
-        return (loc.root);
+    if (loc.getHasRoot())
+        return (loc.getRoot());
     else 
-        return (server.root);
+        return (server.getRoot());
 }
 
 //relativPath = req.path - matchloc.path
@@ -40,7 +41,7 @@ bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig 
 {
     Cgi cgi; 
     std::string root = cgi.GetEffectiveRoot(server, loc);
-    std::string rel  = cgi.GetRelativPath(req.getPath(), loc.path);
+    std::string rel  = cgi.GetRelativPath(req.getPath(), loc.getPath());
     std::string path = cgi.JoinPath(root, rel);    
     size_t dot = path.rfind('.');
     std::string ext = path.substr(dot + 1);
@@ -81,11 +82,11 @@ void Cgi::addCgiEnv(Request &req, std::string path, std::vector<std::string> &en
     envCgiString.push_back(ENV[4] += req.getProtocol());
 }
 
-void Cgi::MakeCgiEnv(Request &req, const ServerConfig &server)
+void Cgi::MakeCgiEnv(Request &req)
 {
-    for (int i = 0; server.env[i] != NULL; ++i)
+    for (int i = 0; environ[i] != NULL; ++i)
     {
-        std::string line(server.env[i]);
+        std::string line(environ[i]);
         _envCgiString.push_back(line);
     }
     addCgiEnv(req, _path, _envCgiString);
@@ -97,7 +98,7 @@ void Cgi::MakeCgiEnv(Request &req, const ServerConfig &server)
 Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap)
 {
     std::string root = GetEffectiveRoot(server, loc);
-    std::string rel  = GetRelativPath(req.getPath(), loc.path);
+    std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
     _path = JoinPath(root, rel);
     // std::cout << root << std::endl;
     // std::cout << rel << std::endl;
@@ -116,7 +117,7 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
         std::cout << "Pipe function error" << std::endl;
     pid = fork();
     Response res;
-    MakeCgiEnv(req, server);
+    MakeCgiEnv(req);
     // for (int i = 0; server.env[i] != NULL; ++i)
     // {
     //     std::string line(server.env[i]);

@@ -66,10 +66,10 @@ Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTar
 
 std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
 {
-    if (loc.hasRoot)
-        return (loc.root);
+    if (loc.getHasRoot())
+        return (loc.getRoot());
     else 
-        return (server.root);
+        return (server.getRoot());
 }
 
 //relativPath = req.path - matchloc.path
@@ -104,7 +104,7 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     r.status = 200;
 
     std::string root = GetEffectiveRoot(server, loc);
-    std::string rel  = GetRelativPath(req.getPath(), loc.path);
+    std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
     std::string path = JoinPath(root, rel);
 
     struct stat st;
