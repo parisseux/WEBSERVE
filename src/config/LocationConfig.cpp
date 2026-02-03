@@ -87,6 +87,7 @@ void LocationConfig::parseLocationHeader(const std::string &firstLine)
     if (path.empty())
         throw std::runtime_error("location: empty path");
     this->_path = path;
+    // std::cout << "path is : " << path << std::endl;
 }
 
 void LocationConfig::parseLocationLine(const std::string &s)
