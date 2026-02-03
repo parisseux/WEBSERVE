@@ -24,6 +24,8 @@ class LocationConfig
 		std::string                 _index;
 		std::vector<std::string>    _allowMethods;
 		size_t                      _maxBodySize;
+		std::string					_cgiBin;
+		std::string					_cgiExt;
 
 		bool _hasRoot;
 		bool _hasIndex;
@@ -31,6 +33,8 @@ class LocationConfig
 		bool _hasAutoindex;
 		bool _hasAllowMethods;
 		bool _hasMaxBodySize;
+		bool _hasCgiBin;
+		bool _hasCgiExt;
 
 	public:
 		LocationConfig()
@@ -66,13 +70,15 @@ class LocationConfig
 		// void                       setHasAllowMethods(const bool hasAllowMethods) {this->_hasAllowMethods = hasAllowMethods;};
 		// void                       setHasMaxBodySize(const bool hasMaxBodySize) {this->_hasMaxBodySize = hasMaxBodySize;};
 
-		void parseLocationRoot(const std::string &s);
-		void parseLocationIndex(const std::string &s);
-		void parseLocationAutoindex(const std::string &s);
-		void parseLocationMaxBodySize(const std::string &s);
-		void parseLocationAllowMethods(const std::string &s);
+		void parseLocationRoot(const std::string& s);
+		void parseLocationIndex(const std::string& s);
+		void parseLocationAutoindex(const std::string& s);
+		void parseLocationMaxBodySize(const std::string& s);
+		void parseLocationAllowMethods(const std::string& s);
+		void parseLocationCgiBin(const std::string& s);
+		void parseLocationCgiExt(const std::string& s);
 		void parseLocationLine(const std::string &s);
-		
+
 		void parseLocationHeader(const std::string &firstLine);
 		void parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine);
 
