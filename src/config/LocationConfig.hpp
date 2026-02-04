@@ -50,6 +50,9 @@ class LocationConfig
 		const std::string&               getIndex() const {return (_index);};
 		const std::vector<std::string>&  getAllowMethods() const {return (_allowMethods);};
 		const size_t&                    getMaxBodySize() const {return (_maxBodySize);};
+		const std::string&               getCgiBin() const {return (_cgiBin);};
+		const std::string&				 getCgiExt() const {return (_cgiExt);};
+
 		const bool&                      getHasRoot() const {return (_hasRoot);};
 		const bool&                      getHasIndex() const {return (_hasIndex);};
 		const bool&                      getAutoIndex() const {return (_autoindex);};
@@ -70,7 +73,6 @@ class LocationConfig
 		// void                       setHasAllowMethods(const bool hasAllowMethods) {this->_hasAllowMethods = hasAllowMethods;};
 		// void                       setHasMaxBodySize(const bool hasMaxBodySize) {this->_hasMaxBodySize = hasMaxBodySize;};
 
-		std::string removeSemicolon(const std::string &s);
 		void parseLocationRoot(const std::string& s);
 		void parseLocationIndex(const std::string& s);
 		void parseLocationAutoindex(const std::string& s);

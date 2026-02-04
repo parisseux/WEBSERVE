@@ -76,6 +76,7 @@ class ServerConfig
         void        parseServer(std::ifstream &file);
 
         //ServerConfig
+        bool isValidIPv4(const std::string &ip);
         void parseListenDirective(const std::string &t);
         void parseServerNameDirective(const std::string &t);
         void parseRootDirective(const std::string &t);
@@ -87,9 +88,5 @@ class ServerConfig
 
         void print_attributes();
 };
-
-//utils
-bool isValidIPv4(const std::string &ip);
-std::string trim(const std::string& s);
 
 #endif
