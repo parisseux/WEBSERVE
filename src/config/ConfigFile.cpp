@@ -7,7 +7,7 @@ bool isValidIPv4(const std::string &ip)
     return inet_pton(AF_INET, ip.c_str(), &(sa.sin_addr)) == 1;
 }
 
-std::string trim(const std::string &s)
+std::string trim(const std::string& s)
 {
     size_t start = s.find_first_not_of(" \t");
     if (start == std::string::npos)
@@ -16,7 +16,7 @@ std::string trim(const std::string &s)
     return s.substr(start, end - start + 1);
 }
 
-bool isServerStart(const std::string &line)
+bool ServerConfig::isServerStart(const std::string &line)
 {
     std::string t = trim(line);
     if (t.rfind("server", 0) != 0)
@@ -25,7 +25,7 @@ bool isServerStart(const std::string &line)
     return (rest == "{");
 }
 
-std::string removeSemicolon(const std::string &s)
+std::string LocationConfig::removeSemicolon(const std::string &s)
 {
     std::string out = trim(s);
     if (!out.empty() && out[out.size() - 1] == ';')

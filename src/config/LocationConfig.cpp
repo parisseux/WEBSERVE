@@ -6,7 +6,7 @@ void LocationConfig::parseLocationRoot(const std::string& s)
 {
     if (this->_hasRoot)
         throw std::runtime_error("Duplicate 'root' directive in location " + this->_path);
-    this->_root = removeSemicolon(s.substr(5));
+    this->_root = this->removeSemicolon(s.substr(5));
     if (this->_root.empty())
         throw std::runtime_error("Empty root in location " + this->_path);
     this->_hasRoot = true;
@@ -16,7 +16,7 @@ void LocationConfig::parseLocationIndex(const std::string& s)
 {
     if (this->_hasIndex)
         throw std::runtime_error("Duplicate 'index' directive in location " + this->_path);
-    this->_index = removeSemicolon(s.substr(6));
+    this->_index = this->removeSemicolon(s.substr(6));
     if (this->_index.empty())
         throw std::runtime_error("Empty index in location " + this->_path);
     this->_hasIndex = true;
@@ -26,7 +26,7 @@ void LocationConfig::parseLocationAutoindex(const std::string& s)
 {
     if (this->_hasAutoindex)
         throw std::runtime_error("Duplicate 'autoindex' in location " + this->_path);
-    std::string val = removeSemicolon(s.substr(10));
+    std::string val = this->removeSemicolon(s.substr(10));
     if (val == "on")
         this->_autoindex = true;
     else if (val == "off")
@@ -40,7 +40,7 @@ void LocationConfig::parseLocationMaxBodySize(const std::string& s)
 {
     if (this->_hasMaxBodySize)
         throw std::runtime_error("Duplicate 'client_max_body_size' in location " + this->_path);
-    std::string val = removeSemicolon(s.substr(20));
+    std::string val = this->removeSemicolon(s.substr(20));
     if (val.empty())
         throw std::runtime_error("Empty client_max_body_size in location " + this->_path);
     size_t multiplier = 1;
@@ -62,7 +62,7 @@ void LocationConfig::parseLocationAllowMethods(const std::string& s)
 {
     if (this->_hasAllowMethods)
         throw std::runtime_error("Duplicate 'allow_methods' in location " + this->_path);
-    std::string methodsStr = removeSemicolon(s.substr(13));
+    std::string methodsStr = this->removeSemicolon(s.substr(13));
     if (methodsStr.empty())
         throw std::runtime_error("Empty allow_methods in location " + this->_path);
     std::istringstream iss(methodsStr);
@@ -78,7 +78,7 @@ void LocationConfig::parseLocationCgiBin(const std::string& s)
 {
     if (this->_hasCgiBin)
         throw std::runtime_error("Duplicate cgi_bin in location " + this->_path);
-    std::string val = removeSemicolon(s.substr(7));
+    std::string val = this->removeSemicolon(s.substr(7));
     if (val.empty())
         throw std::runtime_error("Empty cgi_bin in location " + this->_path);
     this->_cgiBin = val;
@@ -89,7 +89,7 @@ void LocationConfig::parseLocationCgiExt(const std::string& s)
 {
     if (this->_hasCgiExt)
         throw std::runtime_error("Duplicate cgi ext in location " + this->_path);
-    std::string val = removeSemicolon(s.substr(7));
+    std::string val = this->removeSemicolon(s.substr(7));
     if (val.empty())
         throw std::runtime_error("Empty cgi ext in location " + this->_path);
     this->_cgiExt = val;

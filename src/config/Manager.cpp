@@ -26,11 +26,11 @@ void Manager::initServers(const std::string &configFile)
     size_t serverCount = 0;
     while (std::getline(file, line))
     {
-        if (isServerStart(line))
+        ServerConfig config;
+        if (config.isServerStart(line))
             ++serverCount;
         try
         {
-            ServerConfig config;
             config.parseServer(file);
             if (!config.getHasListen())
                 throw std::runtime_error("missing listen directive");

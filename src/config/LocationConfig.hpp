@@ -70,6 +70,7 @@ class LocationConfig
 		// void                       setHasAllowMethods(const bool hasAllowMethods) {this->_hasAllowMethods = hasAllowMethods;};
 		// void                       setHasMaxBodySize(const bool hasMaxBodySize) {this->_hasMaxBodySize = hasMaxBodySize;};
 
+		std::string removeSemicolon(const std::string &s);
 		void parseLocationRoot(const std::string& s);
 		void parseLocationIndex(const std::string& s);
 		void parseLocationAutoindex(const std::string& s);
