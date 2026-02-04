@@ -1,7 +1,6 @@
 #include "Manager.hpp"
 #include "ConfigFile.hpp"
 
-
 void Manager::startWebserv()
 {
     //créer sockets d'écoute
