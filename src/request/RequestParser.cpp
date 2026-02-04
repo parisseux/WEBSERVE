@@ -82,6 +82,7 @@ void Request::displayRequest()
     }
     if (_body.empty() == 0)
     {
+        std::cout << "BODYYYYYYYYYYYYYYYYYYYYYYY" << std::endl;
         std::cout << std::endl;
         std::cout << _body;
     }
