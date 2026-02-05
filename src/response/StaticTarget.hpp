@@ -10,9 +10,9 @@
 
 class Request;
 class Response;
-struct ResolvedTarget;
-struct ServerConfig;
-struct LocationConfig;
+class ResolvedTarget;
+class ServerConfig;
+class LocationConfig;
 
 class StaticTarget {
 private:
