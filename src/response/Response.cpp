@@ -1,5 +1,21 @@
 #include "Response.hpp"
 
+// Response Response::buildUploadResponse(const std::string file)
+// {
+//     Response res;
+
+//     res.setStatus(201);
+//     res.setHeader("Content-Type", "text/plain");
+//     std::string body = "Upload successful" + file + "\n";
+//     res.setBody(body);
+//     std::ostringstream oss;
+//     oss << body.size();
+//     res.setHeader("Content-Length", oss.str());
+
+//     res.setHeader("Connection", "close");
+//     return res;
+// }
+
 std::string Response::makeStatusLine(int code)
 {
         if (code == 200)

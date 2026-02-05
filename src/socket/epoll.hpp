@@ -10,7 +10,10 @@
 # include "../config/ConfigFile.hpp"
 # include "../response/Response.hpp"
 # include "../request/Request.hpp"
+
 # include "../cgi/cgi.hpp"
+
+class Request;
 
 
 class Epoll
@@ -29,7 +32,7 @@ class Epoll
         void    setEventWait(int event_wait);
         int&    getEpFd();
         int&    getEventWait();
-        void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
+        void epollManagment(std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
         void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap);
         void creactNewClient(std::vector<int>& listener_fds, int j);

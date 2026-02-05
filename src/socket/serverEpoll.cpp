@@ -40,63 +40,127 @@ void Epoll::HeaderEnd(Client *client, std::string bufferString)
     client->setClientState(READING_BODY);
 }
 
-// fonction a call pour gerer EPOLLIN
+
+//TEST
 void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap)
-{         
+{
     std::string bufferString(buf, 0, byteReads);
-    if ((bufferString.find("\r\n\r\n"))!=std::string::npos)
-        HeaderEnd(client, bufferString);
-    else if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
+    client->getRequestBuffer().append(bufferString);
+
+    if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
     {
-        client->getRequestBuffer().append(bufferString);
-        client->setClientState(READING_HEADER);
-    }
-    if (client->getClientState() == READING_BODY)
-    {
-        if (client->getRequestClass().getMethod() == "GET") 
+        size_t headerEndPos = client->getRequestBuffer().find("\r\n\r\n");
+        if (headerEndPos != std::string::npos)
         {
-            client->setClientState(WAITING);
-            client->setReadyToWrite(true);
-            //client->getRequestClass().displayRequest(); // affichage requete complete
+            HeaderEnd(client, client->getRequestBuffer());
+            client->setClientState(READING_BODY);
         }
-        if (client->getRequestClass().getMethod() == "POST") 
-        {
-            // client->getRequestBuffer().append(bufferString);
-            // if (client->getContentLength() == client->getRequestBuffer().size())
-            // {
-                client->getRequestClass().parseRequest(client->getRequestBuffer());     
-                client->setClientState(WAITING);
-                client->setReadyToWrite(true);                            
-                //client->getRequestClass().displayRequest(); // affichage requete complete
-                //std::cout << client->getRequestClass().getBody() << std::endl;                
-            // }
-        }        
         else
         {
-            // client->get_requestBuffer().append(bufferString);
+            client->setClientState(READING_HEADER);
+            return;
         }
     }
-    if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
+
+    if (client->getClientState() == READING_BODY)
     {
-        //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
+        const std::string &cl = client->getRequestClass().getHeader("Content-Length");
+        unsigned long contentLength = 0;
+
+        if (!cl.empty())
+        {
+            char *endptr = NULL;
+            contentLength = std::strtoul(cl.c_str(), &endptr, 10);
+            if (*endptr != '\0')
+                contentLength = 0;
+        }
+
+        size_t headersEnd = client->getRequestBuffer().find("\r\n\r\n");
+        size_t bodyStart = headersEnd + 4;
+        size_t bodySize = client->getRequestBuffer().size() - bodyStart;
+
+        if (bodySize >= contentLength)
+        {
+            std::string fullRequest = client->getRequestBuffer();
+            client->getRequestClass().parseRequest(fullRequest);
+            client->setClientState(WAITING);
+            client->setReadyToWrite(true);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (client->getReadyToWrite())
+    {
         Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], _CgiMap);
-        //Res.displayResponse();
         client->setResponseBuffer(Res.constructResponse());
-        _ev.events = EPOLLOUT ;
-        _ev.data.fd = client->getFd();            
+        _ev.events = EPOLLOUT;
+        _ev.data.fd = client->getFd();
         epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
-
-        // std::cout << "string response" << std::endl;
-        // std::cout << responseString << std::endl;   
-
-        //reponse basique automatique pour voir que ca marche
-        // std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO";
-        // write(client->getFd(), client->getResponseBuffer().c_str(), client->getResponseBuffer().size());
-        // client->setReadyToWrite(false);
-        // client->clearRequest(); 
-        // close(client->getFd()); 
-    }                            
+    }
 }
+
+
+// // fonction a call pour gerer EPOLLIN
+// void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap)
+// {         
+//     std::string bufferString(buf, 0, byteReads);
+//     if ((bufferString.find("\r\n\r\n"))!=std::string::npos)
+//         HeaderEnd(client, bufferString);
+//     else if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
+//     {
+//         client->getRequestBuffer().append(bufferString);
+//         client->setClientState(READING_HEADER);
+//     }
+//     if (client->getClientState() == READING_BODY)
+//     {
+//         if (client->getRequestClass().getMethod() == "GET") 
+//         {
+//             client->setClientState(WAITING);
+//             client->setReadyToWrite(true);
+//             //client->getRequestClass().displayRequest(); // affichage requete complete
+//         }
+//         if (client->getRequestClass().getMethod() == "POST") 
+//         {
+//             // client->getRequestBuffer().append(bufferString);
+//             // if (client->getContentLength() == client->getRequestBuffer().size())
+//             // {
+//                 client->getRequestClass().parseRequest(client->getRequestBuffer());     
+//                 client->setClientState(WAITING);
+//                 client->setReadyToWrite(true);                            
+//                 //client->getRequestClass().displayRequest(); // affichage requete complete
+//                 //std::cout << client->getRequestClass().getBody() << std::endl;                
+//             // }
+//         }        
+//         else
+//         {
+//             return ;
+//             // client->get_requestBuffer().append(bufferString);
+//         }
+//     }
+//     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
+//     {
+//         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
+//         Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], _CgiMap);
+//         //Res.displayResponse();
+//         client->setResponseBuffer(Res.constructResponse());
+//         _ev.events = EPOLLOUT ;
+//         _ev.data.fd = client->getFd();            
+//         epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
+
+//         // std::cout << "string response" << std::endl;
+//         // std::cout << responseString << std::endl;   
+
+//         //reponse basique automatique pour voir que ca marche
+//         // std::string response = "HTTP/1.0 200 OK\r\n\r\nHELLO";
+//         // write(client->getFd(), client->getResponseBuffer().c_str(), client->getResponseBuffer().size());
+//         // client->setReadyToWrite(false);
+//         // client->clearRequest(); 
+//         // close(client->getFd()); 
+//     }                            
+// }
 
 void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers)
 {

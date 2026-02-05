@@ -74,6 +74,8 @@ class Request
         void setPath(std::string path);
         void setQuery(std::string query);
         void setProtocol(std::string protocol);
+        // void setBody(const std::string &s);
+        // void setHeader(const std::string &key, const std::string &s);
 
         bool hasHeader(const std::string& k) const { return _header.find(k) != _header.end(); }
         void displayRequest();

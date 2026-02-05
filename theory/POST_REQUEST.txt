@@ -1,0 +1,18 @@
+POST /upload HTTP/1.1
+Host: localhost:8080
+Content-Type: multipart/form-data; boundary=----BOUNDARY123
+Content-Length: 512
+
+------BOUNDARY123
+Content-Disposition: form-data; name="file"; filename="example.txt"
+Content-Type: text/plain
+
+Hello world! This is the content of the file.
+------BOUNDARY123
+Content-Disposition: form-data; name="description"
+
+This is a description of the file.
+------BOUNDARY123--
+
+--> en gros le body dune reques POST va ressembler a ca
+moi je vais crer ces diffrentes parties que je vais stocker dans un veceur. Chaque partie a ses headers et son content 

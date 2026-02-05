@@ -65,7 +65,7 @@ void LocationConfig::parseLocationMaxBodySize(const std::string &s)
     if (!isdigit(lastChar))
         numStr = val.substr(0, val.size() - 1);
     this->_maxBodySize = strtoul(numStr.c_str(), NULL, 10) * multiplier;
-    this->_maxBodySize = true;
+    this->_hasMaxBodySize = true;
 }
 
 void LocationConfig::parseLocationAllowMethods(const std::string &s)
