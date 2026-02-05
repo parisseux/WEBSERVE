@@ -5,9 +5,11 @@
 # include <fstream>
 # include "../src/response/Response.hpp"
 # include "../src/response/StaticTarget.hpp"
+# include "../src/response/Upload.hpp"
 
 class Cgi;
 class Response;
+class Upload;
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body

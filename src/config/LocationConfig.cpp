@@ -36,6 +36,16 @@ void LocationConfig::parseLocationAutoindex(const std::string &s)
     this->_hasAutoindex = true;
 }
 
+void LocationConfig::parseLocationUploadPath(const std::string &s)
+{
+    if (this->_hasUploadPath)
+        throw std::runtime_error("Duplicate 'upload_path' directive in location " + this->_path);
+    this->_uploadPath = removeSemicolon(s.substr(12));
+    if (this->_uploadPath.empty())
+        throw std::runtime_error("Empty upload_path in location " + this->_path);
+    this->_hasUploadPath = true;
+}
+
 void LocationConfig::parseLocationMaxBodySize(const std::string &s)
 {
     if (this->_hasMaxBodySize)
@@ -103,6 +113,8 @@ void LocationConfig::parseLocationLine(const std::string &s)
         this->parseLocationMaxBodySize(s);
     else if (s.find("allow_methods ") == 0)
         this->parseLocationAllowMethods(s);
+    else if (s.find("upload_path ") == 0)
+        this->parseLocationUploadPath(s);
     else
         throw std::runtime_error("Unknown directive in location " + this->_path + ": " + s);
 }
