@@ -42,7 +42,7 @@ class Client
         Request&     getRequestClass();
         ClientState  getClientState();
         void         clearRequest();
-        int          getContentLength();
+        unsigned int getContentLength();
 };
 
 void setNonBlocking(int fd);

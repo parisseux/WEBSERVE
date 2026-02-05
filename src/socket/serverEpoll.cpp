@@ -59,22 +59,16 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
             client->setReadyToWrite(true);
             //client->getRequestClass().displayRequest(); // affichage requete complete
         }
-        if (client->getRequestClass().getMethod() == "POST") 
+        if (client->getRequestBuffer().length() == client->getContentLength())
+            std::cout << client->getRequestBuffer() << std::endl;
+        if (client->getRequestClass().getMethod() == "POST" && client->getRequestBuffer().length() < client->getContentLength()) 
         {
-            // client->getRequestBuffer().append(bufferString);
-            // if (client->getContentLength() == client->getRequestBuffer().size())
-            // {
-                client->getRequestClass().parseRequest(client->getRequestBuffer());     
-                client->setClientState(WAITING);
-                client->setReadyToWrite(true);                            
-                //client->getRequestClass().displayRequest(); // affichage requete complete
-                //std::cout << client->getRequestClass().getBody() << std::endl;                
-            // }
-        }        
-        else
-        {
-            // client->get_requestBuffer().append(bufferString);
+            client->getRequestBuffer().append(bufferString);
         }
+        // else
+        // {
+            // client->get_requestBuffer().append(bufferString);
+        // }
     }
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
@@ -95,7 +89,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
         // client->setReadyToWrite(false);
         // client->clearRequest(); 
         // close(client->getFd()); 
-    }                            
+    }
 }
 
 void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers)
@@ -144,7 +138,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
                 if (byteReads > 0)
                     manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf, servers, _CgiMap);
             }
-        
         }
     }
     return ;
