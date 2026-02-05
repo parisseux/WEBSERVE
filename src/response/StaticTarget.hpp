@@ -10,7 +10,7 @@
 
 class Request;
 class Response;
-class ResolvedTarget;
+struct ResolvedTarget;
 class ServerConfig;
 class LocationConfig;
 

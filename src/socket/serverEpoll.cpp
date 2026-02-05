@@ -79,9 +79,10 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
         //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
-        Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], _CgiMap);
+        client->setClientState(GENERATING_BODY);
+        client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], _CgiMap, client);
         //Res.displayResponse();
-        client->setResponseBuffer(Res.constructResponse());
+        // client->setResponseBuffer(Res.constructResponse());
         _ev.events = EPOLLOUT ;
         _ev.data.fd = client->getFd();            
         epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
@@ -107,6 +108,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
         _event_wait = epoll_wait(_ep_fd, _events, 10, -1);
         for (int i = 0; i < _event_wait; i++)
         {
+            std::map<int, Client*>::iterator it;
             bool is_listener = false;
             for (unsigned int j = 0; j < listener_fds.size(); j++)
             {
@@ -114,12 +116,12 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
                 {
                     creactNewClient(listener_fds, j);
                     is_listener = true;
-                    break;
+                    break; 
                 }
             }
             if (!is_listener && (_events[i].events & EPOLLOUT))
             {
-                std::map<int, Client*>::iterator it;
+                // std::map<int, Client*>::iterator it;
                 for (it = Clients_map.begin(); it != Clients_map.end(); ++it)
                 {
                     //std::cout << it->first << std::endl;
@@ -128,15 +130,24 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
                         //std::cout << "client found" << std::endl;
                         Client *client;
                         client = it->second;
-                        size_t byteReads = send(_events[i].data.fd, client->getResponseBuffer().c_str(), client->getResponseBuffer().size(), 0);
+                        std::string response = client->getResponseBuffer().front();
+                        size_t byteReads = send(_events[i].data.fd, response.c_str(), response.size(), 0);
                         if (byteReads > 0)
                             std::cout << "send finished" << std::endl;
                         client->setReadyToWrite(false);
-                        client->clearRequest(); 
+                        client->clearRequest();
                         close(client->getFd());
                     }
                 }
-            }                
+            }
+            // for (it = Clients_map.begin(); it != Clients_map.end(); ++it)
+            // {
+            //     Client *client;
+            //     client = it->second;
+            //     if (client->getClientState() == GENERATING_BODY)
+            //     {
+            //     }
+            // }       
             if (!is_listener && (_events[i].events & EPOLLIN))
             {
                 char buf[4000];
@@ -144,7 +155,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
                 if (byteReads > 0)
                     manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf, servers, _CgiMap);
             }
-        
         }
     }
     return ;

@@ -3,6 +3,7 @@
 
 # include "../response/Response.hpp"
 # include "unistd.h"
+Epoll epoll;
 
 class Cgi
 {
@@ -12,7 +13,7 @@ class Cgi
         std::vector<char*> _envCgi;       
 
     public:
-        Response handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap);
+        Response handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll epoll);
         void readFd(int fd, std::string &content);
         void addCgiEnv(Request &req, std::string path, std::vector<std::string> &envCgiString);
         void MakeCgiEnv(Request &req);

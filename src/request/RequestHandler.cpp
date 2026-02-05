@@ -1,5 +1,6 @@
 #include "Request.hpp"
 #include "../cgi/cgi.hpp"
+#include "../client/client.hpp"
 
 int Request::ValidateRequest(const Request &req)
 {
@@ -62,34 +63,54 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     return (bestLoc);
 }
 
-Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap)
+void Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap, Client *client)
 {
     int status = req.ValidateRequest(req);
     if (status == 400)
-        return (Response::Error(400, "400 Bad Request"));
+    {
+        client->getResponseBuffer().push_front(Response::Error(400, "400 Bad Request").constructResponse());
+        client->setClientState(SENDING_BODY);        
+        return ; 
+    }
     if (status == 501)
-        return (Response::Error(501, "501 Not Implemented"));
+    {
+        client->getResponseBuffer().push_front(Response::Error(501, "501 Not Implemented").constructResponse());
+        client->setClientState(SENDING_BODY);        
+        return ;        
+    }
     const LocationConfig *loc = req.MatchLocation(req.getPath(), locations);
     if (!loc)
-        return (Response::Error(500, "500 No location matched (unexpected)"));
+    {
+        client->getResponseBuffer().push_front(Response::Error(500, "500 No location matched (unexpected)").constructResponse());
+        client->setClientState(SENDING_BODY);        
+        return ;          
+    }
     status = req.MethodAllowed(req, loc);
     if (status == 405)
-        return (Response::Error(405, "405 Method Not Allowed"));
-
+    {
+        client->getResponseBuffer().push_front(Response::Error(405, "405 Method Not Allowed").constructResponse());
+        client->setClientState(SENDING_BODY);        
+        return ; 
+    }
     // buildRedirectResponse(loc);
 
     // CGI handler va executer un script ou un process
     if (isCgi(req, server, *loc))
     {
-        class Cgi cgi;
-        cgi.handleCgi(req, server, *loc, _CgiMap);
+        Cgi cgi;
+        cgi.handleCgi(req, server, *loc, _CgiMap, client);
     }
-    //upload handler (="POST") va venir écrire dans un fichier
+    //upload handler (="POST") va venir écrire dans un fichiers
     // handleUpload(req, server, *loc);
 
     // static handler va lire un fichier
     //Ici on se charge de trouver la réponse quon doit envoyer au clients
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
-    return (st.BuildStaticResponse(req, target));
+    Response res = st.BuildStaticResponse(req, target);
+    client->getResponseBuffer().push_front(res.constructResponse().data());
+    if (client->getContentLength() == client->getResponseBufferLength())
+    {
+        client->setClientState(SENDING_BODY);
+    }
 }

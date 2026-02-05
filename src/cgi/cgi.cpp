@@ -95,7 +95,7 @@ void Cgi::MakeCgiEnv(Request &req)
     _envCgi.push_back(NULL);
 }
 
-Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap)
+Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll epoll)
 {
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
@@ -144,7 +144,8 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
         default:
             std::cout << "Parent Process" << std::endl;
 
-            close(fd[0]);
+            // close(fd[0]);
+            client->setCgiFd(fd[0]);
             write(fd[1], req.getBody().c_str(), req.getBody().size());
             close(fd[1]);                      
             // std::string content;            
@@ -161,10 +162,9 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
             _CgiMap.insert(std::make_pair(fd[0], this));
             int flags = fcntl(fd[0], F_GETFL, 0);
             fcntl(fd[0], F_SETFL, flags | O_NONBLOCK);
-            // _ev.events = EPOLLIN;
-            // _ev.data.fd = fd[0];
-            // epoll_ctl(_ep_fd, EPOLL_CTL_ADD, fd[0], &_ev);
-
+            epoll.setEvent(EPOLLIN);
+            epoll.setEventFd(fd[0]);
+            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, fd[0], epoll.getEvent());
             std::cout << "DONE with CGI" << std::endl;           
             return res;        
     } 

@@ -8,6 +8,7 @@
 
 class Cgi;
 class Response;
+class Client;
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body
@@ -41,7 +42,7 @@ class Request
 
         //handler
         bool StartsWith(const std::string& s, const std::string& prefix);
-        Response Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap);
+        void Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap, Client *client);
         const LocationConfig *MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations);
         int MethodAllowed(const Request& req, const LocationConfig* loc);
         int ValidateRequest(const Request &req);

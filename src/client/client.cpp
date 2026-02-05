@@ -30,7 +30,7 @@ void Client::setRequestBuffer(std::string requestBuffer)
     this->_requestBuffer = requestBuffer;
 }
 
-void Client::setResponseBuffer(std::string responseBuffer)
+void Client::setResponseBuffer(std::deque<std::string> responseBuffer)
 {
     this->_responseBuffer = responseBuffer;
 }
@@ -62,7 +62,7 @@ std::string& Client::getRequestBuffer()
     return (this->_requestBuffer);
 }
 
-std::string& Client::getResponseBuffer()
+std::deque<std::string>& Client::getResponseBuffer()
 {
     return (this->_responseBuffer);
 }
@@ -94,6 +94,17 @@ int Client::getContentLength()
 		std::cout << "Erreur conversion en int dans calcul content length" << std::endl;              
 	}    
     return (content_length);
+}
+
+int Client::getResponseBufferLength()
+{
+    std::deque<std::string>::iterator it;
+    int length = 0;
+    for (it = _responseBuffer.begin(); it != _responseBuffer.end(); ++it)
+    {
+        length += it->size();
+    }
+    return (length);
 }
 
 void Client::clearRequest()
