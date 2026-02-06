@@ -32,6 +32,8 @@ class Request
         std::string _protocol; // HTTP/1.1. en general (parissa: selon le sujet plutot HTTP 1.0)
         std::map<std::string, std::string> _header;
         std::string _body;
+        std::vector<unsigned char> _bodyBinary;
+
     public:
         Request();
         Request(std::string request);
@@ -55,6 +57,7 @@ class Request
         std::string& getQuery() { return _query; }
         std::string& getProtocol(){ return _protocol; }
         std::string& getBody() { return _body; }
+        std::vector<unsigned char>  &getBodyBinary() { return _bodyBinary; }
         std::map<std::string,std::string>& getHeaders() { return _header; }    
   
         //lecture seule
@@ -65,6 +68,7 @@ class Request
         const std::string& getProtocol()const { return _protocol; }
         const std::map<std::string,std::string>& getHeaders() const { return _header; }
         const std::string& getBody()    const { return _body; }
+        const std::vector<unsigned char>  &getBodyBinary() const { return _bodyBinary; }
         std::string getHeader(const std::string& k) const {
         std::map<std::string,std::string>::const_iterator it = _header.find(k);
         return (it == _header.end()) ? "" : it->second; }  

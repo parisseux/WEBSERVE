@@ -16,3 +16,13 @@ This is a description of the file.
 
 --> en gros le body dune reques POST va ressembler a ca
 moi je vais crer ces diffrentes parties que je vais stocker dans un veceur. Chaque partie a ses headers et son content 
+
+
+
+//pour m'aider a parser
+Boucle while --> jusqua quon trouve ------BOUNDARY123-- pck ca veut dire cest la fin du body
+
+en gros a chaque Boudary on commence a  parser header jusqua empty line
+apres on skip empty line ("\r\n")
+et on commence a parser content jusqua prochain boudray 
+on sarrete quand on atteins le final boudnary qui finit par "--"

@@ -19,7 +19,8 @@ bool Upload::parseBoundary(const Request &req)
     size_t pos = ct.find("boundary=");
     if (pos == std::string::npos)
         return false;
-    _boundary = ct.substr(pos + 9);
+    std::string boundaryStr = ct.substr(pos + 9);
+    _boundary.assign(boundaryStr.begin(), boundaryStr.end());
     return true;
 }
 
@@ -64,6 +65,69 @@ int Upload::CheckBodySize(const LocationConfig &loc, const Request &req)
     return (0);
 }
 
+std::map<std::string, std::string> Upload::FillHeaders(std::string headerStr)
+{
+    std::map<std::string, std::string> headers; 
+    //permet de transfomrer string en flux comme si cetait un fichier donc on peut utilsier getline
+    std::stringstream ss(headerStr);
+    std::string line;
+
+    while (std::getline(ss, line))
+    {
+        if (!line.empty() && line[line.size() - 1] == '\r')
+            line.erase(line.size() - 1);
+        if (line.empty())
+            break;
+        size_t colon_pos = line.find(':');
+        if (colon_pos == std::string::npos)
+            continue;
+        std::string key = line.substr(0, colon_pos);
+        std::string value = line.substr(colon_pos + 1);
+        if (!value.empty() && value[0] == ' ')
+            value.erase(0, 1);
+        headers[key] = value;
+    }
+    return (headers);
+}
+
+void Upload::ParseBody(const Request &req)
+{
+    const std::vector<unsigned char> &body = req.getBodyBinary();
+    size_t pos = 0;
+    
+    while (1)
+    {
+        //chercher boudary si on a arrive a la fin de vecteur sans trouver break
+
+        //si on est au deernier boudray on break
+
+        //
+        // auto it = std::find(body.begin() + pos, body.end(),_boundary.begin(), _boundary.end());
+        // if (it == body.end())
+        //     break;
+        // if (body.compare(boundary_pos, _boundary.size() + 2, _boundary + "--") == 0)
+        //     break;
+        // // +2 pour -- et +2 pour \r\n
+        // pos = boundary_pos + _boundary.size() + 2 + 2;
+        // size_t headerEnd_pos = body.find("\r\n\r\n", pos);
+        // //la string contient toute la partie headers que je dois mnt remettre dans headers
+        // std::string headersStr = body.substr(pos, headerEnd_pos - pos);
+
+        // pos += headerEnd_pos + 4;
+        // size_t contentEnd_pos = body.find(_boundary, pos);
+        // std::string contentStr = body.substr(pos, contentEnd_pos - pos);
+        
+        // //on crer la partie avec headers et content et on l-ajoute au vecteur
+        // Part p;
+        // p.content = std::move(content); // vecteur binaire
+        // p.headers = FillHeaders(headersStr);
+        // _parts.push_back(std::move(p));
+    }
+    
+    std::cout << "Parsing of body finish" << std::endl;
+
+}
+
 Response Upload::Handle(const LocationConfig &loc, const Request &req)
 {
     if (!loc.getHasUploadPath())
@@ -85,6 +149,8 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
     std::cout << "--------- Handling upload ------" << std::endl;
     std::cout << "Boundary : " << _boundary << std::endl;
     
+    //ici je viens parser le body pour le "cut" en "parts" et contenir ces parties dans un vecteur pour pouvoir les traiter apres
+    ParseBody(req);
 
     return (Response::Error(42, "finir fonction"));
     // Response res;
