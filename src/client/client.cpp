@@ -85,11 +85,11 @@ ClientState Client::getClientState()
 unsigned int Client::getContentLength()
 {
     std::string length;
-    int content_length;
+    unsigned int content_length;
     char *pEnd;
     length = headerValue("Content-Length", this->getRequestClass());
     content_length = std::strtoul(length.c_str(), &pEnd, 10);
-	if (*pEnd != '\0')
+	if (*pEnd != '\0' && *pEnd != '\r')
 	{    
 		std::cout << "Erreur conversion en int dans calcul content length" << std::endl;              
 	}    
