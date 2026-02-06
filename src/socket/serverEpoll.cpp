@@ -62,9 +62,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
         if (client->getRequestBuffer().length() == client->getContentLength())
             std::cout << "post body is : " << client->getRequestBuffer() << std::endl;
         if (client->getRequestClass().getMethod() == "POST" && client->getRequestBuffer().length() < client->getContentLength()) 
-        {
             client->getRequestBuffer().append(bufferString);
-        }
         // else
         // {
             // client->get_requestBuffer().append(bufferString);
