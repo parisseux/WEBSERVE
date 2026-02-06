@@ -1,5 +1,9 @@
 #include "cgi.hpp"
 #include "../socket/epoll.hpp"
+#include "../response/Response.hpp"
+#include "../request/Request.hpp"
+#include "wait.h"
+
 
 extern char** environ;
 
@@ -95,7 +99,7 @@ void Cgi::MakeCgiEnv(Request &req)
     _envCgi.push_back(NULL);
 }
 
-Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll epoll)
+Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll &epoll)
 {
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
@@ -115,18 +119,9 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
     };
     if (pipe(fd) == -1)
         std::cout << "Pipe function error" << std::endl;
-    pid = fork();
     Response res;
-    MakeCgiEnv(req);
-    // for (int i = 0; server.env[i] != NULL; ++i)
-    // {
-    //     std::string line(server.env[i]);
-    //     _envCgiString.push_back(line);
-    // }
-    // cgi.addCgiEnv(req, _path, _envCgiString);
-    // for (unsigned int i = 0; i < _envCgiString.size(); ++i)
-    //     _envCgi.push_back((char *)_envCgiString[i].c_str());
-    // _envCgi.push_back(NULL);
+    MakeCgiEnv(req);      
+    pid = fork();
     switch (pid)
     {
         case -1:
@@ -143,28 +138,29 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
             break ;
         default:
             std::cout << "Parent Process" << std::endl;
-
             // close(fd[0]);
             client->setCgiFd(fd[0]);
-            write(fd[1], req.getBody().c_str(), req.getBody().size());
+            write(fd[1], req.getBody().c_str(), req.getBody().size());  
             close(fd[1]);                      
             // std::string content;            
             // waitpid(pid, &status, 0);
-            // // readFd(fd[0], content);
-            // // close(fd[0]);                    
+            // readFd(fd[0], content);
+            // close(fd[0]);
+            // std::cout << content << std::endl;                   
             // res.setStatus(200);
             // res.setHeader("Content-Type", "text/html");
             // int len = content.size();
             // std::stringstream ss;
             // ss << len;
             // res.setHeader("Content-Length", ss.str());
-            // res.setBody(content);
             _CgiMap.insert(std::make_pair(fd[0], this));
             int flags = fcntl(fd[0], F_GETFL, 0);
             fcntl(fd[0], F_SETFL, flags | O_NONBLOCK);
             epoll.setEvent(EPOLLIN);
             epoll.setEventFd(fd[0]);
             epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, fd[0], epoll.getEvent());
+            // readFd(fd[0], content);
+            // std::cout << content << std::endl;               
             std::cout << "DONE with CGI" << std::endl;           
             return res;        
     } 

@@ -3,12 +3,11 @@
 
 # include "../config/ConfigFile.hpp"
 # include <fstream>
-# include "../src/response/Response.hpp"
-# include "../src/response/StaticTarget.hpp"
 
 class Cgi;
 class Response;
 class Client;
+class Epoll;
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body
@@ -42,7 +41,7 @@ class Request
 
         //handler
         bool StartsWith(const std::string& s, const std::string& prefix);
-        void Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap, Client *client);
+        void Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll &epoll);
         const LocationConfig *MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations);
         int MethodAllowed(const Request& req, const LocationConfig* loc);
         int ValidateRequest(const Request &req);

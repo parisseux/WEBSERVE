@@ -3,68 +3,59 @@ import json
 import cgi
 import cgitb
 import os
+import sys  # Import nécessaire pour écrire dans stdout directement
 from datetime import datetime
 
-import os
-
-# print ("PYTHON SCRIPT")
-
-# for cle, valeur in os.environ.items():
-#     print(f"<tr><td><b>{cle}</b></td><td>{valeur}</td></tr>")
-
-# print("</table>")
-
-# Juste après l'import os
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# On change le répertoire de travail du processus
-os.chdir(script_dir)
-
-
-with open("debug.log", "a") as f:
-    f.write(f"Content-Length reçu : {os.environ.get('CONTENT_LENGTH')}\n")
-    f.write(f"request reçu : {os.environ.get('REQUEST_METHOD')}\n")
-
-
-
-# Affiche les erreurs sur la page pour le debug
+# Configuration du debug
 cgitb.enable()
-
 DB_FILE = 'data.json'
 
-# 1. Traitement du formulaire (si envoyé)
+def send_chunk(data):
+    """Encapsule une chaîne de caractères au format Chunked Transfer Encoding."""
+    if not data:
+        return
+    # On encode en utf-8 pour obtenir la taille réelle en octets
+    chunk_body = data.encode('utf-8')
+    size = hex(len(chunk_body))[2:].upper()
+    sys.stdout.buffer.write(f"{size}\r\n".encode('utf-8'))
+    sys.stdout.buffer.write(chunk_body + b"\r\n")
+    sys.stdout.buffer.flush()
+
+# --- Logique de traitement des données (inchangée) ---
 form = cgi.FieldStorage()
 new_title = form.getvalue('title')
 new_content = form.getvalue('content')
 
 if new_title and new_content:
-    # Charger les données existantes
     if os.path.exists(DB_FILE):
         with open(DB_FILE, 'r', encoding='utf-8') as f:
             takes = json.load(f)
     else:
         takes = []
-
-    # Ajouter la nouvelle take
     takes.insert(0, {
         "title": new_title,
         "content": new_content,
         "date": datetime.now().strftime("%d %B %Y")
     })
-
-    # Sauvegarder
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(takes, f, indent=4, ensure_ascii=False)
 
-# 2. Lecture des données pour l'affichage
 if os.path.exists(DB_FILE):
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         takes = json.load(f)
 else:
     takes = []
 
-# 3. Génération de la réponse HTTP
-print(f"""
+# --- Début de la réponse HTTP ---
+
+# Headers : On utilise sys.stdout.buffer pour éviter les conflits d'encodage
+sys.stdout.buffer.write(b"Content-Type: text/html; charset=UTF-8\r\n")
+sys.stdout.buffer.write(b"Transfer-Encoding: chunked\r\n")
+sys.stdout.buffer.write(b"\r\n")
+sys.stdout.buffer.flush()
+
+# 1er morceau : Le Head et le Header
+send_chunk(f"""
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -81,24 +72,27 @@ print(f"""
       <button type="submit">Balancer ma Take</button>
     </form>
   </header>
-
   <main>
 """)
 
+# Morceaux suivants : Chaque article peut être un chunk séparé
 for take in takes:
-    print(f"""
+    article_html = f"""
     <article class="hot-take">
       <h2>{take['title']}</h2>
       <p class="date">Publié le {take['date']}</p>
       <p>{take['content']}</p>
     </article>
-    """)
+    """
+    send_chunk(article_html)
 
-print("""
+# Dernier morceau : Fermeture du HTML
+send_chunk("""
   </main>
 </body>
 </html>
 """)
 
-with open("debug.log", "a") as f:
-    f.write(f"SCRIPT FINISHED")
+# Chunk de fin obligatoire
+sys.stdout.buffer.write(b"0\r\n\r\n")
+sys.stdout.buffer.flush()

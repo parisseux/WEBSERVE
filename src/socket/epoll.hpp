@@ -12,6 +12,8 @@
 # include "../request/Request.hpp"
 # include "../cgi/cgi.hpp"
 
+class Client;
+class Cgi;
 
 class Epoll
 {
@@ -35,6 +37,7 @@ class Epoll
         void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
         void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap);
+        void manageCgi(Client *client, int byteReads, char *buf);
         void creactNewClient(std::vector<int>& listener_fds, int j);
         void HeaderEnd(Client *client, std::string bufferString);
 };

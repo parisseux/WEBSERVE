@@ -1,6 +1,9 @@
 #include "Request.hpp"
 #include "../cgi/cgi.hpp"
 #include "../client/client.hpp"
+#include "../response/Response.hpp"
+#include "../response/StaticTarget.hpp"
+#include "../socket/epoll.hpp"
 
 int Request::ValidateRequest(const Request &req)
 {
@@ -63,7 +66,7 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     return (bestLoc);
 }
 
-void Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap, Client *client)
+void Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll &epoll)
 {
     int status = req.ValidateRequest(req);
     if (status == 400)
@@ -98,7 +101,8 @@ void Request::Handle(Request &req, const std::vector<LocationConfig>& locations,
     if (isCgi(req, server, *loc))
     {
         Cgi cgi;
-        cgi.handleCgi(req, server, *loc, _CgiMap, client);
+        cgi.handleCgi(req, server, *loc, _CgiMap, client, epoll);
+        return ;
     }
     //upload handler (="POST") va venir écrire dans un fichiers
     // handleUpload(req, server, *loc);

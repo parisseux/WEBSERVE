@@ -18,6 +18,8 @@ enum ClientState
     SENDING_BODY
 };
 
+class Request;
+
 class Client 
 {
     private:
@@ -49,6 +51,7 @@ class Client
         int          getContentLength();
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
+        int          getCgiFd(){return(_cgi_fd);}
 };
 
 void setNonBlocking(int fd);
