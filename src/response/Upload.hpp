@@ -7,6 +7,7 @@
 # include <iostream>
 # include <fstream>
 # include <vector>
+# include <algorithm>
 # include "../response/Response.hpp"
 # include "../config/LocationConfig.hpp"
 
@@ -31,6 +32,7 @@ private:
     Response buildResponse(const std::string file);
     void ParseBody(const Request &req);
     std::map<std::string, std::string> FillHeaders(std::string headerStr);
+    void ProcessParts();
 
 public:
     int CheckBodySize(const LocationConfig &loc, const Request &req);

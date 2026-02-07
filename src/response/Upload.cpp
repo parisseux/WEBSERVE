@@ -20,7 +20,10 @@ bool Upload::parseBoundary(const Request &req)
     if (pos == std::string::npos)
         return false;
     std::string boundaryStr = ct.substr(pos + 9);
-    _boundary.assign(boundaryStr.begin(), boundaryStr.end());
+     _boundary.clear();
+    _boundary.push_back('-');
+    _boundary.push_back('-');
+    _boundary.insert(_boundary.end(), boundaryStr.begin(), boundaryStr.end());
     return true;
 }
 
@@ -90,42 +93,67 @@ std::map<std::string, std::string> Upload::FillHeaders(std::string headerStr)
     return (headers);
 }
 
+//pour chaque parties on va, verifier si y a un fichier (content-disposition: filename=" " )
+//si fichier il va falloir creer un fichier dans upload
+//Attention verifier si filename is valid pas de ../
+void Upload::ProcessParts()
+{
+    std::cout << "Lets start processing each part" << std::endl;
+    std::cout << "Number of parts: " << _parts.size() << std::endl;
+
+    for (size_t i = 0; i < _parts.size() ; i++)
+    {
+        Part &p = _parts[i];
+        std::cout << "Part: " << i + 1 << std::endl;
+        std::cout << "HEADERS" << std::endl;
+        for (std::map<std::string,std::string>::const_iterator it = p.headers.begin();
+            it != p.headers.end(); ++it)
+        {
+            std::cout << it->first << ": " << it->second << std::endl;
+        }
+
+        // Ici tu peux ajouter le traitement du content
+        std::cout << "Content size: " << p.content.size() << " bytes" << std::endl;
+    }
+    
+}
+
 void Upload::ParseBody(const Request &req)
 {
+    std::cout << "Request body size: " << req.getBodyBinary().size() << std::endl;
     const std::vector<unsigned char> &body = req.getBodyBinary();
     size_t pos = 0;
     
     while (1)
     {
-        //chercher boudary si on a arrive a la fin de vecteur sans trouver break
+        std::vector<unsigned char>::const_iterator it = std::search(body.begin() + pos, body.end(), _boundary.begin(), _boundary.end());
+        if (it == body.end())
+            break ;
+        size_t boundary_pos = it - body.begin();
 
-        //si on est au deernier boudray on break
-
-        //
-        // auto it = std::find(body.begin() + pos, body.end(),_boundary.begin(), _boundary.end());
-        // if (it == body.end())
-        //     break;
-        // if (body.compare(boundary_pos, _boundary.size() + 2, _boundary + "--") == 0)
-        //     break;
-        // // +2 pour -- et +2 pour \r\n
-        // pos = boundary_pos + _boundary.size() + 2 + 2;
-        // size_t headerEnd_pos = body.find("\r\n\r\n", pos);
-        // //la string contient toute la partie headers que je dois mnt remettre dans headers
-        // std::string headersStr = body.substr(pos, headerEnd_pos - pos);
-
-        // pos += headerEnd_pos + 4;
-        // size_t contentEnd_pos = body.find(_boundary, pos);
-        // std::string contentStr = body.substr(pos, contentEnd_pos - pos);
+        if (boundary_pos + _boundary.size() + 2 <= body.size() && body[boundary_pos + _boundary.size()] == '-'
+            && body[boundary_pos + _boundary.size() + 1] == '-')
+            break;
         
-        // //on crer la partie avec headers et content et on l-ajoute au vecteur
-        // Part p;
-        // p.content = std::move(content); // vecteur binaire
-        // p.headers = FillHeaders(headersStr);
-        // _parts.push_back(std::move(p));
-    }
-    
-    std::cout << "Parsing of body finish" << std::endl;
+        pos = boundary_pos + _boundary.size() + 2;
+        static const unsigned char sep[] = {'\r','\n','\r','\n'};
+        std::vector<unsigned char>::const_iterator header_end_it  = std::search(body.begin() + pos, body.end(), sep, sep + 4);
+        if (header_end_it == body.end())
+            break;
+        std::string headersStr(body.begin() + pos, header_end_it);
+        pos = (header_end_it - body.begin()) + 4;
 
+        std::vector<unsigned char>::const_iterator content_end_it = std::search(body.begin() + pos, body.end(), _boundary.begin(), _boundary.end());
+        std::vector<unsigned char> content(body.begin() + pos, content_end_it);
+
+        Part p;
+        p.content = content;
+        p.headers = FillHeaders(headersStr);
+        _parts.push_back(p);
+
+        pos = content_end_it - body.begin();
+    }
+    std::cout << "Parsing of body finish" << std::endl;
 }
 
 Response Upload::Handle(const LocationConfig &loc, const Request &req)
@@ -143,14 +171,40 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
     
     if (!dirExists(_uploadDir))
         return Response::Error(500, "Upload folder does not exist");
+    std::cout << "good dir" << std::endl;  
     if (!canWrite(_uploadDir))
         return Response::Error(403, "No write permission in upload folder");
 
     std::cout << "--------- Handling upload ------" << std::endl;
-    std::cout << "Boundary : " << _boundary << std::endl;
-    
-    //ici je viens parser le body pour le "cut" en "parts" et contenir ces parties dans un vecteur pour pouvoir les traiter apres
-    ParseBody(req);
+    // std::cout << "Boundary : " << _boundary << std::endl;
+ // ----- FAKE BODY POUR TEST -----
+    // Seulement pour tester le parsing multipart avec 2 parts
+    std::string boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+    std::string bodyStr =
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"file1\"; filename=\"test1.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "Hello from file 1\n"
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"file2\"; filename=\"test2.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "Hello from file 2\n"
+        "--" + boundary + "--\r\n";
+
+    // Copie de la requête pour injecter le body factice
+    Request fakeReq = req; 
+    fakeReq.getBodyBinary() = std::vector<unsigned char>(bodyStr.begin(), bodyStr.end());
+    fakeReq.getBody() = bodyStr;
+
+    // Convertir le boundary en vector<unsigned char>
+    _boundary = std::vector<unsigned char>(boundary.begin(), boundary.end());
+
+    // Parser le body factice et découper en parts
+    ParseBody(fakeReq);
+    ProcessParts();
+
 
     return (Response::Error(42, "finir fonction"));
     // Response res;
