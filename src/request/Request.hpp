@@ -28,16 +28,18 @@ class Request
         std::string _path;
         std::string _query;
         std::string _protocol; // HTTP/1.1. en general (parissa: selon le sujet plutot HTTP 1.0)
-        std::map<std::string, std::string> _header;
-        std::string _body;
+        std::map<std::string, std::string>  _header;
+        std::string                         _body;
+        std::vector<unsigned char>          _bodyBinary;
     public:
         Request();
         Request(std::string request);
         ~Request();
+
         void parseRequest(std::string request);
         void parseRequestFirstLine(std::stringstream &stream);
         void parseHeader(std::stringstream &stream);
-        void parseBody(std::stringstream &stream);
+        void parseBody(Client* client, std::string& bufferString);
 
         //handler
         bool StartsWith(const std::string& s, const std::string& prefix);
@@ -53,8 +55,9 @@ class Request
         std::string& getQuery() { return _query; }
         std::string& getProtocol(){ return _protocol; }
         std::string& getBody() { return _body; }
-        std::map<std::string,std::string>& getHeaders() { return _header; }    
-  
+        std::map<std::string,std::string>& getHeaders() { return _header; }
+        std::vector<unsigned char>& getBodyBinary() {return (_bodyBinary);};
+
         //lecture seule
         const std::string& getMethod()  const { return _method; }
         const std::string& getTarget()  const { return _requestTarget; }
@@ -65,8 +68,9 @@ class Request
         const std::string& getBody()    const { return _body; }
         std::string getHeader(const std::string& k) const {
         std::map<std::string,std::string>::const_iterator it = _header.find(k);
-        return (it == _header.end()) ? "" : it->second; }  
-        
+        return (it == _header.end()) ? "" : it->second; }
+        // const std::vector<unsigned char>& getBodyBinary() const {return (_bodyBinary);};
+
         void setMethod(std::string method);
         void setTarget(std::string target);
         void setPath(std::string path);
@@ -76,6 +80,8 @@ class Request
         bool hasHeader(const std::string& k) const { return _header.find(k) != _header.end(); }
         void displayRequest();
         std::string constructRequest();
+
+        // resquest
 };
 
 std::string headerValue(std::string key, Request &req);

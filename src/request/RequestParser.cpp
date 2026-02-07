@@ -12,7 +12,6 @@ void    Request::parseRequest(std::string request)
         parseRequestFirstLine(request_stream);
         parseHeader(request_stream);
     }
-    parseBody(request_stream);
 }
 
 void    Request::parseRequestFirstLine(std::stringstream &stream)
@@ -58,14 +57,6 @@ void Request::parseHeader(std::stringstream &stream)
         value = line.substr(found + 2, line.size());
         _header[key] = value;
     }
-}
-
-void Request::parseBody(std::stringstream &stream)
-{
-    std::string line;
-
-    while (std::getline(stream, line))
-        _body += line;
 }
 
 void Request::displayRequest()

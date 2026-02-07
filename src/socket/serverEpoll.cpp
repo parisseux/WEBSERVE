@@ -42,7 +42,7 @@ void Epoll::HeaderEnd(Client *client, std::string bufferString)
 
 // fonction a call pour gerer EPOLLIN
 void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap)
-{         
+{
     std::string bufferString(buf, 0, byteReads);
     if ((bufferString.find("\r\n\r\n"))!=std::string::npos)
         HeaderEnd(client, bufferString);
@@ -59,10 +59,8 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
             client->setReadyToWrite(true);
             //client->getRequestClass().displayRequest(); // affichage requete complete
         }
-        if (client->getRequestBuffer().length() == client->getContentLength())
-            std::cout << "post body is : " << client->getRequestBuffer() << std::endl;
-        if (client->getRequestClass().getMethod() == "POST" && client->getRequestBuffer().length() < client->getContentLength()) 
-            client->getRequestBuffer().append(bufferString);
+        if (client->getRequestClass().getMethod() == "POST")
+            client->getRequestClass().parseBody(client, bufferString);
         // else
         // {
             // client->get_requestBuffer().append(bufferString);

@@ -34,7 +34,6 @@ class Epoll
         int&    getEpFd();
         int&    getEventWait();
 
-        void postRequest();
         void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
         void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap);
