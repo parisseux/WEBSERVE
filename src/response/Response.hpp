@@ -33,29 +33,30 @@ struct ResolvedTarget {
 
 class Response 
 {
-private:
-    int _status;
-    std::string _statusLine;
-    std::map<std::string, std::string> _headers;
-    std::string _body;
+    private:
+        int _status;
+        std::string _statusLine;
+        std::map<std::string, std::string> _headers;
+        std::string _body;
 
-public:
-    Response() : _status(200), _statusLine("HTTP/1.1 200 OK") {}
-    ~Response() {}
+    public:
+        Response() : _status(200), _statusLine("HTTP/1.1 200 OK") {}
+        ~Response() {}
 
-    void setStatus(int code);
-    void setHeader(const std::string& k, const std::string& v);
-    void setBody(const std::string& b);
+        void setStatus(int code);
+        void setHeader(const std::string& k, const std::string& v);
+        void setBody(const std::string& b);
 
-    int getStatus() { return _status; }
-    std::string& getStatusLine() { return _statusLine; }
-    std::map<std::string, std::string>& getHeaders() { return _headers; }
-    std::string& getBody() { return _body; }
+        int getStatus() { return _status; }
+        std::string& getStatusLine() { return _statusLine; }
+        std::map<std::string, std::string>& getHeaders() { return _headers; }
+        std::string& getBody() { return _body; }
 
-    static std::string makeStatusLine(int code);
-    static Response Error(int code, const std::string &s);
-    void displayResponse();
-    std::string constructResponse();
+        static std::string makeStatusLine(int code);
+        static Response Error(int code, const std::string &s);
+        void displayResponse();
+        std::string constructResponse();
+        std::string AddToResponse();
 };
 
 #endif

@@ -1,0 +1,10 @@
+body { font-family: sans-serif; background: #1a1a1a; color: white; padding: 20px; }
+.hot-take { background: #333; padding: 15px; margin-bottom: 20px; border-left: 5px solid orange; }
+.date { font-style: italic; color: #aaa; font-size: 0.8em; }
+
+header form { 
+    display: flex; flex-direction: column; gap: 10px; 
+    max-width: 400px; margin-bottom: 40px; 
+}
+input, textarea { padding: 10px; border-radius: 5px; border: none; }
+button { background: orange; color: black; font-weight: bold; padding: 10px; cursor: pointer; border: none; }

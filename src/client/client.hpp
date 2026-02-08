@@ -26,11 +26,14 @@ class Client
         int         _fd;
         int         _cgi_fd;
         int         _flags;
-        Request     _request; 
+        Request     _request;
+        Response    _response;
         std::string _requestBuffer;
         std::deque<std::string> _responseBuffer;
+        bool        _bodyComplete;
+        int         _byteSend;
         bool        _ReadyToWrite;
-        ClientState _state;            
+        ClientState _state;    
     public:
         Client();
         ~Client();
@@ -52,6 +55,9 @@ class Client
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
         int          getCgiFd(){return(_cgi_fd);}
+        void         setBodyComplete(bool bodyComplete){_bodyComplete = bodyComplete;}
+        bool         getBodyComplete(){return (_bodyComplete);}
+        
 };
 
 void setNonBlocking(int fd);

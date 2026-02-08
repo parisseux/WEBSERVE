@@ -83,6 +83,28 @@ std::string Response::constructResponse()
     return (response);
 }
 
+// std::string Response::AddToResponse()
+// {
+//     // std::map<std::string, std::string>::iterator it = _headers.begin();
+//     // std::string response;
+//     // response.append(_statusLine);
+//     // response.append("\r\n");
+//     // while (it != _headers.end())
+//     // {
+//     //     response.append(it->first);
+//     //     response.append(": ");
+//     //     response.append(it->second);
+//     //     response.append("\r\n");
+//     //     ++it;                            
+//     // }
+//     // response.append("\r\n"); 
+//     // if (_body.empty() == 0)
+//     // {
+//     //     response.append(_body);
+//     // }
+//     // return (response);
+// }
+
 //-----THEORY----------
 //API --> facon standardisé de demander qlc à un programme 
 // et d'obtenir une réponse

@@ -1,15 +1,32 @@
 #include "StaticTarget.hpp"
+#include "../client/client.hpp"
 
 //std::ios::binary empeche transformation automatique et du coup permet de lire differents type de contenu
 //et coherence entre les ios
-bool StaticTarget::ReadFile(const std::string &path, std::string &content)
+bool StaticTarget::ReadFile(const std::string &path, std::string &content, Client *client)
 {
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open())
         return false;
-    std::ostringstream ss;
-    ss << file.rdbuf();
-    content = ss.str();
+    char buf[50];
+    file.read(buf, sizeof(buf));
+    
+    if (file.eof())
+    {
+        std::cout << "TOUT LES CHAR LU" << std::endl;
+        client->setBodyComplete(true);
+        file.close();
+    }
+    else
+    {
+        std::cout << "PAS TOUT LU" << std::endl;
+        client->setBodyComplete(false);
+    }
+
+    content.append(buf);
+    // std::ostringstream ss;
+    // ss << file.rdbuf();
+    // content = ss.str();
     return true;
 }
 
@@ -38,7 +55,7 @@ std::string StaticTarget::getContentType(const std::string& path)
     return "application/octet-stream";
 }
 
-Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& target)
+Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client)
 {
     if (target.status != 200)
     {
@@ -53,11 +70,13 @@ Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTar
     res.setHeader("Content-Type", getContentType(target.path));
     std::ostringstream len;
     len << target.st.st_size;
-    res.setHeader("Content-Length", len.str());
+    res.setHeader("Content-Length", len.str()); // calculer la longueur du fichier entier
+    // ensuite lire le fichier jusqua un certain point
+    // garder le point et lire depuis ce point pour la prochaine fois
     if (req.getMethod() != "HEAD")
     {
         std::string content;
-        if (!ReadFile(target.path, content))
+        if (!ReadFile(target.path, content, client))
             return Response::Error(403, "403 Forbidden");
         res.setBody(content);
     }

@@ -49,6 +49,7 @@ else:
 # --- Début de la réponse HTTP ---
 
 # Headers : On utilise sys.stdout.buffer pour éviter les conflits d'encodage
+sys.stdout.buffer.write(b"HTTP/1.0 200 OKOK\r\n")
 sys.stdout.buffer.write(b"Content-Type: text/html; charset=UTF-8\r\n")
 sys.stdout.buffer.write(b"Transfer-Encoding: chunked\r\n")
 sys.stdout.buffer.write(b"\r\n")

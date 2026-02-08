@@ -99,7 +99,7 @@ void Cgi::MakeCgiEnv(Request &req)
     _envCgi.push_back(NULL);
 }
 
-Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, std::map<int, Cgi*> &_CgiMap, Client *client, Epoll &epoll)
+Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll)
 {
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
@@ -138,29 +138,16 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
             break ;
         default:
             std::cout << "Parent Process" << std::endl;
-            // close(fd[0]);
             client->setCgiFd(fd[0]);
             write(fd[1], req.getBody().c_str(), req.getBody().size());  
-            close(fd[1]);                      
-            // std::string content;            
-            // waitpid(pid, &status, 0);
-            // readFd(fd[0], content);
-            // close(fd[0]);
-            // std::cout << content << std::endl;                   
+            close(fd[1]);                                       
             // res.setStatus(200);
-            // res.setHeader("Content-Type", "text/html");
-            // int len = content.size();
-            // std::stringstream ss;
-            // ss << len;
-            // res.setHeader("Content-Length", ss.str());
-            _CgiMap.insert(std::make_pair(fd[0], this));
+            // client->getResponseBuffer().push_front(res.AddToResponse());
             int flags = fcntl(fd[0], F_GETFL, 0);
             fcntl(fd[0], F_SETFL, flags | O_NONBLOCK);
             epoll.setEvent(EPOLLIN);
             epoll.setEventFd(fd[0]);
-            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, fd[0], epoll.getEvent());
-            // readFd(fd[0], content);
-            // std::cout << content << std::endl;               
+            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, fd[0], epoll.getEvent());             
             std::cout << "DONE with CGI" << std::endl;           
             return res;        
     } 
