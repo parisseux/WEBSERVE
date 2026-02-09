@@ -8,6 +8,7 @@
 
 # define MAX_PENDING 20
 
+
 enum ClientState
 {
     WAITING,
@@ -43,6 +44,7 @@ class Client
         ClientState  getClientState();
         void         clearRequest();
         unsigned int getContentLength();
+        bool         isUpload();
 };
 
 void setNonBlocking(int fd);

@@ -82,6 +82,15 @@ ClientState Client::getClientState()
     return(this->_state);
 }
 
+bool Client::isUpload()
+{
+    std::string type;
+    type = headerValue("Content-Type", this->getRequestClass());
+    if (type.find("multipart/form-data")!=std::string::npos)
+        return true;
+    return false;
+}
+
 unsigned int Client::getContentLength()
 {
     std::string length;

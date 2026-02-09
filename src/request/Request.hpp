@@ -8,6 +8,7 @@
 
 class Cgi;
 class Response;
+class Client;
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body
@@ -39,7 +40,7 @@ class Request
         void parseRequest(std::string request);
         void parseRequestFirstLine(std::stringstream &stream);
         void parseHeader(std::stringstream &stream);
-        void parseBody(Client* client, std::string& bufferString);
+        void parseBody(Client *client);
 
         //handler
         bool StartsWith(const std::string& s, const std::string& prefix);
