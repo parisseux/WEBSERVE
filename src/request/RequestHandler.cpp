@@ -1,6 +1,7 @@
 #include "Request.hpp"
 #include "../cgi/cgi.hpp"
 
+
 int Request::ValidateRequest(const Request &req)
 {
     if (req.getMethod().empty())
@@ -61,7 +62,7 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     }
     return (bestLoc);
 }
-
+ 
 Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap)
 {
     req.displayRequest();
@@ -84,10 +85,28 @@ Response Request::Handle(Request &req, const std::vector<LocationConfig>& locati
          // CGI handler va executer un script ou un process
         if (isCgi(req, server, *loc))
         {
-            class Cgi cgi;
+            Cgi cgi;
             cgi.handleCgi(req, server, *loc, _CgiMap);
         }
-
+        //TEST en attendant parsing fictif
+        std::string fakeBody =
+        "------boundary\r\n"
+        "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+        "Content-Type: text/plain\r\n\r\n"
+        "HELLO_UPLOAD_TEST\r\n"
+        "------boundary--\r\n";
+        // req.setBody(fakeBody);
+        // req.setHeader("Content-Type", "multipart/form-data; boundary=boundary");
+        // req.setHeader("Content-Length", std::to_string(fakeBody.size()));
+        Upload up;
+        status = up.CheckBodySize(*loc, req);
+        if (status)
+            return Response::Error(413, "Payload Too Large");
+        if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
+            return Response::Error(400, "Bad Request");
+        if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
+            && req.getPath() == "/upload")
+            return up.Handle(*loc, req);
     }
    
     //upload handler (="POST") va venir écrire dans un fichier

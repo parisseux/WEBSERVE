@@ -5,9 +5,11 @@
 # include <fstream>
 # include "../src/response/Response.hpp"
 # include "../src/response/StaticTarget.hpp"
+# include "../src/response/Upload.hpp"
 
 class Cgi;
 class Response;
+class Upload;
 
 // * INFO UTILE EN VRAC *
 // Only PATCH, POST, and PUT requests have a body
@@ -30,6 +32,8 @@ class Request
         std::string _protocol; // HTTP/1.1. en general (parissa: selon le sujet plutot HTTP 1.0)
         std::map<std::string, std::string> _header;
         std::string _body;
+        std::vector<unsigned char> _bodyBinary;
+
     public:
         Request();
         Request(std::string request);
@@ -53,6 +57,7 @@ class Request
         std::string& getQuery() { return _query; }
         std::string& getProtocol(){ return _protocol; }
         std::string& getBody() { return _body; }
+        std::vector<unsigned char>  &getBodyBinary() { return _bodyBinary; }
         std::map<std::string,std::string>& getHeaders() { return _header; }    
   
         //lecture seule
@@ -63,6 +68,7 @@ class Request
         const std::string& getProtocol()const { return _protocol; }
         const std::map<std::string,std::string>& getHeaders() const { return _header; }
         const std::string& getBody()    const { return _body; }
+        const std::vector<unsigned char>  &getBodyBinary() const { return _bodyBinary; }
         std::string getHeader(const std::string& k) const {
         std::map<std::string,std::string>::const_iterator it = _header.find(k);
         return (it == _header.end()) ? "" : it->second; }  
@@ -72,6 +78,8 @@ class Request
         void setPath(std::string path);
         void setQuery(std::string query);
         void setProtocol(std::string protocol);
+        // void setBody(const std::string &s);
+        // void setHeader(const std::string &key, const std::string &s);
 
         bool hasHeader(const std::string& k) const { return _header.find(k) != _header.end(); }
         void displayRequest();

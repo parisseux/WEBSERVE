@@ -12,7 +12,8 @@ void    Request::parseRequest(std::string request)
         parseRequestFirstLine(request_stream);
         parseHeader(request_stream);
     }
-    parseBody(request_stream);
+    //ATTEntion il faut pas parser le body ici ce nest pas une string
+    //parseBody(request_stream);
 }
 
 void    Request::parseRequestFirstLine(std::stringstream &stream)
@@ -60,13 +61,12 @@ void Request::parseHeader(std::stringstream &stream)
     }
 }
 
-void Request::parseBody(std::stringstream &stream)
-{
-    std::string line;
-
-    while (std::getline(stream, line))
-        _body += line;
-}
+// void Request::parseBody(std::stringstream &stream)
+// {
+//     std::ostringstream oss;
+//     oss << stream.rdbuf();
+//     _body = oss.str();
+// }
 
 void Request::displayRequest()
 {
