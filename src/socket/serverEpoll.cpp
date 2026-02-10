@@ -22,10 +22,13 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
     _ev.events = EPOLLIN;
     _ev.data.fd = Clients_map.at(client->getFd())->getFd();
     epoll_ctl(_ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->getFd())->getFd(), &_ev);
+    client->setClientState(WAITING);
+    client->setReadyToWrite(false);
 }
 
 void Epoll::HeaderEnd(Client *client, std::string bufferString)
 {
+    std::cout << "HEADER END" << std::endl;
     unsigned int found = bufferString.find("\r\n\r\n");                                     
     client->getRequestBuffer().append(bufferString.substr(0, found));                                                         
     client->getRequestClass().parseRequest(client->getRequestBuffer());
@@ -37,17 +40,19 @@ void Epoll::HeaderEnd(Client *client, std::string bufferString)
         // std::cout << bufferString << std::endl;
         client->getRequestBuffer().append(bufferString.substr(found + 4, bufferString.size()));
     }
-    client->getRequestClass().displayRequest();
-    std::cout << "jme sens comme avant la fusdion" << std::endl;
-    std::cout << client->getRequestBuffer() << std::endl;
+    // client->getRequestClass().displayRequest();
+    // std::cout << "jme sens comme avant la fusdion" << std::endl;
+    // std::cout << client->getRequestBuffer() << std::endl;
     client->setClientState(READING_BODY);
 }
 
 // fonction a call pour gerer EPOLLIN
-void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers, std::map<int, Cgi*> &_CgiMap)
+void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap)
 {
-    std::string bufferString(buf, 0, byteReads);
-    if ((((bufferString.find("\r\n\r\n"))!=std::string::npos && client->getClientState() == READING_HEADER) || client->getClientState() == WAITING))
+    std::string bufferString(buf, byteReads);
+    size_t pos = bufferString.find("\r\n\r\n");
+    bool hasDelimiter = (pos !=std::string::npos); 
+    if (hasDelimiter && (client->getClientState() == READING_HEADER || client->getClientState() == WAITING))
         HeaderEnd(client, bufferString);
     if (client->getClientState() == READING_BODY)
     {
@@ -59,11 +64,12 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
-            if(client->getRequestBuffer().size() == client->getContentLength())
-                client->getRequestClass().parseBody(client);
+            std::cout << "APPEND to the POST" << std::endl;
             client->getRequestBuffer().append(bufferString);
-            if(client->getRequestBuffer().size() == client->getContentLength())
-                client->getRequestClass().parseBody(client);
+            // std::cout << client->getContentLength() << std::endl;
+            // std::cout << client->getRequestBuffer().size() << std::endl;             
+            if(client->getRequestBuffer().size() >= client->getContentLength())
+                client->getRequestClass().parseBody(client);   
         }
             
     }    
@@ -95,7 +101,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
     }
 }
 
-void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers)
+void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers)
 {
     creatEpollFdListeners(listener_fds);
     while (1)
@@ -136,9 +142,11 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
             }                
             if (!is_listener && (_events[i].events & EPOLLIN))
             {
-                char buf[4000];
-                size_t byteReads = recv(_events[i].data.fd, buf, sizeof(buf), 0);
-                std::cout << buf << std::endl;
+                char buf[100];
+                size_t byteReads = read(_events[i].data.fd, buf, sizeof(buf));
+                // std::cout << "BUFFER DU RECV" << std::endl;
+                // std::cout << buf << std::endl;
+                // std::cout << "FIN DU RECV" << std::endl;                
                 if (byteReads > 0)
                     manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf, servers, _CgiMap);
             }

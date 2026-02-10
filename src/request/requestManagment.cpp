@@ -18,6 +18,7 @@ void printBodyDebug(const std::vector<unsigned char>& body)
 
 void Request::parseBody(Client *client)
 {
+    std::cout << "PARSE BODY " << std::endl;
     // if (this->_bodyBinary.size() >= contentLength)
     // {
     //     printBodyDebug(this->_bodyBinary);
@@ -26,6 +27,8 @@ void Request::parseBody(Client *client)
     _bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
     std::cout << client->getRequestBuffer() << std::endl;
     printBodyDebug(this->_bodyBinary);
+    client->setClientState(WAITING);
+    client->setReadyToWrite(true);    
 
     //this->_bodyBinary.insert(_bodyBinary.end(), bufferString.begin(), bufferString.end());
 }

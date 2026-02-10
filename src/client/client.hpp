@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <vector>
 # include <fcntl.h>
 # include "../request/Request.hpp"
 
@@ -25,7 +26,8 @@ class Client
         std::string _requestBuffer;
         std::string _responseBuffer;
         bool        _ReadyToWrite;
-        ClientState _state;            
+        ClientState _state;
+        // std::vector<unsigned char> _buffer;
     public:
         Client();
         ~Client();
@@ -45,6 +47,7 @@ class Client
         void         clearRequest();
         unsigned int getContentLength();
         bool         isUpload();
+        // std::vector<unsigned char>& getBuffer(){return _buffer;}
 };
 
 void setNonBlocking(int fd);
