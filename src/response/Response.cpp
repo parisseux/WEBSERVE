@@ -1,20 +1,28 @@
 #include "Response.hpp"
 
-// Response Response::buildUploadResponse(const std::string file)
-// {
-//     Response res;
+Response Response::buildUploadResponse(const std::vector<std::string>& files)
+{
+    Response res;
 
-//     res.setStatus(201);
-//     res.setHeader("Content-Type", "text/plain");
-//     std::string body = "Upload successful" + file + "\n";
-//     res.setBody(body);
-//     std::ostringstream oss;
-//     oss << body.size();
-//     res.setHeader("Content-Length", oss.str());
+    res.setStatus(201);
+    res.setHeader("Content-Type", "text/plain");
 
-//     res.setHeader("Connection", "close");
-//     return res;
-// }
+    std::ostringstream body;
+    body << "Upload successful\n";
+
+    for (size_t i = 0; i < files.size(); ++i)
+        body << "- " << files[i] << "\n";
+
+    std::string bodyStr = body.str();
+    res.setBody(bodyStr);
+
+    std::ostringstream len;
+    len << bodyStr.size();
+    res.setHeader("Content-Length", len.str());
+    res.setHeader("Connection", "close");
+
+    return res;
+}
 
 std::string Response::makeStatusLine(int code)
 {

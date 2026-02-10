@@ -98,24 +98,52 @@ std::map<std::string, std::string> Upload::FillHeaders(std::string headerStr)
 //Attention verifier si filename is valid pas de ../
 void Upload::ProcessParts()
 {
-    std::cout << "Lets start processing each part" << std::endl;
-    std::cout << "Number of parts: " << _parts.size() << std::endl;
-
-    for (size_t i = 0; i < _parts.size() ; i++)
+    _uploadedFiles.clear();
+    for (size_t i = 0; i < _parts.size(); ++i)
     {
         Part &p = _parts[i];
-        std::cout << "Part: " << i + 1 << std::endl;
-        std::cout << "HEADERS" << std::endl;
-        for (std::map<std::string,std::string>::const_iterator it = p.headers.begin();
-            it != p.headers.end(); ++it)
+        std::string cd = p.headers["Content-Disposition"];
+        std::string name;
+        size_t name_pos = cd.find("name=\"");
+        if (name_pos != std::string::npos)
         {
-            std::cout << it->first << ": " << it->second << std::endl;
+            name_pos += 6;
+            size_t end = cd.find("\"", name_pos);
+            name = cd.substr(name_pos, end - name_pos);
+        }
+        size_t file_pos = cd.find("filename=\"");
+        
+        //cas de formulaire remplis
+        if (file_pos == std::string::npos)
+        {
+            std::string value(p.content.begin(), p.content.end());
+            std::cout << "Form field: " << name << " = " << value << std::endl;
+            continue;
+        }
+        //Cas de fichier a upload
+        file_pos += 10;
+        size_t fend = cd.find("\"", file_pos);
+        std::string filename = cd.substr(file_pos, fend - file_pos);
+
+        //la je vais crer le fichier et remplir avec content
+        std::string path = _uploadDir + "/" + filename;
+        std::ofstream ofs(path.c_str(), std::ios::binary);
+        if (!ofs)
+        {
+            std::cerr << "Cannot write file: " << path << std::endl;
+            continue;
         }
 
-        // Ici tu peux ajouter le traitement du content
-        std::cout << "Content size: " << p.content.size() << " bytes" << std::endl;
+        ofs.write(
+            reinterpret_cast<const char*>(p.content.data()),
+            p.content.size()
+        );
+        ofs.close();
+        _uploadedFiles.push_back(filename);
+
+        //debug
+        std::cout << "Uploaded file: " << filename << " (" << p.content.size() << " bytes)" << std::endl;
     }
-    
 }
 
 void Upload::ParseBody(const Request &req)
@@ -156,6 +184,7 @@ void Upload::ParseBody(const Request &req)
     std::cout << "Parsing of body finish" << std::endl;
 }
 
+
 Response Upload::Handle(const LocationConfig &loc, const Request &req)
 {
     if (!loc.getHasUploadPath())
@@ -177,7 +206,7 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
 
     std::cout << "--------- Handling upload ------" << std::endl;
     // std::cout << "Boundary : " << _boundary << std::endl;
- // ----- FAKE BODY POUR TEST -----
+    // ----- FAKE BODY POUR TEST -----
     // Seulement pour tester le parsing multipart avec 2 parts
     std::string boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
     std::string bodyStr =
@@ -202,11 +231,10 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
     _boundary = std::vector<unsigned char>(boundary.begin(), boundary.end());
 
     // Parser le body factice et découper en parts
+    _parts.clear();
     ParseBody(fakeReq);
     ProcessParts();
 
-
-    return (Response::Error(42, "finir fonction"));
-    // Response res;
-    //return (res.buildUploadResponse(file))
+    Response res;
+    return (res.buildUploadResponse(_uploadedFiles));
 }

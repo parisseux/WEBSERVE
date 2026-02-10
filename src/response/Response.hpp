@@ -56,7 +56,7 @@ public:
     static Response Error(int code, const std::string &s);
     void displayResponse();
     std::string constructResponse();
-    // Response buildUploadResponse(const std::string file);
+    Response buildUploadResponse(const std::vector<std::string>& files);
 };
 
 #endif

@@ -25,6 +25,7 @@ private:
     std::string _uploadDir;
     std::vector<unsigned char> _boundary;
     std::vector<Part> _parts;
+    std::vector<std::string> _uploadedFiles;
     int checkHeader(const LocationConfig &loc, const Request &req);
     bool parseBoundary(const Request &req);
     bool canWrite(const std::string &path);
