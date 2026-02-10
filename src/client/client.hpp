@@ -6,6 +6,7 @@
 # include <fcntl.h>
 # include <deque>
 # include "../request/Request.hpp"
+# include "../response/Response.hpp"
 
 # define MAX_PENDING 20
 
@@ -31,8 +32,8 @@ class Client
         std::string _requestBuffer;
         std::deque<std::string> _responseBuffer;
         bool        _bodyComplete;
-        int         _byteSend;
         bool        _ReadyToWrite;
+        int         _byteSentPos;
         ClientState _state;    
     public:
         Client();
@@ -49,14 +50,18 @@ class Client
         std::deque<std::string>& getResponseBuffer();
         bool&        getReadyToWrite();
         Request&     getRequestClass();
+        Response&    getResponseClass(){return _response;}
         ClientState  getClientState();
         void         clearRequest();
         int          getContentLength();
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
         int          getCgiFd(){return(_cgi_fd);}
+        void         addByteSentPos(int byte){_byteSentPos += byte;}
+        int          getByteSentPos(){return _byteSentPos;}        
         void         setBodyComplete(bool bodyComplete){_bodyComplete = bodyComplete;}
         bool         getBodyComplete(){return (_bodyComplete);}
+        void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);        
         
 };
 

@@ -34,9 +34,9 @@ class Epoll
         epoll_event* getEvent(){return &_ev;}        
         void setEvent(uint32_t POLL){_ev.events = POLL;}
         void setEventFd(int fd){_ev.data.fd = fd;}
-        void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> servers);
+        void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers);
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
-        void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> servers);
+        void manageClientRequest(Client *client, int byteReads, char *buf);
         void manageCgi(Client *client, int byteReads, char *buf);
         void creactNewClient(std::vector<int>& listener_fds, int j);
         void HeaderEnd(Client *client, std::string bufferString);

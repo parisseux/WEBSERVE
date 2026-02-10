@@ -8,9 +8,12 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open())
         return false;
-    char buf[50];
+    if (client->getByteSentPos() > 0)
+        file.seekg(client->getByteSentPos());
+    char buf[250];
     file.read(buf, sizeof(buf));
-    
+    ssize_t byteRead = file.gcount();
+    client->addByteSentPos(byteRead);
     if (file.eof())
     {
         std::cout << "TOUT LES CHAR LU" << std::endl;
@@ -22,7 +25,6 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
         std::cout << "PAS TOUT LU" << std::endl;
         client->setBodyComplete(false);
     }
-
     content.append(buf);
     // std::ostringstream ss;
     // ss << file.rdbuf();
@@ -65,12 +67,16 @@ Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTar
             return Response::Error(403, "403 Forbidden");
         return Response::Error(target.status, "Error");
     }
-    Response res;
-    res.setStatus(200);
-    res.setHeader("Content-Type", getContentType(target.path));
-    std::ostringstream len;
-    len << target.st.st_size;
-    res.setHeader("Content-Length", len.str()); // calculer la longueur du fichier entier
+    Response res;    
+    if (client->getResponseClass().getStatus() < 200) // check si on a deja recuperer le headers
+    {
+        res.setStatus(200);
+        res.setHeader("Content-Type", getContentType(target.path));
+        std::ostringstream len;
+        len << target.st.st_size;
+        res.setHeader("Content-Length", len.str());
+    }
+ // calculer la longueur du fichier entier
     // ensuite lire le fichier jusqua un certain point
     // garder le point et lire depuis ce point pour la prochaine fois
     if (req.getMethod() != "HEAD")

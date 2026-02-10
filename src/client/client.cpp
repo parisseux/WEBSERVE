@@ -1,4 +1,7 @@
 #include "client.hpp"
+#include "../response/Response.hpp"
+#include "../cgi/cgi.hpp"
+#include "../response/StaticTarget.hpp"
 
 // CONSTRUCTOR / DESTRUCTOR
 
@@ -116,4 +119,57 @@ void Client::clearRequest()
     getRequestClass().getProtocol().clear();                     
     getRequestClass().getBody().clear();
     getRequestClass().getHeaders().clear();
+}
+
+void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
+{
+    int status = req.ValidateRequest(req);
+    if (status == 400)
+    {
+        client->getResponseBuffer().push_front(Response::Error(400, "400 Bad Request").constructResponse());       
+        return ; 
+    }
+    if (status == 501)
+    {
+        client->getResponseBuffer().push_front(Response::Error(501, "501 Not Implemented").constructResponse());      
+        return ;        
+    }
+    const LocationConfig *loc = req.MatchLocation(req.getPath(), locations);
+    if (!loc)
+    {
+        client->getResponseBuffer().push_front(Response::Error(500, "500 No location matched (unexpected)").constructResponse());    
+        return ;          
+    }
+    status = req.MethodAllowed(req, loc);
+    if (status == 405)
+    {
+        client->getResponseBuffer().push_front(Response::Error(405, "405 Method Not Allowed").constructResponse());       
+        return ; 
+    }
+    // buildRedirectResponse(loc);
+
+    // CGI handler va executer un script ou un process
+    if (isCgi(req, server, *loc))
+    {
+        Cgi cgi;
+        cgi.handleCgi(req, server, *loc, client, epoll);
+        return ;
+    }
+    //upload handler (="POST") va venir écrire dans un fichiers
+    // handleUpload(req, server, *loc);
+
+    // static handler va lire un fichier
+    //Ici on se charge de trouver la réponse quon doit envoyer au clients
+    StaticTarget st;
+    ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
+    _response = st.BuildStaticResponse(req, target, client);
+    if(_response.getResponseState() == FIRST_SENT)
+    {
+        std::cout << "ON  CREE UNE REPONSE COMPLETE" << std::endl;
+        client->getResponseBuffer().push_front(_response.constructResponse().data());
+        _response.setResponseState(N_SENT);      
+    }
+    else
+        client->getResponseBuffer().push_front(_response.getBody());
+    _response.getBody().clear();
 }
