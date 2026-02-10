@@ -92,6 +92,27 @@ std::map<std::string, std::string> Upload::FillHeaders(std::string headerStr)
     }
     return (headers);
 }
+//interdire file_name = "../../etc/passwd"
+bool Upload::isSafeFilename(const std::string& name)
+{
+    if (name.empty())
+        return (false);
+    if (name == "." || name == "..")
+        return false;
+    if (name.find('/') != std::string::npos || name.find('\\') != std::string::npos
+        ||  name.find("..") != std::string::npos )
+        return false;
+    if (name.find("..") != std::string::npos)
+        return false;
+    for (size_t i = 0; i < name.size(); ++i)
+    {
+        char c = name[i];
+        if (!(isalnum(c) || c == '.' || c == '_' || c == '-'))
+            return false;
+    }
+    return true;
+
+}
 
 //pour chaque parties on va, verifier si y a un fichier (content-disposition: filename=" " )
 //si fichier il va falloir creer un fichier dans upload
@@ -124,9 +145,19 @@ void Upload::ProcessParts()
         file_pos += 10;
         size_t fend = cd.find("\"", file_pos);
         std::string filename = cd.substr(file_pos, fend - file_pos);
+        if (!isSafeFilename(filename))
+        {
+            std::cerr << "Unsafe filename rejected: " << filename << std::endl;
+            continue;
+        }
 
         //la je vais crer le fichier et remplir avec content
         std::string path = _uploadDir + "/" + filename;
+        if (access(path.c_str(), F_OK) == 0)
+        {
+            std::cerr << "File already exists: " << filename << std::endl;
+            continue;
+        }
         std::ofstream ofs(path.c_str(), std::ios::binary);
         if (!ofs)
         {
@@ -211,12 +242,12 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
     std::string boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
     std::string bodyStr =
         "--" + boundary + "\r\n"
-        "Content-Disposition: form-data; name=\"file1\"; filename=\"test1.txt\"\r\n"
+        "Content-Disposition: form-data; name=\"file3\"; filename=\"test3.txt\"\r\n"
         "Content-Type: text/plain\r\n"
         "\r\n"
-        "Hello from file 1\n"
+        "Hello from file 3333333\n"
         "--" + boundary + "\r\n"
-        "Content-Disposition: form-data; name=\"file2\"; filename=\"test2.txt\"\r\n"
+        "Content-Disposition: form-data; name=\"file4\"; filename=\"../test4.txt\"\r\n"
         "Content-Type: text/plain\r\n"
         "\r\n"
         "Hello from file 2\n"

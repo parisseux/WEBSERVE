@@ -34,6 +34,7 @@ private:
     void ParseBody(const Request &req);
     std::map<std::string, std::string> FillHeaders(std::string headerStr);
     void ProcessParts();
+    bool isSafeFilename(const std::string& name);
 
 public:
     int CheckBodySize(const LocationConfig &loc, const Request &req);
