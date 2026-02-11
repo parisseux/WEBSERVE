@@ -32,35 +32,20 @@ class Client
         Client() {std::cout << "Client constructor called" << std::endl;};
         ~Client() {std::cout << "Client destructor called" << std::endl;};
 
-        // int&         getFd() {return (this->_fd);};
-        // int&         getFlags() {return (this->_flags);};
-        // std::string& getRequestBuffer() {return (this->_responseBuffer);};
-        // std::string& getResponseBuffer() {return (this->_responseBuffer);};
-        // bool&        getReadyToWrite() {return (this->_ReadyToWrite);};
-        // Request&     getRequestClass() {return (this->_request);};
-        // ClientState  getClientState() {return (this->_state);};
+        int&         getFd() {return (this->_fd);};
+        int&         getFlags() {return (this->_flags);};
+        std::string& getRequestBuffer() {return (this->_requestBuffer);};
+        std::string& getResponseBuffer() {return (this->_responseBuffer);};
+        bool&        getReadyToWrite() {return (this->_ReadyToWrite);};
+        Request&     getRequestClass() {return (this->_request);};
+        ClientState  getClientState() {return (this->_state);};
 
-        // void         setFd(int fd) {this->_fd = fd;};
-        // void         setFlags(int flags) {this->_flags = flags;};
-        // void         setRequestBuffer(std::string requestBuffer) {this->_requestBuffer = requestBuffer;};
-        // void         setResponseBuffer(std::string responseBuffer) {this->_responseBuffer = responseBuffer;};
-        // void         setReadyToWrite(bool ReadyToWrite) {this->_ReadyToWrite = ReadyToWrite;};
-        // void         setClientState(ClientState state) {this->_state = state;};
-
-        int&         getFd();
-        int&         getFlags();
-        std::string& getRequestBuffer();
-        std::string& getResponseBuffer();
-        bool&        getReadyToWrite();
-        Request&     getRequestClass();
-        ClientState  getClientState();
-
-        void         setFd(int fd);
-        void         setFlags(int flags);
-        void         setRequestBuffer(std::string requestBuffer);
-        void         setResponseBuffer(std::string responseBuffer);
-        void         setReadyToWrite(bool ReadyToWrite);
-        void         setClientState(ClientState state);
+        void         setFd(int fd) {this->_fd = fd;};
+        void         setFlags(int flags) {this->_flags = flags;};
+        void         setRequestBuffer(std::string requestBuffer) {this->_requestBuffer = requestBuffer;};
+        void         setResponseBuffer(std::string responseBuffer) {this->_responseBuffer = responseBuffer;};
+        void         setReadyToWrite(bool ReadyToWrite) {this->_ReadyToWrite = ReadyToWrite;};
+        void         setClientState(ClientState state) {this->_state = state;};
 
         void         clearRequest();
         unsigned int getContentLength();
