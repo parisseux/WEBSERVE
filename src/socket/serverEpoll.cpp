@@ -3,12 +3,12 @@
 
 void Epoll::creatEpollFdListeners(std::vector<int>& listener_fds)
 {
-    this->_ep_fd = epoll_create(10);
+    this->_epFd = epoll_create(10);
     for (unsigned int i = 0; i < listener_fds.size(); i++)
     {
         this->_ev.data.fd = listener_fds.at(i); 
         this->_ev.events = EPOLLIN;
-        epoll_ctl(this->_ep_fd, EPOLL_CTL_ADD, listener_fds.at(i), &_ev);
+        epoll_ctl(this->_epFd, EPOLL_CTL_ADD, listener_fds.at(i), &_ev);
     }
 }
 
@@ -16,12 +16,12 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
 {
     Client* client = new Client;
     client->getFd() = accept(listener_fds.at(j), NULL, NULL);
-    Clients_map.insert(std::make_pair(client->getFd(), client));
-    int flags = fcntl(Clients_map.at(client->getFd())->getFd(), F_GETFL, 0);
-    fcntl(Clients_map.at(client->getFd())->getFd(), F_SETFL, flags | O_NONBLOCK);
+    _clientsMap.insert(std::make_pair(client->getFd(), client));
+    int flags = fcntl(_clientsMap.at(client->getFd())->getFd(), F_GETFL, 0);
+    fcntl(_clientsMap.at(client->getFd())->getFd(), F_SETFL, flags | O_NONBLOCK);
     _ev.events = EPOLLIN;
-    _ev.data.fd = Clients_map.at(client->getFd())->getFd();
-    epoll_ctl(_ep_fd, EPOLL_CTL_ADD, Clients_map.at(client->getFd())->getFd(), &_ev);
+    _ev.data.fd = _clientsMap.at(client->getFd())->getFd();
+    epoll_ctl(this->_epFd, EPOLL_CTL_ADD, _clientsMap.at(client->getFd())->getFd(), &_ev);
     client->setClientState(WAITING);
     client->setReadyToWrite(false);
 }
@@ -87,7 +87,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
         client->setResponseBuffer(Res.constructResponse());
         _ev.events = EPOLLOUT ;
         _ev.data.fd = client->getFd();
-        epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
+        epoll_ctl(this->_epFd, EPOLL_CTL_MOD, client->getFd(), &_ev);
 
         // std::cout << "string response" << std::endl;
         // std::cout << responseString << std::endl;
@@ -107,8 +107,8 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
     while (1)
     {
         // std::cout << "waiting request..." << std::endl;
-        _event_wait = epoll_wait(_ep_fd, _events, 10, -1);
-        for (int i = 0; i < _event_wait; i++)
+        _eventWait = epoll_wait(_epFd, _events, 10, -1);
+        for (int i = 0; i < _eventWait; i++)
         {
             bool is_listener = false;
             for (unsigned int j = 0; j < listener_fds.size(); j++)
@@ -123,7 +123,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
             if (!is_listener && (_events[i].events & EPOLLOUT))
             {
                 std::map<int, Client*>::iterator it;
-                for (it = Clients_map.begin(); it != Clients_map.end(); ++it)
+                for (it = _clientsMap.begin(); it != _clientsMap.end(); ++it)
                 {
                     //std::cout << it->first << std::endl;
                     if (_events[i].data.fd == it->first)
@@ -148,7 +148,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
                 // std::cout << buf << std::endl;
                 // std::cout << "FIN DU RECV" << std::endl;                
                 if (byteReads > 0)
-                    manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf, servers, _CgiMap);
+                    manageClientRequest(_clientsMap.at(_events[i].data.fd), byteReads, buf, servers, _CgiMap);
             }
         }
     }

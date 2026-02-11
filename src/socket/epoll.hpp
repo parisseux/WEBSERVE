@@ -16,23 +16,21 @@
 class Epoll
 {
     private:
-        int                 _ep_fd;
-        int                 _event_wait;
-        struct  epoll_event _ev;
-        struct  epoll_event _events[10];
-        std::map<int, Client*> Clients_map;
-        std::map<int, Cgi*> _CgiMap;
+        int                     _epFd;
+        int                     _eventWait;
+        struct  epoll_event     _ev;
+        struct  epoll_event     _events[10];
+        std::map<int, Client*>  _clientsMap;
+        std::map<int, Cgi*>     _CgiMap;
     public:
-        Epoll();
-        ~Epoll();
+        Epoll() {std::cout << "Epoll constructor called" << std::endl;};
+        ~Epoll() {std::cout << "Epoll destructor called" << std::endl;};
 
-        //SETTER
-        void    setEpFd(int ep_fd);
-        void    setEventWait(int event_wait);
+        int&    getEpFd() {return (this->_epFd);};
+        int&    getEventWait() {return (this->_eventWait);};
 
-        //GETTER
-        int&    getEpFd();
-        int&    getEventWait();
+        void    setEpFd(int epFd) {this->_epFd = epFd;};
+        void    setEventWait(int eventWait) {this->_eventWait = eventWait;};
 
         void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers);
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
