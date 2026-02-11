@@ -26,6 +26,7 @@ class LocationConfig
 		size_t                      _maxBodySize;
 		std::string					_cgiBin;
 		std::string					_cgiExt;
+		std::string					_uploadPath;
 
 		bool _hasRoot;
 		bool _hasIndex;
@@ -35,6 +36,7 @@ class LocationConfig
 		bool _hasMaxBodySize;
 		bool _hasCgiBin;
 		bool _hasCgiExt;
+		bool _hasUploadPath;
 
 	public:
 		LocationConfig()
@@ -52,13 +54,14 @@ class LocationConfig
 		const size_t&                    getMaxBodySize() const {return (_maxBodySize);};
 		const std::string&               getCgiBin() const {return (_cgiBin);};
 		const std::string&				 getCgiExt() const {return (_cgiExt);};
-
+		const std::string&               getUploadPath() const {return (_uploadPath);};
 		const bool&                      getHasRoot() const {return (_hasRoot);};
 		const bool&                      getHasIndex() const {return (_hasIndex);};
 		const bool&                      getAutoIndex() const {return (_autoindex);};
 		const bool&                      getHasAutoIndex() const {return (_hasAutoindex);};
 		const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
 		const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
+		const bool&                      getHasUploadPath() const {return (_hasUploadPath);};
 
 		// //SETTERS
 		// void                       setPath(std::string path) {this->_path =  path;};
@@ -81,7 +84,8 @@ class LocationConfig
 		void parseLocationCgiBin(const std::string& s);
 		void parseLocationCgiExt(const std::string& s);
 		void parseLocationLine(const std::string &s);
-
+		void parseLocationUploadPath(const std::string &s);
+		
 		void parseLocationHeader(const std::string &firstLine);
 		void parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine);
 

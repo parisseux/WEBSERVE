@@ -81,9 +81,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
 
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
-        //partie parissa qui recoit la recoit la requete complete et peut faire routing reponse
         Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], _CgiMap);
-        //Res.displayResponse();
         client->setResponseBuffer(Res.constructResponse());
         _ev.events = EPOLLOUT ;
         _ev.data.fd = client->getFd();

@@ -10,7 +10,10 @@
 # include "../config/ConfigFile.hpp"
 # include "../response/Response.hpp"
 # include "../request/Request.hpp"
+
 # include "../cgi/cgi.hpp"
+
+class Request;
 
 
 class Epoll

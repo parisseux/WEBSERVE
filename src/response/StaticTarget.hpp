@@ -11,8 +11,8 @@
 class Request;
 class Response;
 struct ResolvedTarget;
-struct ServerConfig;
-struct LocationConfig;
+class ServerConfig;
+class LocationConfig;
 
 class StaticTarget {
 private:

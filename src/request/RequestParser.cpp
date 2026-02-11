@@ -12,6 +12,8 @@ void    Request::parseRequest(std::string request)
         parseRequestFirstLine(request_stream);
         parseHeader(request_stream);
     }
+    //ATTEntion il faut pas parser le body ici ce nest pas une string
+    //parseBody(request_stream);
 }
 
 void    Request::parseRequestFirstLine(std::stringstream &stream)
@@ -59,6 +61,13 @@ void Request::parseHeader(std::stringstream &stream)
     }
 }
 
+// void Request::parseBody(std::stringstream &stream)
+// {
+//     std::ostringstream oss;
+//     oss << stream.rdbuf();
+//     _body = oss.str();
+// }
+
 void Request::displayRequest()
 {
     std::map<std::string, std::string>::iterator it = _header.begin();
@@ -73,6 +82,7 @@ void Request::displayRequest()
     }
     if (_body.empty() == 0)
     {
+        std::cout << "BODYYYYYYYYYYYYYYYYYYYYYYY" << std::endl;
         std::cout << std::endl;
         std::cout << _body;
     }

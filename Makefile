@@ -1,6 +1,7 @@
 NAME = webserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -Iinclude -g3
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -Iinclude -g3 -fPIE
+LDFLAGS = -pie
 RM = rm -f
 
 SRC_DIR = src
@@ -11,7 +12,6 @@ GREEN = \033[1;32m
 RESET = \033[0m
 
 SRCS = $(shell find $(SRC_DIR) -type f -name "*.cpp")
-
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 all: $(NAME)
