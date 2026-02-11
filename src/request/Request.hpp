@@ -33,9 +33,9 @@ class Request
         std::string                         _body;
         std::vector<unsigned char>          _bodyBinary;
     public:
-        Request();
+        Request() {std::cout << "Request constructor called" << std::endl;};
         Request(std::string request);
-        ~Request();
+        ~Request() {std::cout << "Request destructor called" << std::endl;};
 
         void parseRequest(std::string request);
         void parseRequestFirstLine(std::stringstream &stream);

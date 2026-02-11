@@ -1,16 +1,6 @@
 
 #include "Request.hpp"
 
-Request::Request()
-{
-    
-}
-
-Request::~Request()
-{
-    
-}
-
 Request::Request(std::string request)
 {
     parseRequest(request.c_str());
@@ -31,4 +21,3 @@ std::string headerValue(std::string key, Request &req)
     }
     return("");
 }
-
