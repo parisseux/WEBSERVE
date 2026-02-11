@@ -1,19 +1,5 @@
 #include "client.hpp"
 
-// CONSTRUCTOR / DESTRUCTOR
-
-Client::Client()
-: _ReadyToWrite(false), _state(WAITING)
-{
-    std::cout << "Client created" << std::endl;
-}
-
-Client::~Client()
-{
-    std::cout << "Client destructed" << std::endl;
-}
-
-// ALL THE SETTESS
 
 void Client::setFd(int fd)
 {
