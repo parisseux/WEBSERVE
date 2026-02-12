@@ -57,7 +57,7 @@ class Response
         std::string& getStatusLine() { return _statusLine; }
         std::map<std::string, std::string>& getHeaders() { return _headers; }
         std::string& getBody() { return _body; }
-        ResponseState getResponseState(){return _state;}
+        ResponseState& getResponseState(){return _state;}
         void setResponseState(ResponseState state){_state = state;}        
         static std::string makeStatusLine(int code);
         static Response Error(int code, const std::string &s);

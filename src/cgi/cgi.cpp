@@ -99,7 +99,7 @@ void Cgi::MakeCgiEnv(Request &req)
     _envCgi.push_back(NULL);
 }
 
-Response Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll)
+void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll)
 {
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
@@ -107,7 +107,6 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
     // std::cout << root << std::endl;
     // std::cout << rel << std::endl;
     // std::cout << path << std::endl;
-    Cgi cgi; 
     pid_t pid;
     int		fd[2];
     // int status = 0;
@@ -119,7 +118,6 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
     };
     if (pipe(fd) == -1)
         std::cout << "Pipe function error" << std::endl;
-    Response res;
     MakeCgiEnv(req);      
     pid = fork();
     switch (pid)
@@ -148,8 +146,6 @@ Response Cgi::handleCgi(Request &req, const ServerConfig &server, const Location
             epoll.setEvent(EPOLLIN);
             epoll.setEventFd(fd[0]);
             epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, fd[0], epoll.getEvent());             
-            std::cout << "DONE with CGI" << std::endl;           
-            return res;        
-    } 
-    return res;
+            std::cout << "DONE with CGI" << std::endl;                
+    }
 }

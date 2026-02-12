@@ -15,7 +15,8 @@ enum ClientState
     WAITING,
     READING_HEADER,
     READING_BODY,
-    GENERATING_BODY,
+    GENERATING_RESPONSE,
+    GENERATING_CGI,
     SENDING_BODY
 };
 
@@ -58,7 +59,8 @@ class Client
         void         setCgiFd(int fd){_cgi_fd = fd;}
         int          getCgiFd(){return(_cgi_fd);}
         void         addByteSentPos(int byte){_byteSentPos += byte;}
-        int          getByteSentPos(){return _byteSentPos;}        
+        int          getByteSentPos(){return _byteSentPos;} 
+        void         setByteSentPos(int byte){_byteSentPos = byte;}       
         void         setBodyComplete(bool bodyComplete){_bodyComplete = bodyComplete;}
         bool         getBodyComplete(){return (_bodyComplete);}
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);        

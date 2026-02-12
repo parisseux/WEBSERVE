@@ -21,7 +21,7 @@ class Cgi
         std::vector<char*> _envCgi;       
 
     public:
-        Response handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll);
+        void handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll);
         void readFd(int fd, std::string &content);
         void addCgiEnv(Request &req, std::string path, std::vector<std::string> &envCgiString);
         void MakeCgiEnv(Request &req);

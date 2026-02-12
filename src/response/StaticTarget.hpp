@@ -23,7 +23,7 @@ private:
     std::string GetRelativPath(const std::string &reqPath, const std::string &locPath);
     std::string GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
 public:
-    Response BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client);
+    void BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res);
     ResolvedTarget ResolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
 };
 

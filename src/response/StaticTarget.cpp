@@ -57,18 +57,19 @@ std::string StaticTarget::getContentType(const std::string& path)
     return "application/octet-stream";
 }
 
-Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client)
+void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res)
 {
     if (target.status != 200)
     {
         if (target.status == 404)
-            return Response::Error(404, "404 Not Found");
+            res = Response::Error(404, "404 Not Found");
         if (target.status == 403)
-            return Response::Error(403, "403 Forbidden");
-        return Response::Error(target.status, "Error");
+            res = Response::Error(403, "403 Forbidden");
+        res =  Response::Error(target.status, "Error");
+        client->setBodyComplete(true);
+        return;
     }
-    Response res;    
-    if (client->getResponseClass().getStatus() < 200) // check si on a deja recuperer le headers
+    if (client->getResponseClass().getResponseState() == FIRST_SENT) // check si on a deja recuperer le headers
     {
         res.setStatus(200);
         res.setHeader("Content-Type", getContentType(target.path));
@@ -83,10 +84,9 @@ Response StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTar
     {
         std::string content;
         if (!ReadFile(target.path, content, client))
-            return Response::Error(403, "403 Forbidden");
+            res = Response::Error(403, "403 Forbidden");
         res.setBody(content);
     }
-    return res;
 }
 
 std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)

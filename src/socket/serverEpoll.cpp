@@ -80,16 +80,17 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf)
 		{
 			// client->setClientState(GENERATING_BODY);
 			client->setReadyToWrite(true);
+			client->getRequestClass().displayRequest();			
 			//client->getRequestClass().displayRequest(); // affichage requete complete
 		}
-		if (client->getRequestClass().getMethod() == "POST") 
+		else if (client->getRequestClass().getMethod() == "POST") 
 		{
 			// client->getRequestBuffer().append(bufferString);
 			// if (client->getContentLength() == client->getRequestBuffer().size())
 			// {
 				client->getRequestClass().parseRequest(client->getRequestBuffer());     
-				client->setClientState(WAITING);
-				client->setReadyToWrite(true);                            
+				client->setReadyToWrite(true);
+				client->getRequestClass().displayRequest();					                      
 				//client->getRequestClass().displayRequest(); // affichage requete complete
 				//std::cout << client->getRequestClass().getBody() << std::endl;                
 			// }
@@ -101,30 +102,33 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf)
 	}
 	if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
 	{
-		client->setClientState(GENERATING_BODY);
+		client->setClientState(GENERATING_RESPONSE);
 		// client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], client, *this);
 		//Res.displayResponse();
 		// client->setResponseBuffer(Res.constructResponse());
 
-		if (client->getBodyComplete())
-		{
-			client->setClientState(SENDING_BODY);
-			_ev.events = EPOLLOUT ;
-			_ev.data.fd = client->getFd();            
-			epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
-		}
+		// if (client->getBodyComplete())
+		// {
+
+		// 	client->setClientState(SENDING_BODY);
+		// 	_ev.events = EPOLLOUT ;
+		// 	_ev.data.fd = client->getFd();            
+		// 	epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
+		// }
 	}                            
 }
 
 void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 {
 	std::cout << "MANAGE CGI" << std::endl;
-	std::string bufferString(buf, 0, byteReads);
+	std::string bufferString(buf, byteReads);
 	client->getResponseBuffer().push_back(bufferString);
+    client->setBodyComplete(false);		
 	if ((bufferString.find("0\r\n\r\n"))!=std::string::npos)
 	{
 		std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
 		epoll_ctl(this->_ep_fd, EPOLL_CTL_DEL, client->getCgiFd(), &_ev);    
+        client->setBodyComplete(true);		
 		close(client->getCgiFd());  
 	}
 }
@@ -136,7 +140,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	{
 		// std::cout << "waiting request..." << std::endl;
 		_event_wait = epoll_wait(_ep_fd, _events, 10, -1);
-		print_ready_events(_event_wait, _events);
+		// print_ready_events(_event_wait, _events);
 		for (int i = 0; i < _event_wait; i++)
 		{
 			std::map<int, Client*>::iterator it;
@@ -187,7 +191,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 					else
 						manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf);
 				}
-				// buf[0] = '\0';
 			}			
 			else if (!is_listener && (_events[i].events & EPOLLOUT) && isCgi == false)
 			{
@@ -212,6 +215,11 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 						epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
 						client->setReadyToWrite(false);
 						client->clearRequest();
+						client->setClientState(WAITING);
+						client->setBodyComplete(false);
+						client->setByteSentPos(0);
+						// Clients_map.erase(client->getFd()); // dans le cas d'un non kepp alive
+						// delete client;
 						close(client->getFd());						
 					}
 				}
@@ -219,7 +227,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 			for (it = Clients_map.begin(); it != Clients_map.end(); ++it)
 			{
 				client = it->second;
-				if(client->getClientState() == GENERATING_BODY)
+				if(client->getClientState() == GENERATING_RESPONSE)
 				{
 					client->Handle(client->getRequestClass(),  servers[0].getLocations(), servers[0], client, *this);					
 					_ev.events = EPOLLOUT ;

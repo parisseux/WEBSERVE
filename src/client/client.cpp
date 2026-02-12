@@ -153,6 +153,7 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     {
         Cgi cgi;
         cgi.handleCgi(req, server, *loc, client, epoll);
+        client->setClientState(GENERATING_CGI);
         return ;
     }
     //upload handler (="POST") va venir écrire dans un fichiers
@@ -162,14 +163,17 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     //Ici on se charge de trouver la réponse quon doit envoyer au clients
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
-    _response = st.BuildStaticResponse(req, target, client);
+    st.BuildStaticResponse(req, target, client, _response);
     if(_response.getResponseState() == FIRST_SENT)
     {
         std::cout << "ON  CREE UNE REPONSE COMPLETE" << std::endl;
         client->getResponseBuffer().push_front(_response.constructResponse().data());
-        _response.setResponseState(N_SENT);      
+        _response.setResponseState(N_SENT);
     }
     else
+    {
+        std::cout << "ON CONTINUE L'ENVOIE" << std::endl;        
         client->getResponseBuffer().push_front(_response.getBody());
+    }
     _response.getBody().clear();
 }
