@@ -42,7 +42,9 @@ class LocationConfig
 		LocationConfig()
 				: _hasRoot(false), _hasIndex(false),
 					_autoindex(false), _hasAutoindex(false),
-					_hasAllowMethods(false), _hasMaxBodySize(false)
+					_hasAllowMethods(false), _hasMaxBodySize(false),
+					_hasCgiBin(false), _hasCgiExt(false),
+					_hasUploadPath(false)
 				{/*std::cout << "Location Config constructor called" << std::endl;*/};
 		~LocationConfig() {/*std::cout << "Location Config destructor called" << std::endl;*/};
 

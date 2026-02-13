@@ -39,7 +39,7 @@ void Manager::initServers(const std::string &configFile)
         }
         catch (const std::exception& e) 
         {
-            //throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
+            throw std::runtime_error( e.what());
         }
     }
     if (this->_servers.empty())
