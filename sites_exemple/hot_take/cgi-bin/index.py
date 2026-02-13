@@ -6,6 +6,12 @@ import os
 import sys  # Import nécessaire pour écrire dans stdout directement
 from datetime import datetime
 
+# Juste après l'import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# On change le répertoire de travail du processus
+os.chdir(script_dir)
+
 # Configuration du debug
 cgitb.enable()
 DB_FILE = 'data.json'
