@@ -8,12 +8,12 @@ void printBodyDebug(const std::vector<unsigned char>& body)
 
     for (size_t i = 0; i < body.size(); i++)
     {
-        std::cout << std::hex
-                  << std::setw(2)
-                  << std::setfill('0')
-                  << (int)body[i] << " ";
+        std::cout // << std::hex
+                //   << std::setw(2)
+                //   << std::setfill('0')
+                  << body[i] << " ";
     }
-    std::cout << std::dec << std::endl;
+    // std::cout << std::dec << std::endl;
 }
 
 void Request::parseBody(Client *client)
@@ -25,10 +25,16 @@ void Request::parseBody(Client *client)
     //     return;
     // }
     _bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
-    std::cout << client->getRequestBuffer() << std::endl;
-    printBodyDebug(this->_bodyBinary);
+    std::cout << "BODY BINARY PRINTTTTT" << std::endl;
+    for (unsigned int i = 0; i < _bodyBinary.size() ; ++i)
+    {
+        std::cout << _bodyBinary[i];
+    }
+    std::cout << std::endl;
+    // std::cout << client->getRequestBuffer() << std::endl;
+    // printBodyDebug(this->_bodyBinary);
     client->setClientState(WAITING);
-    client->setReadyToWrite(true);    
+    client->setReadyToWrite(true);
 
     //this->_bodyBinary.insert(_bodyBinary.end(), bufferString.begin(), bufferString.end());
 }

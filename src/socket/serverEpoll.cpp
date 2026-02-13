@@ -26,20 +26,13 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
     client->setReadyToWrite(false);
 }
 
-void Epoll::HeaderEnd(Client *client, std::string bufferString)
+void Epoll::HeaderEnd(Client *client)
 {
     std::cout << "HEADER END" << std::endl;
-    unsigned int found = bufferString.find("\r\n\r\n");                                     
-    client->getRequestBuffer().append(bufferString.substr(0, found));                                                         
+    unsigned int found = client->getRequestBuffer().find("\r\n\r\n");                                                                                      
     client->getRequestClass().parseRequest(client->getRequestBuffer());
-    client->getRequestBuffer().clear();
-    if (bufferString.size() > found + 4) // a taffer quand on lira le body
-    {
-        // std::cout << "* on rajoute le reste du buffer au body *" << std::endl;
-        // writeInAscii(bufferString);
-        // std::cout << bufferString << std::endl;
-        client->getRequestBuffer().append(bufferString.substr(found + 4, bufferString.size()));
-    }
+    client->getRequestBuffer().erase(0, found + 4);
+    
     // client->getRequestClass().displayRequest();
     // std::cout << "jme sens comme avant la fusdion" << std::endl;
     // std::cout << client->getRequestBuffer() << std::endl;
@@ -50,87 +43,44 @@ void Epoll::HeaderEnd(Client *client, std::string bufferString)
 void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap)
 {
     std::string bufferString(buf, byteReads);
-    // size_t pos = bufferString.find("\r\n\r\n");
-    // bool hasDelimiter = (pos !=std::string::npos); 
     if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
     {
-        size_t headerEndPos = client->getRequestBuffer().find("\r\n\r\n");
-        if (headerEndPos != std::string::npos)
-        {
-            HeaderEnd(client, client->getRequestBuffer());
-            client->setClientState(READING_BODY);
-        }
-        else
-        {
+        client->getRequestBuffer().append(bufferString);
+        size_t pos = client->getRequestBuffer().find("\r\n\r\n");
+        bool hasDelimiter = (pos !=std::string::npos); 
+        if (hasDelimiter && (client->getClientState() == READING_HEADER || client->getClientState() == WAITING))
+            HeaderEnd(client);
+        if (client->getClientState() != READING_BODY)
             client->setClientState(READING_HEADER);
-            return;
-        }
-    }
-
-
-    // if (client->getClientState() == READING_BODY)
-    // {
-    //     const std::string &cl = client->getRequestClass().getHeader("Content-Length");
-    //     unsigned long contentLength = 0;
-
-    //     if (!cl.empty())
-    //     {
-    //         char *endptr = NULL;
-    //         contentLength = std::strtoul(cl.c_str(), &endptr, 10);
-    //         if (*endptr != '\0')
-    //             contentLength = 0;
-    //     }
-
-    //     size_t headersEnd = client->getRequestBuffer().find("\r\n\r\n");
-    //     size_t bodyStart = headersEnd + 4;
-    //     size_t bodySize = client->getRequestBuffer().size() - bodyStart;
-
-    //     if (bodySize >= contentLength)
-    //     {
-    //         std::string fullRequest = client->getRequestBuffer();
-    //         client->getRequestClass().parseRequest(client->getRequestBuffer());
-    //         client->setClientState(WAITING);
-    //         client->setReadyToWrite(true);
-    //     }
-    //     else
-    //     {
-    //         return;
-    //     }
-    // }
-
-
-
+    }    
     if (client->getClientState() == READING_BODY)
     {
         if (client->getRequestClass().getMethod() == "GET")
         {
             client->setClientState(WAITING);
             client->setReadyToWrite(true);
+            //client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
-            std::cout << "APPEND to the POST" << std::endl;
+            // std::cout << "APPEND to the POST" << std::endl;
             client->getRequestBuffer().append(bufferString);
+            // client->getRequestClass().getBodyBinary().insert(client->getRequestClass().getBodyBinary().end(), )
+            // std::cout << client->getContentLength() << std::endl;
+            // std::cout << client->getRequestBuffer().size() << std::endl;             
             if(client->getRequestBuffer().size() >= client->getContentLength())
+            {
+                std::cout << client->getRequestBuffer() << std::endl;
                 client->getRequestClass().parseBody(client);   
+            }
+
         }
-            
-    }
-    else if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
-    {
-        client->getRequestBuffer().append(bufferString);
-        client->setClientState(READING_HEADER);
-    }
-
-
-
-
-
-
+    }    
 
 
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
+        // client->getRequestClass().displayRequest();
         Response Res = client->getRequestClass().Handle(client->getRequestClass(), servers[0].getLocations(), servers[0], _CgiMap);
         client->setResponseBuffer(Res.constructResponse());
         _ev.events = EPOLLOUT ;
@@ -180,7 +130,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
             }                
             if (!is_listener && (_events[i].events & EPOLLIN))
             {
-                char buf[100];
+                char buf[500];
                 size_t byteReads = read(_events[i].data.fd, buf, sizeof(buf));
                 // std::cout << "BUFFER DU RECV" << std::endl;
                 // std::cout << buf << std::endl;
@@ -192,3 +142,43 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
     }
     return ;
 }
+
+    // if (client->getClientState() == READING_BODY)
+    // {
+    //     const std::string &cl = client->getRequestClass().getHeader("Content-Length");
+    //     unsigned long contentLength = 0;
+
+    //     if (!cl.empty())
+    //     {
+    //         char *endptr = NULL;
+    //         contentLength = std::strtoul(cl.c_str(), &endptr, 10);
+    //         if (*endptr != '\0')
+    //             contentLength = 0;
+    //     }
+
+    //     size_t headersEnd = client->getRequestBuffer().find("\r\n\r\n");
+    //     size_t bodyStart = headersEnd + 4;
+    //     size_t bodySize = client->getRequestBuffer().size() - bodyStart;
+
+    //     if (bodySize >= contentLength)
+    //     {
+    //         std::string fullRequest = client->getRequestBuffer();
+    //         client->getRequestClass().parseRequest(client->getRequestBuffer());
+    //         client->setClientState(WAITING);
+    //         client->setReadyToWrite(true);
+    //     }
+    //     else
+    //     {
+    //         return;
+    //     }
+    // }
+
+
+
+
+
+
+
+
+
+

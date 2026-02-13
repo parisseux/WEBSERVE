@@ -39,7 +39,7 @@ class Epoll
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
         void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap);
         void creactNewClient(std::vector<int>& listener_fds, int j);
-        void HeaderEnd(Client *client, std::string bufferString);
+        void HeaderEnd(Client *client);
 };
 
 #endif
