@@ -24,13 +24,14 @@ void Request::parseBody(Client *client)
     //     printBodyDebug(this->_bodyBinary);
     //     return;
     // }
+    // _body = client->getRequestBuffer();
     _bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
-    std::cout << "BODY BINARY PRINTTTTT" << std::endl;
-    for (unsigned int i = 0; i < _bodyBinary.size() ; ++i)
-    {
-        std::cout << _bodyBinary[i];
-    }
-    std::cout << std::endl;
+    // std::cout << "BODY BINARY PRINTTTTT" << std::endl;
+    // for (unsigned int i = 0; i < _bodyBinary.size() ; ++i)
+    // {
+    //     std::cout << _bodyBinary[i];
+    // }
+    // std::cout << std::endl;
     // std::cout << client->getRequestBuffer() << std::endl;
     // printBodyDebug(this->_bodyBinary);
     client->setClientState(WAITING);

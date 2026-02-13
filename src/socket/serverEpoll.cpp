@@ -40,8 +40,10 @@ void Epoll::HeaderEnd(Client *client)
 }
 
 // fonction a call pour gerer EPOLLIN
-void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap)
+void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap)
 {
+    // std::cout << "BUFFER DU RECV" << std::endl;
+    // std::cout << buf << std::endl;
     std::string bufferString(buf, byteReads);
     if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
     {
@@ -70,7 +72,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf, std::v
             // std::cout << client->getRequestBuffer().size() << std::endl;             
             if(client->getRequestBuffer().size() >= client->getContentLength())
             {
-                std::cout << client->getRequestBuffer() << std::endl;
+                // std::cout << client->getRequestBuffer() << std::endl;
                 client->getRequestClass().parseBody(client);   
             }
 
@@ -130,8 +132,8 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
             }                
             if (!is_listener && (_events[i].events & EPOLLIN))
             {
-                char buf[500];
-                size_t byteReads = read(_events[i].data.fd, buf, sizeof(buf));
+                char buf[4000];
+                ssize_t byteReads = recv(_events[i].data.fd, buf, sizeof(buf), 0);
                 // std::cout << "BUFFER DU RECV" << std::endl;
                 // std::cout << buf << std::endl;
                 // std::cout << "FIN DU RECV" << std::endl;                

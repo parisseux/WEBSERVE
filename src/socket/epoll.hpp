@@ -37,7 +37,7 @@ class Epoll
 
         void epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers);
         void creatEpollFdListeners(std::vector<int>& listener_fds);        
-        void manageClientRequest(Client *client, int byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap);
+        void manageClientRequest(Client *client, ssize_t byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap);
         void creactNewClient(std::vector<int>& listener_fds, int j);
         void HeaderEnd(Client *client);
 };

@@ -89,12 +89,12 @@ Response Request::Handle(Request &req, const std::vector<LocationConfig>& locati
             cgi.handleCgi(req, server, *loc, _CgiMap);
         }
         //TEST en attendant parsing fictif
-        std::string fakeBody =
-        "------boundary\r\n"
-        "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-        "Content-Type: text/plain\r\n\r\n"
-        "HELLO_UPLOAD_TEST\r\n"
-        "------boundary--\r\n";
+        // std::string fakeBody =
+        // "------boundary\r\n"
+        // "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+        // "Content-Type: text/plain\r\n\r\n"
+        // "HELLO_UPLOAD_TEST\r\n"
+        // "------boundary--\r\n";
         // req.setBody(fakeBody);
         // req.setHeader("Content-Type", "multipart/form-data; boundary=boundary");
         // req.setHeader("Content-Length", std::to_string(fakeBody.size()));
