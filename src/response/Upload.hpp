@@ -35,7 +35,7 @@ private:
     std::map<std::string, std::string> FillHeaders(std::string headerStr);
     void ProcessParts();
     bool isSafeFilename(const std::string& name);
-
+    void printParts() const;
 public:
     int CheckBodySize(const LocationConfig &loc, const Request &req);
     Response Handle(const LocationConfig &loc, const Request &req);

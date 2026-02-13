@@ -84,7 +84,7 @@ class Request
         // void setHeader(const std::string &key, const std::string &s);
 
         bool hasHeader(const std::string& k) const { return _header.find(k) != _header.end(); }
-        void displayRequest();
+        void displayRequest() const;
         std::string constructRequest();
 
         // resquest

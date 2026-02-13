@@ -65,7 +65,7 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
  
 Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap)
 {
-    req.displayRequest();
+    // req.displayRequest();
     int status = req.ValidateRequest(req);
     if (status == 400)
         return (Response::Error(400, "400 Bad Request"));

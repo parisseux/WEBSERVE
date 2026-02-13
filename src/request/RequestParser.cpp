@@ -68,9 +68,9 @@ void Request::parseHeader(std::stringstream &stream)
 //     _body = oss.str();
 // }
 
-void Request::displayRequest()
+void Request::displayRequest() const
 {
-    std::map<std::string, std::string>::iterator it = _header.begin();
+    std::map<std::string, std::string>::const_iterator it = _header.begin();
     std::cout << "* SERVER JUST RECEIVED A REQUEST *" << std::endl;
     std::cout << _method << " "
             <<  _requestTarget << " "
@@ -83,10 +83,8 @@ void Request::displayRequest()
     if (_body.empty() == 0)
     {
         std::cout << "* BODY *" << std::endl;
-        std::cout << std::endl;
         std::cout << _body;
     }
-    std::cout << std::endl;
     std::cout << "* END OF REQUEST *"<< std::endl;
 }
 

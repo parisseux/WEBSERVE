@@ -32,18 +32,12 @@ void Epoll::HeaderEnd(Client *client)
     unsigned int found = client->getRequestBuffer().find("\r\n\r\n");                                                                                      
     client->getRequestClass().parseRequest(client->getRequestBuffer());
     client->getRequestBuffer().erase(0, found + 4);
-    
-    // client->getRequestClass().displayRequest();
-    // std::cout << "jme sens comme avant la fusdion" << std::endl;
-    // std::cout << client->getRequestBuffer() << std::endl;
     client->setClientState(READING_BODY);
 }
 
 // fonction a call pour gerer EPOLLIN
 void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, std::vector<ServerConfig> &servers, std::map<int, Cgi*> &_CgiMap)
 {
-    // std::cout << "BUFFER DU RECV" << std::endl;
-    // std::cout << buf << std::endl;
     std::string bufferString(buf, byteReads);
     client->getRequestBuffer().append(bufferString);
     if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
@@ -68,11 +62,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
             if(client->getRequestBuffer().size() >= client->getContentLength())
             {
                 client->getRequestClass().parseBody(client);   
-            }            
-            // std::cout << "APPEND to the POST" << std::endl;           
-            // client->getRequestClass().getBodyBinary().insert(client->getRequestClass().getBodyBinary().end(), )
-            // std::cout << client->getContentLength() << std::endl;
-            // std::cout << client->getRequestBuffer().size() << std::endl;             
+            }                   
         }
     }    
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
@@ -139,38 +129,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
     }
     return ;
 }
-
-    // if (client->getClientState() == READING_BODY)
-    // {
-    //     const std::string &cl = client->getRequestClass().getHeader("Content-Length");
-    //     unsigned long contentLength = 0;
-
-    //     if (!cl.empty())
-    //     {
-    //         char *endptr = NULL;
-    //         contentLength = std::strtoul(cl.c_str(), &endptr, 10);
-    //         if (*endptr != '\0')
-    //             contentLength = 0;
-    //     }
-
-    //     size_t headersEnd = client->getRequestBuffer().find("\r\n\r\n");
-    //     size_t bodyStart = headersEnd + 4;
-    //     size_t bodySize = client->getRequestBuffer().size() - bodyStart;
-
-    //     if (bodySize >= contentLength)
-    //     {
-    //         std::string fullRequest = client->getRequestBuffer();
-    //         client->getRequestClass().parseRequest(client->getRequestBuffer());
-    //         client->setClientState(WAITING);
-    //         client->setReadyToWrite(true);
-    //     }
-    //     else
-    //     {
-    //         return;
-    //     }
-    // }
-
-
 
 
 
