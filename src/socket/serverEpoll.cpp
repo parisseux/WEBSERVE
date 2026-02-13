@@ -45,9 +45,9 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
     // std::cout << "BUFFER DU RECV" << std::endl;
     // std::cout << buf << std::endl;
     std::string bufferString(buf, byteReads);
+    client->getRequestBuffer().append(bufferString);
     if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
     {
-        client->getRequestBuffer().append(bufferString);
         size_t pos = client->getRequestBuffer().find("\r\n\r\n");
         bool hasDelimiter = (pos !=std::string::npos); 
         if (hasDelimiter && (client->getClientState() == READING_HEADER || client->getClientState() == WAITING))
@@ -65,21 +65,16 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
-            // std::cout << "APPEND to the POST" << std::endl;
-            client->getRequestBuffer().append(bufferString);
+            if(client->getRequestBuffer().size() >= client->getContentLength())
+            {
+                client->getRequestClass().parseBody(client);   
+            }            
+            // std::cout << "APPEND to the POST" << std::endl;           
             // client->getRequestClass().getBodyBinary().insert(client->getRequestClass().getBodyBinary().end(), )
             // std::cout << client->getContentLength() << std::endl;
             // std::cout << client->getRequestBuffer().size() << std::endl;             
-            if(client->getRequestBuffer().size() >= client->getContentLength())
-            {
-                // std::cout << client->getRequestBuffer() << std::endl;
-                client->getRequestClass().parseBody(client);   
-            }
-
         }
     }    
-
-
     if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
     {
         // client->getRequestClass().displayRequest();

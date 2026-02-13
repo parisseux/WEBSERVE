@@ -235,38 +235,41 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
     if (!canWrite(_uploadDir))
         return Response::Error(403, "No write permission in upload folder");
 
-    // std::cout << "--------- Handling upload ------" << std::endl;
-    // // std::cout << "Boundary : " << _boundary << std::endl;
-    // // ----- FAKE BODY POUR TEST -----
-    // // Seulement pour tester le parsing multipart avec 2 parts
-    // std::string boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
-    // std::string bodyStr =
-    //     "--" + boundary + "\r\n"
-    //     "Content-Disposition: form-data; name=\"file3\"; filename=\"test3.txt\"\r\n"
-    //     "Content-Type: text/plain\r\n"
-    //     "\r\n"
-    //     "Hello from file 3333333\n"
-    //     "--" + boundary + "\r\n"
-    //     "Content-Disposition: form-data; name=\"file4\"; filename=\"../test4.txt\"\r\n"
-    //     "Content-Type: text/plain\r\n"
-    //     "\r\n"
-    //     "Hello from file 2\n"
-    //     "--" + boundary + "--\r\n";
+    std::cout << "--------- Handling upload ------" << std::endl;
+    // std::cout << "Boundary : " << _boundary << std::endl;
+    // ----- FAKE BODY POUR TEST -----
+    // Seulement pour tester le parsing multipart avec 2 parts
+    std::string boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+    std::string bodyStr =
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"file3\"; filename=\"test3.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "Hello from file broo\n"
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"file4\"; filename=\"../test4.txt\"\r\n"
+        "Content-Type: text/plain\r\n"
+        "\r\n"
+        "Hello from file 2\n"
+        "--" + boundary + "--\r\n";
 
     // Copie de la requête pour injecter le body factice
-    // Request fakeReq = req;
-    // fakeReq.getBodyBinary() = std::vector<unsigned char>(bodyStr.begin(), bodyStr.end());
-    // fakeReq.getBody() = bodyStr;
+    Request fakeReq = req;
+    fakeReq.getBodyBinary() = std::vector<unsigned char>(bodyStr.begin(), bodyStr.end());
+    fakeReq.getBody() = bodyStr;
+    fakeReq.displayRequest();
 
     // Convertir le boundary en vector<unsigned char>
     std::string contentType = req.getHeader("Content-Type");
     unsigned int pos = contentType.find("boundary=");
     std::string boundaryStr = contentType.substr(pos + 9);
+    std::cout << "BOUNDARY" << std::endl;
+    std::cout << boundaryStr << std::endl;
     _boundary = std::vector<unsigned char>(boundaryStr.begin(), boundaryStr.end());
 
     // Parser le body factice et découper en parts
     _parts.clear();
-    ParseBody(req);
+    ParseBody(fakeReq);
     ProcessParts();
 
     Response res;
