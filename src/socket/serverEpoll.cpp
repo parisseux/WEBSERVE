@@ -80,7 +80,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf)
 		{
 			// client->setClientState(GENERATING_BODY);
 			client->setReadyToWrite(true);
-			client->getRequestClass().displayRequest();			
+			// client->getRequestClass().displayRequest();			
 			//client->getRequestClass().displayRequest(); // affichage requete complete
 		}
 		else if (client->getRequestClass().getMethod() == "POST") 
@@ -90,7 +90,7 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf)
 			// {
 				client->getRequestClass().parseRequest(client->getRequestBuffer());     
 				client->setReadyToWrite(true);
-				client->getRequestClass().displayRequest();					                      
+				// client->getRequestClass().displayRequest();					                      
 				//client->getRequestClass().displayRequest(); // affichage requete complete
 				//std::cout << client->getRequestClass().getBody() << std::endl;                
 			// }
@@ -120,17 +120,107 @@ void Epoll::manageClientRequest(Client *client, int byteReads, char *buf)
 
 void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 {
-	std::cout << "MANAGE CGI" << std::endl;
+	// std::cout << "MANAGE CGI" << std::endl;
 	std::string bufferString(buf, byteReads);
 	client->getResponseBuffer().push_back(bufferString);
     client->setBodyComplete(false);		
 	if ((bufferString.find("0\r\n\r\n"))!=std::string::npos)
 	{
-		std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
+		// std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
 		epoll_ctl(this->_ep_fd, EPOLL_CTL_DEL, client->getCgiFd(), &_ev);    
         client->setBodyComplete(true);		
 		close(client->getCgiFd());  
 	}
+}
+
+void Epoll::NewClientConnection(std::vector<int>& listener_fds, int eventFd)
+{
+	for (unsigned int j = 0; j < listener_fds.size(); j++) //cree un nouveau client en cas de nouvelle connexion
+	{
+		if (eventFd == listener_fds.at(j))
+		{
+			creactNewClient(listener_fds, j);
+			_is_listener = true;
+			break ;
+		}
+	}
+}
+
+void Epoll::MatchEventWithClient(int eventFd)
+{
+	for (_it = Clients_map.begin(); _it != Clients_map.end(); ++_it) // choisi le bon client en fonction du fd de l'event recu
+	{
+		if (eventFd == _it->first)
+		{
+			_client = _it->second;
+			_isCgi = false;
+			break ;
+		}
+		_client_cgi = _it->second;
+		if (eventFd == _client_cgi->getCgiFd())
+		{
+			_isCgi = true;
+			break;
+		}
+	}		
+}
+
+void Epoll::HandleEpollin(int eventFd)
+{
+	char buf[4000];
+	ssize_t byteReads = read(eventFd, buf, sizeof(buf));
+	if (byteReads > 0)
+	{
+		// std::cout << byteReads << std::endl; 
+		if (_isCgi == true)
+			manageCgi(_client_cgi, byteReads, buf);
+		else
+			manageClientRequest(Clients_map.at(eventFd), byteReads, buf);
+	}	
+}
+
+void Epoll::HandleEpollout()
+{
+	if (_client->getResponseBuffer().empty() == 0)
+	{
+		// std::cout << "MESSAGE ENVOYE" << std::endl;
+		// std::cout << _client->getResponseBuffer().front() << std::endl;
+		std::string response = _client->getResponseBuffer().front();
+		_client->getResponseBuffer().pop_front();
+		ssize_t byteReads = send(_client->getFd(), response.c_str(), response.size(), 0);
+		if (byteReads > 0)
+		{
+			// std::cout << "send some byte" << std::endl;
+		}
+		if (_client->getBodyComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
+		{
+			std::cout << "send finished" << std::endl;                        
+			_ev.events = EPOLLIN ;
+			_ev.data.fd = _client->getFd();            
+			epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
+			_client->clearClient();
+			// Clients_map.erase(client->getFd()); // dans le cas d'un NON keep alive
+			// delete client;											
+		}
+	}
+}
+
+void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
+{
+	for (_it = Clients_map.begin(); _it != Clients_map.end(); ++_it)
+	{
+		//std::cout << "MAP CLIENTS SIZE: " << Clients_map.size() << std::endl;
+		_client = _it->second;
+		if(_client->getClientState() == GENERATING_RESPONSE)
+		{
+			_client->Handle(_client->getRequestClass(),  servers[0].getLocations(), servers[0], _client, *this);	
+			// client->setClientState(SENDING_RESPONSE);				
+			_ev.events = EPOLLOUT ;
+			_ev.data.fd = _client->getFd();            
+			epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
+		}
+	}		
+
 }
 
 void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers)
@@ -143,100 +233,15 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 		// print_ready_events(_event_wait, _events);
 		for (int i = 0; i < _event_wait; i++)
 		{
-			std::map<int, Client*>::iterator it;
-			Client *client;
-			Client *client_cgi;
-			bool isCgi = false;
-			bool is_listener = false;
-			for (unsigned int j = 0; j < listener_fds.size(); j++) //cree un nouveau client en cas de nouvelle connexion
-			{
-				if (_events[i].data.fd == listener_fds.at(j))
-				{
-					creactNewClient(listener_fds, j);
-					is_listener = true;
-					break ;
-				}
-			}
-			for (it = Clients_map.begin(); it != Clients_map.end(); ++it) // choisi le bon client en fonction du fd de l'event recu
-			{
-				if (_events[i].data.fd == it->first)
-				{
-					client = it->second;
-					isCgi = false;
-					break ;
-				}
-				client_cgi = it->second;
-				if (_events[i].data.fd == client_cgi->getCgiFd())
-				{
-					isCgi = true;
-					break;
-				}
-			} 
-			if( !is_listener && (_events[i].events & EPOLLIN))
-			{
-				char buf[4000];
-				// std::cout << "FD CGI TROUVE: "<<client_cgi->getCgiFd() << client_cgi->getFd() << std::endl;
-				// std::string content;            
-				// readFd(client_cgi->getCgiFd(), content);
-				// std::cout << content << std::endl;
-				// std::cout << client_cgi->getCgiFd() << _events[i].data.fd << std::endl;    
-				ssize_t byteReads = read(_events[i].data.fd, buf, sizeof(buf));
-				if (byteReads > 0)
-				{
-					// std::cout << byteReads << std::endl; 
-					if (isCgi == true)
-					{
-						manageCgi(client_cgi, byteReads, buf);
-					}
-					else
-						manageClientRequest(Clients_map.at(_events[i].data.fd), byteReads, buf);
-				}
-			}			
-			else if (!is_listener && (_events[i].events & EPOLLOUT) && isCgi == false)
-			{
-				if (client->getResponseBuffer().empty() == 0 && client->getResponseBuffer().front().empty() == 0)
-				{
-					std::cout << "MESSAGE ENVOYE" << std::endl;
-					std::cout << client->getResponseBuffer().front() << std::endl;
-					// writeInAscii(client->getResponseBuffer().front());
-					std::string response = client->getResponseBuffer().front();
-					client->getResponseBuffer().pop_front();
-					std::cout << _events[i].data.fd << client->getFd() << std::endl;
-					ssize_t byteReads = send(client->getFd(), response.c_str(), response.size(), 0);
-					if (byteReads > 0)
-					{
-						std::cout << "send some byte" << std::endl;
-					}
-					if (client->getBodyComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
-					{
-						std::cout << "send finished" << std::endl;                        
-						_ev.events = EPOLLIN ;
-						_ev.data.fd = client->getFd();            
-						epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
-						client->setReadyToWrite(false);
-						client->clearRequest();
-						client->setClientState(WAITING);
-						client->setBodyComplete(false);
-						client->setByteSentPos(0);
-						// Clients_map.erase(client->getFd()); // dans le cas d'un non kepp alive
-						// delete client;
-						close(client->getFd());						
-					}
-				}
-			}
-			for (it = Clients_map.begin(); it != Clients_map.end(); ++it)
-			{
-				client = it->second;
-				if(client->getClientState() == GENERATING_RESPONSE)
-				{
-					client->Handle(client->getRequestClass(),  servers[0].getLocations(), servers[0], client, *this);					
-					_ev.events = EPOLLOUT ;
-					_ev.data.fd = client->getFd();            
-					epoll_ctl(this->_ep_fd, EPOLL_CTL_MOD, client->getFd(), &_ev);
-				}
-			}					
-
-
+			_isCgi = false;
+			_is_listener = false;
+			NewClientConnection(listener_fds, _events[i].data.fd);
+			MatchEventWithClient(_events[i].data.fd);
+			if (!_is_listener && (_events[i].events & EPOLLIN))
+				HandleEpollin(_events[i].data.fd);
+			else if (!_is_listener && (_events[i].events & EPOLLOUT) && _isCgi == false)
+				HandleEpollout();
+			generatePendingResponse(servers);					
 		}
 	}
 	return ;

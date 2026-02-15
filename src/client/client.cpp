@@ -121,8 +121,30 @@ void Client::clearRequest()
     getRequestClass().getHeaders().clear();
 }
 
+void Client::clearResponse()
+{
+    getResponseClass().setStatus(200);
+    getResponseClass().getHeaders().clear();
+    getResponseClass().setBody("");
+    getResponseClass().setResponseState(FIRST_SENT);        
+}
+
+void Client::clearClient()
+{
+    setReadyToWrite(false);
+    clearRequest();
+    getRequestBuffer().clear();
+    clearResponse();							
+    getResponseBuffer().clear();
+    setClientState(WAITING);
+    setBodyComplete(false);
+    setByteSentPos(0);
+    close(this->getFd());    
+}
+
 void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
 {
+    // std::cout << "Handling request..." << "of client " << client->getFd() << std::endl;
     int status = req.ValidateRequest(req);
     if (status == 400)
     {
@@ -166,13 +188,13 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     st.BuildStaticResponse(req, target, client, _response);
     if(_response.getResponseState() == FIRST_SENT)
     {
-        std::cout << "ON  CREE UNE REPONSE COMPLETE" << std::endl;
+        // std::cout << "ON  CREE UNE REPONSE COMPLETE" << std::endl;
         client->getResponseBuffer().push_front(_response.constructResponse().data());
         _response.setResponseState(N_SENT);
     }
     else
     {
-        std::cout << "ON CONTINUE L'ENVOIE" << std::endl;        
+        // std::cout << "ON CONTINUE L'ENVOIE" << std::endl;        
         client->getResponseBuffer().push_front(_response.getBody());
     }
     _response.getBody().clear();

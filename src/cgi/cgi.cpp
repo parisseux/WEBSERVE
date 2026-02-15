@@ -4,7 +4,6 @@
 #include "../request/Request.hpp"
 #include "wait.h"
 
-
 extern char** environ;
 
 std::string Cgi::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
@@ -104,19 +103,18 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
     _path = JoinPath(root, rel);
-    // std::cout << root << std::endl;
-    // std::cout << rel << std::endl;
-    // std::cout << path << std::endl;
+
     pid_t pid;
-    int		fd[2];
-    // int status = 0;
+    int		pipe_in[2];
+    int     pipe_out[2];
+    
     const char *pythonPath = "/usr/bin/python3";
     char *args[] = {
         (char*)"python3", 
         (char*)_path.c_str(), 
         NULL 
     };
-    if (pipe(fd) == -1)
+    if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
         std::cout << "Pipe function error" << std::endl;
     MakeCgiEnv(req);      
     pid = fork();
@@ -126,26 +124,30 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
             std::cout << "fork error" << std::endl;
             break ;
         case 0:
-            std::cout << "Child Process" << std::endl;      
-            dup2(fd[0], STDIN_FILENO);
-            dup2(fd[1], STDOUT_FILENO);   
-            close(fd[0]);
-            close(fd[1]);                   
+            // std::cout << "Child Process" << std::endl;      
+            dup2(pipe_in[0], STDIN_FILENO);
+            dup2(pipe_out[1], STDOUT_FILENO);   
+            close(pipe_in[0]);
+            close(pipe_in[1]);
+            close(pipe_out[0]);
+            close(pipe_out[1]);                  
             execve(pythonPath, args, _envCgi.data());
             exit(EXIT_SUCCESS);
             break ;
         default:
-            std::cout << "Parent Process" << std::endl;
-            client->setCgiFd(fd[0]);
-            write(fd[1], req.getBody().c_str(), req.getBody().size());  
-            close(fd[1]);                                       
+            // std::cout << "Parent Process" << std::endl;
+            client->setCgiFd(pipe_out[0]);
+            write(pipe_in[1], req.getBody().c_str(), req.getBody().size());  
+            close(pipe_in[0]);
+            close(pipe_in[1]);
+            close(pipe_out[1]);                                                        
             // res.setStatus(200);
             // client->getResponseBuffer().push_front(res.AddToResponse());
-            int flags = fcntl(fd[0], F_GETFL, 0);
-            fcntl(fd[0], F_SETFL, flags | O_NONBLOCK);
+            int flags = fcntl(pipe_out[0], F_GETFL, 0);
+            fcntl(pipe_out[0], F_SETFL, flags | O_NONBLOCK);
             epoll.setEvent(EPOLLIN);
-            epoll.setEventFd(fd[0]);
-            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, fd[0], epoll.getEvent());             
+            epoll.setEventFd(pipe_out[0]);
+            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, pipe_out[0], epoll.getEvent());             
             std::cout << "DONE with CGI" << std::endl;                
     }
 }

@@ -10,25 +10,20 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
         return false;
     if (client->getByteSentPos() > 0)
         file.seekg(client->getByteSentPos());
-    char buf[250];
+    char buf[100];
     file.read(buf, sizeof(buf));
     ssize_t byteRead = file.gcount();
     client->addByteSentPos(byteRead);
-    if (file.eof())
+    if (file.eof()) // check si on a lu touts le contenu
     {
-        std::cout << "TOUT LES CHAR LU" << std::endl;
         client->setBodyComplete(true);
         file.close();
     }
-    else
+    else // on a pas lu tout le content
     {
-        std::cout << "PAS TOUT LU" << std::endl;
         client->setBodyComplete(false);
     }
-    content.append(buf);
-    // std::ostringstream ss;
-    // ss << file.rdbuf();
-    // content = ss.str();
+    content.append(buf, byteRead);
     return true;
 }
 

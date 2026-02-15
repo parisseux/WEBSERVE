@@ -12,6 +12,10 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # On change le répertoire de travail du processus
 os.chdir(script_dir)
 
+with open("debug.log", "a") as f:
+    f.write(f"Content-Length reçu : {os.environ.get('CONTENT_LENGTH')}\n")
+    f.write(f"request reçu : {os.environ.get('REQUEST_METHOD')}\n")
+
 # Configuration du debug
 cgitb.enable()
 DB_FILE = 'data.json'

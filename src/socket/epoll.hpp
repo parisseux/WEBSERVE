@@ -24,6 +24,11 @@ class Epoll
         struct  epoll_event _events[10];
         std::map<int, Client*> Clients_map;
         std::map<int, Cgi*> _CgiMap;
+		std::map<int, Client*>::iterator _it;
+		Client *_client;
+		Client *_client_cgi;        
+		bool _is_listener;
+	    bool _isCgi;                   
     public:
         Epoll();
         ~Epoll();
@@ -40,6 +45,11 @@ class Epoll
         void manageCgi(Client *client, int byteReads, char *buf);
         void creactNewClient(std::vector<int>& listener_fds, int j);
         void HeaderEnd(Client *client, std::string bufferString);
+        void NewClientConnection(std::vector<int>& listener_fds, int eventFd);
+        void MatchEventWithClient(int eventFd);
+        void HandleEpollin(int eventFd);
+        void HandleEpollout();
+        void generatePendingResponse(std::vector<ServerConfig> &servers);        
 };
 
 #endif
