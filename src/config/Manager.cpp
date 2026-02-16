@@ -1,7 +1,6 @@
 #include "Manager.hpp"
 #include "ConfigFile.hpp"
 
-
 void Manager::startWebserv()
 {
     //créer sockets d'écoute
@@ -27,11 +26,11 @@ void Manager::initServers(const std::string &configFile)
     size_t serverCount = 0;
     while (std::getline(file, line))
     {
-        if (isServerStart(line))
+        ServerConfig config;
+        if (config.isServerStart(line))
             ++serverCount;
         try
         {
-            ServerConfig config;
             config.parseServer(file);
             if (!config.getHasListen())
                 throw std::runtime_error("missing listen directive");
@@ -40,7 +39,7 @@ void Manager::initServers(const std::string &configFile)
         }
         catch (const std::exception& e) 
         {
-            //throw std::runtime_error("config error in server block #" + std::to_string(serverCount) + ": " + e.what());
+            throw std::runtime_error( e.what());
         }
     }
     if (this->_servers.empty())

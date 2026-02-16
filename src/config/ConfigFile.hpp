@@ -71,9 +71,12 @@ class ServerConfig
         // void setHasIndex(bool hasIndex) {this->_hasIndex =  hasIndex;};
 
 
-        void parseServer(std::ifstream &file);
+        bool        isServerStart(const std::string &line);
+
+        void        parseServer(std::ifstream &file);
 
         //ServerConfig
+        bool isValidIPv4(const std::string &ip);
         void parseListenDirective(const std::string &t);
         void parseServerNameDirective(const std::string &t);
         void parseRootDirective(const std::string &t);
@@ -85,11 +88,5 @@ class ServerConfig
 
         void print_attributes();
 };
-
-//utils
-bool isValidIPv4(const std::string &ip);
-std::string trim(const std::string &s);
-std::string removeSemicolon(const std::string &s);
-bool isServerStart(const std::string &line);
 
 #endif

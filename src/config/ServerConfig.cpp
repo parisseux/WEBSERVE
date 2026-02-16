@@ -1,4 +1,5 @@
 #include "ConfigFile.hpp"
+#include "../utils/utils.hpp"
 
 void ServerConfig::parseListenDirective(const std::string &t)
 {
@@ -25,7 +26,7 @@ void ServerConfig::parseListenDirective(const std::string &t)
     int port = atoi(portStr.c_str());
     if (port <= 0 || port > 65535)
         throw std::runtime_error("Invalid listen port");
-    if (host != "localhost" && host != "*" && !isValidIPv4(host))
+    if (host != "localhost" && host != "*" && !this->isValidIPv4(host))
         throw std::runtime_error("Invalid listen IP address: " + host);
     if (host == "*")
         host = "0.0.0.0";

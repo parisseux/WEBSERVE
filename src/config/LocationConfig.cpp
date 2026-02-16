@@ -1,8 +1,8 @@
-
 #include "LocationConfig.hpp"
 #include "ConfigFile.hpp"
+#include "../utils/utils.hpp"
 
-void LocationConfig::parseLocationRoot(const std::string &s)
+void LocationConfig::parseLocationRoot(const std::string& s)
 {
     if (this->_hasRoot)
         throw std::runtime_error("Duplicate 'root' directive in location " + this->_path);
@@ -12,7 +12,7 @@ void LocationConfig::parseLocationRoot(const std::string &s)
     this->_hasRoot = true;
 }
 
-void LocationConfig::parseLocationIndex(const std::string &s)
+void LocationConfig::parseLocationIndex(const std::string& s)
 {
     if (this->_hasIndex)
         throw std::runtime_error("Duplicate 'index' directive in location " + this->_path);
@@ -22,7 +22,7 @@ void LocationConfig::parseLocationIndex(const std::string &s)
     this->_hasIndex = true;
 }
 
-void LocationConfig::parseLocationAutoindex(const std::string &s)
+void LocationConfig::parseLocationAutoindex(const std::string& s)
 {
     if (this->_hasAutoindex)
         throw std::runtime_error("Duplicate 'autoindex' in location " + this->_path);
@@ -34,6 +34,16 @@ void LocationConfig::parseLocationAutoindex(const std::string &s)
     else
         throw std::runtime_error("Invalid autoindex value in location " + this->_path);
     this->_hasAutoindex = true;
+}
+
+void LocationConfig::parseLocationUploadPath(const std::string &s)
+{
+    if (this->_hasUploadPath)
+        throw std::runtime_error("Duplicate 'upload_path' directive in location " + this->_path);
+    this->_uploadPath = removeSemicolon(s.substr(12));
+    if (this->_uploadPath.empty())
+        throw std::runtime_error("Empty upload_path in location " + this->_path);
+    this->_hasUploadPath = true;
 }
 
 void LocationConfig::parseLocationMaxBodySize(const std::string &s)
@@ -55,10 +65,10 @@ void LocationConfig::parseLocationMaxBodySize(const std::string &s)
     if (!isdigit(lastChar))
         numStr = val.substr(0, val.size() - 1);
     this->_maxBodySize = strtoul(numStr.c_str(), NULL, 10) * multiplier;
-    this->_maxBodySize = true;
+    this->_hasMaxBodySize = true;
 }
 
-void LocationConfig::parseLocationAllowMethods(const std::string &s)
+void LocationConfig::parseLocationAllowMethods(const std::string& s)
 {
     if (this->_hasAllowMethods)
         throw std::runtime_error("Duplicate 'allow_methods' in location " + this->_path);
@@ -74,7 +84,29 @@ void LocationConfig::parseLocationAllowMethods(const std::string &s)
     this->_hasAllowMethods = true;
 }
 
-void LocationConfig::parseLocationHeader(const std::string &firstLine)
+void LocationConfig::parseLocationCgiBin(const std::string& s)
+{
+    if (this->_hasCgiBin)
+        throw std::runtime_error("Duplicate cgi_bin in location " + this->_path);
+    std::string val = removeSemicolon(s.substr(7));
+    if (val.empty())
+        throw std::runtime_error("Empty cgi_bin in location " + this->_path);
+    this->_cgiBin = val;
+    this->_hasCgiBin = true;
+}
+
+void LocationConfig::parseLocationCgiExt(const std::string& s)
+{
+    if (this->_hasCgiExt)
+        throw std::runtime_error("Duplicate cgi ext in location " + this->_path);
+    std::string val = removeSemicolon(s.substr(7));
+    if (val.empty())
+        throw std::runtime_error("Empty cgi ext in location " + this->_path);
+    this->_cgiExt = val;
+    this->_hasCgiExt = true;
+}
+
+void LocationConfig::parseLocationHeader(const std::string& firstLine)
 {
     std::string t = trim(firstLine);
     std::string rest = trim(t.substr(8));
@@ -87,9 +119,10 @@ void LocationConfig::parseLocationHeader(const std::string &firstLine)
     if (path.empty())
         throw std::runtime_error("location: empty path");
     this->_path = path;
+    // std::cout << "path is : " << path << std::endl;
 }
 
-void LocationConfig::parseLocationLine(const std::string &s)
+void LocationConfig::parseLocationLine(const std::string& s)
 {
     if (s.empty())
         return;
@@ -103,15 +136,16 @@ void LocationConfig::parseLocationLine(const std::string &s)
         this->parseLocationMaxBodySize(s);
     else if (s.find("allow_methods ") == 0)
         this->parseLocationAllowMethods(s);
+    else if (s.find("cgi_bin ") == 0)
+        this->parseLocationCgiBin(s);
+    else if (s.find("cgi_ext") == 0)
+        this->parseLocationCgiExt(s);
+    else if (s.find("upload_path ") == 0)
+        this->parseLocationUploadPath(s);
     else
         throw std::runtime_error("Unknown directive in location " + this->_path + ": " + s);
 }
 
-
-//metode de LocationConfig pour eviter les Getter, mas dcp on doit
-//passer le serverconfig en parametre,
-//Est ce qu on fait une class location qui herite de server pour avoir
-//les getters?
 void LocationConfig::parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine)
 {
     this->parseLocationHeader(firstLine);
@@ -128,11 +162,6 @@ void LocationConfig::parseLocationDirective(ServerConfig& server, std::ifstream 
     server.getLocations().push_back(*this);
 }
 
-
-//metode de LocationConfig pour eviter les Getter, mas dcp on doit
-//passer le serverconfig en parametre,
-//Est ce qu on fait une class location qui herite de server pour avoir
-//les getters?
 void LocationConfig::applyLocationDefaults(ServerConfig& server)
 {
     if (!this->_hasAutoindex)

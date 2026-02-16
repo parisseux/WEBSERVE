@@ -3,98 +3,25 @@
 #include "../cgi/cgi.hpp"
 #include "../response/StaticTarget.hpp"
 
-// CONSTRUCTOR / DESTRUCTOR
-
-Client::Client()
-: _ReadyToWrite(false), _state(WAITING)
+bool Client::isUpload()
 {
-    std::cout << "Client created" << std::endl;
+    std::string type;
+    type = headerValue("Content-Type", this->getRequestClass());
+    if (type.find("multipart/form-data")!=std::string::npos)
+        return true;
+    return false;
 }
 
-Client::~Client()
-{
-    std::cout << "Client destructed" << std::endl;
-}
-
-// ALL THE SETTESS
-
-void Client::setFd(int fd)
-{
-    this->_fd = fd;
-}
-
-void Client::setFlags(int flags)
-{
-    this->_flags = flags;
-}
-
-void Client::setRequestBuffer(std::string requestBuffer)
-{
-    this->_requestBuffer = requestBuffer;
-}
-
-void Client::setResponseBuffer(std::deque<std::string> responseBuffer)
-{
-    this->_responseBuffer = responseBuffer;
-}
-
-void Client::setReadyToWrite(bool ReadytoWrite)
-{
-    this->_ReadyToWrite = ReadytoWrite;
-}
-
-void Client::setClientState(ClientState state)
-{
-    this->_state = state;
-}
-
-// ALL THE GETTERS
-
-int& Client::getFd()
-{
-    return (this->_fd);
-}
-
-int& Client::getFlags()
-{
-    return (this->_flags);
-}
-
-std::string& Client::getRequestBuffer()
-{
-    return (this->_requestBuffer);
-}
-
-std::deque<std::string>& Client::getResponseBuffer()
-{
-    return (this->_responseBuffer);
-}
-
-bool& Client::getReadyToWrite()
-{
-    return (this->_ReadyToWrite);
-}
-
-Request& Client::getRequestClass()
-{
-    return (this->_request);
-}
-
-ClientState Client::getClientState()
-{
-    return(this->_state);
-}
-
-int Client::getContentLength()
+unsigned int Client::getContentLength()
 {
     std::string length;
-    int content_length;
+    unsigned int content_length;
     char *pEnd;
     length = headerValue("Content-Length", this->getRequestClass());
-    content_length = std::strtol(length.c_str(), &pEnd, 0);
-	if (*pEnd != '\0')
+    content_length = std::strtoul(length.c_str(), &pEnd, 10);
+	if (*pEnd != '\0' && *pEnd != '\r')
 	{    
-		std::cout << "Erreur conversion en int dans calcul content length" << std::endl;              
+		std::cout << "Error on content lenght ending char" << std::endl;              
 	}    
     return (content_length);
 }
@@ -178,6 +105,29 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
         client->setClientState(GENERATING_CGI);
         return ;
     }
+    if (req.getMethod() == "POST")
+    {
+
+        Upload up;
+        status = up.CheckBodySize(*loc, req);
+        if (status)
+        {
+            client->getResponseBuffer().push_front(Response::Error(413, "Payload Too Large").constructResponse());
+            return ;         
+        }
+        if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
+        {
+            client->getResponseBuffer().push_front(Response::Error(400, "Bad Request").constructResponse());        
+            return ;
+        }
+        if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
+            && req.getPath() == "/upload")
+        {
+            client->getResponseBuffer().push_front(up.Handle(*loc, req).constructResponse());
+            return ;
+        }
+    }
+
     //upload handler (="POST") va venir écrire dans un fichiers
     // handleUpload(req, server, *loc);
 

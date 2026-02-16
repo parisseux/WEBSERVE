@@ -65,48 +65,60 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     }
     return (bestLoc);
 }
-
-// void Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
+ 
+// Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap)
 // {
+//     // req.displayRequest();
 //     int status = req.ValidateRequest(req);
 //     if (status == 400)
-//     {
-//         client->getResponseBuffer().push_front(Response::Error(400, "400 Bad Request").constructResponse());       
-//         return ; 
-//     }
+//         return (Response::Error(400, "400 Bad Request"));
 //     if (status == 501)
-//     {
-//         client->getResponseBuffer().push_front(Response::Error(501, "501 Not Implemented").constructResponse());      
-//         return ;        
-//     }
+//         return (Response::Error(501, "501 Not Implemented"));
 //     const LocationConfig *loc = req.MatchLocation(req.getPath(), locations);
 //     if (!loc)
-//     {
-//         client->getResponseBuffer().push_front(Response::Error(500, "500 No location matched (unexpected)").constructResponse());    
-//         return ;          
-//     }
+//         return (Response::Error(500, "500 No location matched (unexpected)"));
 //     status = req.MethodAllowed(req, loc);
 //     if (status == 405)
-//     {
-//         client->getResponseBuffer().push_front(Response::Error(405, "405 Method Not Allowed").constructResponse());       
-//         return ; 
-//     }
+//         return (Response::Error(405, "405 Method Not Allowed"));
+
 //     // buildRedirectResponse(loc);
 
-//     // CGI handler va executer un script ou un process
-//     if (isCgi(req, server, *loc))
+//     if (req.getMethod() == "POST")
 //     {
-//         Cgi cgi;
-//         cgi.handleCgi(req, server, *loc, client, epoll);
-//         return ;
+//          // CGI handler va executer un script ou un process
+//         if (isCgi(req, server, *loc))
+//         {
+//             Cgi cgi;
+//             cgi.handleCgi(req, server, *loc, _CgiMap);
+//         }
+//         //TEST en attendant parsing fictif
+//         // std::string fakeBody =
+//         // "------boundary\r\n"
+//         // "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+//         // "Content-Type: text/plain\r\n\r\n"
+//         // "HELLO_UPLOAD_TEST\r\n"
+//         // "------boundary--\r\n";
+//         // req.setBody(fakeBody);
+//         // req.setHeader("Content-Type", "multipart/form-data; boundary=boundary");
+//         // req.setHeader("Content-Length", std::to_string(fakeBody.size()));
+//         Upload up;
+//         status = up.CheckBodySize(*loc, req);
+//         if (status)
+//             return Response::Error(413, "Payload Too Large");
+//         if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
+//             return Response::Error(400, "Bad Request");
+//         if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
+//             && req.getPath() == "/upload")
+//             return up.Handle(*loc, req);
 //     }
-//     //upload handler (="POST") va venir écrire dans un fichiers
+   
+//     //upload handler (="POST") va venir écrire dans un fichier
 //     // handleUpload(req, server, *loc);
 
-//     // static handler va lire un fichier
-//     //Ici on se charge de trouver la réponse quon doit envoyer au clients
-//     StaticTarget st;
-//     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
-//     Response res = st.BuildStaticResponse(req, target, client);
-//     client->getResponseBuffer().push_front(res.constructResponse().data());
-// }
+// //     // static handler va lire un fichier
+// //     //Ici on se charge de trouver la réponse quon doit envoyer au clients
+// //     StaticTarget st;
+// //     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
+// //     Response res = st.BuildStaticResponse(req, target, client);
+// //     client->getResponseBuffer().push_front(res.constructResponse().data());
+// // }
