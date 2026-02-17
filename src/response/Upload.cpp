@@ -120,10 +120,42 @@ int Upload::CheckBodySize(const LocationConfig &loc, const Request &req)
     return (0);
 }
 
-std::map<std::string, std::string> Upload::FillHeaders(std::string headerStr)
+std::string Upload::trim(const std::string& s)
 {
-    std::map<std::string, std::string> headers; 
-    //permet de transfomrer string en flux comme si cetait un fichier donc on peut utilsier getline
+    size_t start = 0;
+    while (start < s.size() && (s[start] == ' ' || s[start] == '\t'))
+        start++;
+    size_t end = s.size();
+    while (end > start && (s[end - 1] == ' ' || s[end - 1] == '\t' || s[end - 1] == '\r' || s[end - 1] == '\n'))
+        end--;
+    return s.substr(start, end - start);
+}
+
+std::string Upload::extractBoundary(const std::string& contentType)
+{
+    size_t pos = contentType.find("boundary=");
+    if (pos == std::string::npos)
+        return "";
+
+    std::string b = contentType.substr(pos + 9);
+    size_t sc = b.find(';');
+    if (sc != std::string::npos)
+        b = b.substr(0, sc);
+
+    b = trim(b);
+    if (b.size() >= 2)
+    {
+        char first = b[0];
+        char last = b[b.size() - 1];
+        if ((first == '"' && last == '"') || (first == '\'' && last == '\''))
+            b = b.substr(1, b.size() - 2);
+    }
+    return b;
+}
+
+std::map<std::string, std::string> Upload::FillHeaders(const std::string& headerStr)
+{
+    std::map<std::string, std::string> headers;
     std::stringstream ss(headerStr);
     std::string line;
 
@@ -136,14 +168,13 @@ std::map<std::string, std::string> Upload::FillHeaders(std::string headerStr)
         size_t colon_pos = line.find(':');
         if (colon_pos == std::string::npos)
             continue;
-        std::string key = line.substr(0, colon_pos);
-        std::string value = line.substr(colon_pos + 1);
-        if (!value.empty() && value[0] == ' ')
-            value.erase(0, 1);
+        std::string key = trim(line.substr(0, colon_pos));
+        std::string value = trim(line.substr(colon_pos + 1));
         headers[key] = value;
     }
-    return (headers);
+    return headers;
 }
+
 //interdire file_name = "../../etc/passwd"
 bool Upload::isSafeFilename(const std::string& name)
 {
@@ -163,7 +194,6 @@ bool Upload::isSafeFilename(const std::string& name)
             return false;
     }
     return true;
-
 }
 
 //pour chaque parties on va, verifier si y a un fichier (content-disposition: filename=" " )
@@ -232,38 +262,44 @@ void Upload::ProcessParts()
 
 void Upload::ParseBody(const Request &req)
 {
+    _parts.clear();
     std::cout << "Request body size: " << req.getBodyBinary().size() << std::endl;
     const std::vector<unsigned char> &body = req.getBodyBinary();
     size_t pos = 0;
-    
+    static const unsigned char sep[] = {'\r','\n','\r','\n'};
+
     while (1)
     {
-        std::vector<unsigned char>::const_iterator it = std::search(body.begin() + pos, body.end(), _boundary.begin(), _boundary.end());
+        std::vector<unsigned char>::const_iterator it =
+            std::search(body.begin() + pos, body.end(), _delimiter.begin(), _delimiter.end());
         if (it == body.end())
-            break ;
-        size_t boundary_pos = it - body.begin();
-
-        if (boundary_pos + _boundary.size() + 2 <= body.size() && body[boundary_pos + _boundary.size()] == '-'
-            && body[boundary_pos + _boundary.size() + 1] == '-')
             break;
-        
-        pos = boundary_pos + _boundary.size() + 2;
-        static const unsigned char sep[] = {'\r','\n','\r','\n'};
-        std::vector<unsigned char>::const_iterator header_end_it  = std::search(body.begin() + pos, body.end(), sep, sep + 4);
+        size_t boundary_pos = static_cast<size_t>(it - body.begin());
+        pos = boundary_pos + _delimiter.size();
+        if (pos + 1 < body.size() && body[pos] == '-' && body[pos + 1] == '-')
+            break;
+        if (pos + 1 < body.size() && body[pos] == '\r' && body[pos + 1] == '\n')
+            pos += 2;
+        std::vector<unsigned char>::const_iterator header_end_it =
+            std::search(body.begin() + pos, body.end(), sep, sep + 4);
         if (header_end_it == body.end())
             break;
         std::string headersStr(body.begin() + pos, header_end_it);
-        pos = (header_end_it - body.begin()) + 4;
-
-        std::vector<unsigned char>::const_iterator content_end_it = std::search(body.begin() + pos, body.end(), _boundary.begin(), _boundary.end());
+        pos = static_cast<size_t>((header_end_it - body.begin()) + 4);
+        std::vector<unsigned char> nextDelim;
+        nextDelim.push_back('\r');
+        nextDelim.push_back('\n');
+        nextDelim.insert(nextDelim.end(), _delimiter.begin(), _delimiter.end());
+        std::vector<unsigned char>::const_iterator content_end_it =
+            std::search(body.begin() + pos, body.end(), nextDelim.begin(), nextDelim.end());
+        if (content_end_it == body.end())
+            break;
         std::vector<unsigned char> content(body.begin() + pos, content_end_it);
-
         Part p;
         p.content = content;
         p.headers = FillHeaders(headersStr);
         _parts.push_back(p);
-
-        pos = content_end_it - body.begin();
+        pos = static_cast<size_t>(content_end_it - body.begin());
     }
     std::cout << "Parsing of body finish" << std::endl;
 }
@@ -273,62 +309,28 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
 {
     if (!loc.getHasUploadPath())
         return (Response::Error(400, "Bad Request"));
-    std::cout << "good uplaod file" << std::endl;
     _uploadDir = loc.getUploadPath();
     int status = checkHeader(loc, req);
     if (status == 400)
         return (Response::Error(400, "Bad Request"));
     if (status == 413)
         return (Response::Error(413, "Request entity too large"));
-    std::cout << "good headers" << std::endl;  
-    
     if (!dirExists(_uploadDir))
-        return Response::Error(500, "Upload folder does not exist");
-    std::cout << "good dir" << std::endl;  
+        return Response::Error(500, "Upload folder does not exist"); 
     if (!canWrite(_uploadDir))
         return Response::Error(403, "No write permission in upload folder");
-
-
-    
-    std::cout << "--------- Handling upload ------" << std::endl;
-    // ----- FAKE BODY POUR TEST -----
-    // Seulement pour tester le parsing multipart avec 2 parts
-    // std::string boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
-    // std::string bodyStr =
-    //     "--" + boundary + "\r\n"
-    //     "Content-Disposition: form-data; name=\"file3\"; filename=\"test3.txt\"\r\n"
-    //     "Content-Type: text/plain\r\n"
-    //     "\r\n"
-    //     "Hello from file 3333333\n"
-    //     "\r\n"
-    //     "--ekip ekip" + boundary + "\r\n"
-    //     "Content-Disposition: form-data; name=\"file4\"; filename=\"../test4.txt\"\r\n"
-    //     "Content-Type: text/plain\r\n"
-    //     "\r\n"
-    //     "Hello from file 2\n"
-    //     "--" + boundary + "--\r\n";
-
-    // Copie de la requête pour injecter le body factice
-    // Request fakeReq = req;
-    // fakeReq.getBodyBinary() = std::vector<unsigned char>(bodyStr.begin(), bodyStr.end());
-    // fakeReq.getBody() = bodyStr;
-    // Convertir le boundary en vector<unsigned char>
-    // _boundary = std::vector<unsigned char>(boundary.begin(), boundary.end());    
-    // fakeReq.displayRequest();
 
     // ----SI ON FAIT AVEC LA VRAI REQUEST RECU------
     // chercher la boundaries dans le header
     std::string contentType = req.getHeader("Content-Type");
-    unsigned int pos = contentType.find("boundary=");
-    std::string boundaryStr = contentType.substr(pos + 9);
-    std::cout << "BOUNDARY" << std::endl;
-    std::cout << boundaryStr << std::endl;
-    _boundary = std::vector<unsigned char>(boundaryStr.begin(), boundaryStr.end());      
-
+    std::string boundary = extractBoundary(contentType);
+    if (boundary.empty())
+        return Response::Error(400, "Bad Request (missing boundary)"); 
+    std::string delimiterStr = "--" + boundary;
+    _delimiter = std::vector<unsigned char>(delimiterStr.begin(), delimiterStr.end());   
 
     // Parser le body factice et découper en parts
-    _parts.clear();
-    req.displayRequest();
+    //req.displayRequest();
     // vrai request
     ParseBody(req);
     ProcessParts();

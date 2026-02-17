@@ -26,16 +26,19 @@ private:
     std::vector<unsigned char> _boundary;
     std::vector<Part> _parts;
     std::vector<std::string> _uploadedFiles;
+    std::vector<unsigned char> _delimiter;
     int checkHeader(const LocationConfig &loc, const Request &req);
     bool parseBoundary(const Request &req);
     bool canWrite(const std::string &path);
     bool dirExists(const std::string &path);
     Response buildResponse(const std::string file);
     void ParseBody(const Request &req);
-    std::map<std::string, std::string> FillHeaders(std::string headerStr);
+    std::map<std::string, std::string> FillHeaders(const std::string& headerStr);
     void ProcessParts();
     bool isSafeFilename(const std::string& name);
     void printParts() const;
+    std::string trim(const std::string& s);
+    std::string extractBoundary(const std::string& contentType);
 public:
     int CheckBodySize(const LocationConfig &loc, const Request &req);
     Response Handle(const LocationConfig &loc, const Request &req);
