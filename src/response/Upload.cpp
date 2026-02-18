@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <cctype>
 
-// fonction de debug pour voir les parts
+// fonction de debug pour voir les parts faire par chat
 void Upload::printParts() const
 {
     std::cout << "===== PRINTING PARTS =====" << std::endl;
@@ -196,13 +196,10 @@ bool Upload::isSafeFilename(const std::string& name)
     return true;
 }
 
-//pour chaque parties on va, verifier si y a un fichier (content-disposition: filename=" " )
-//si fichier il va falloir creer un fichier dans upload
-//Attention verifier si filename is valid pas de ../
 void Upload::ProcessParts()
 {
     _uploadedFiles.clear();
-    printParts(); // fonction de debug
+    printParts();
     for (size_t i = 0; i < _parts.size(); ++i)
     {
         Part &p = _parts[i];
@@ -224,6 +221,7 @@ void Upload::ProcessParts()
             std::cout << "Form field: " << name << " = " << value << std::endl;
             continue;
         }
+
         //Cas de fichier a upload
         file_pos += 10;
         size_t fend = cd.find("\"", file_pos);
@@ -303,7 +301,6 @@ void Upload::ParseBody(const Request &req)
     }
     std::cout << "Parsing of body finish" << std::endl;
 }
-
 
 Response Upload::Handle(const LocationConfig &loc, const Request &req)
 {
