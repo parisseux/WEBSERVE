@@ -62,7 +62,7 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
     }
     return (bestLoc);
 }
- 
+
 Response Request::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, std::map<int, Cgi*> &_CgiMap)
 {
     // req.displayRequest();

@@ -15,7 +15,6 @@
 
 class Request;
 
-
 class Epoll
 {
     private:
