@@ -22,6 +22,5 @@ void Request::parseBody(Client *client)
     _body = client->getRequestBuffer();
     _bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
     // printBodyDebug(this->_bodyBinary);
-    client->setClientState(WAITING);
-    client->setReadyToWrite(true);
+    client->setRequestComplete(true);
 }

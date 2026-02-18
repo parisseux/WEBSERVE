@@ -35,8 +35,8 @@ class Client
         Response    _response;
         std::string _requestBuffer;
         std::deque<std::string> _responseBuffer;
-        bool        _bodyComplete;
-        bool        _ReadyToWrite;
+        bool        _responseComplete;
+        bool        _requestComplete;
         int         _byteSentPos;
         ClientState _state;    
     public:
@@ -48,7 +48,7 @@ class Client
         std::string& getRequestBuffer() {return (this->_requestBuffer);};
         std::deque<std::string>& getResponseBuffer(){return this->_responseBuffer;}        
         // std::string& getResponseBuffer() {return (this->_responseBuffer);};
-        bool&        getReadyToWrite() {return (this->_ReadyToWrite);};
+        bool&        getRequestComplete() {return (this->_requestComplete);};
         Request&     getRequestClass() {return (this->_request);};
         ClientState  getClientState() {return (this->_state);};
 
@@ -56,7 +56,7 @@ class Client
         void         setFlags(int flags) {this->_flags = flags;};
         void         setRequestBuffer(std::string requestBuffer) {this->_requestBuffer = requestBuffer;};
         // void         setResponseBuffer(std::string responseBuffer) {this->_responseBuffer = responseBuffer;};
-        void         setReadyToWrite(bool ReadyToWrite) {this->_ReadyToWrite = ReadyToWrite;};
+        void         setRequestComplete(bool requestComplete) {this->_requestComplete = requestComplete;};
         void         setClientState(ClientState state) {this->_state = state;};
         void         setResponseBuffer(std::deque<std::string> _responseBuffer);
 
@@ -72,8 +72,8 @@ class Client
         void         addByteSentPos(int byte){_byteSentPos += byte;}
         int          getByteSentPos(){return _byteSentPos;} 
         void         setByteSentPos(int byte){_byteSentPos = byte;}       
-        void         setBodyComplete(bool bodyComplete){_bodyComplete = bodyComplete;}
-        bool         getBodyComplete(){return (_bodyComplete);}
+        void         setResponseComplete(bool responseComplete){_responseComplete = responseComplete;}
+        bool         getResponseComplete(){return (_responseComplete);}
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
         void         clearClient();      
 };

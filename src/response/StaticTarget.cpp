@@ -16,12 +16,12 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
     client->addByteSentPos(byteRead);
     if (file.eof()) // check si on a lu touts le contenu
     {
-        client->setBodyComplete(true);
+        client->setResponseComplete(true);
         file.close();
     }
     else // on a pas lu tout le content
     {
-        client->setBodyComplete(false);
+        client->setResponseComplete(false);
     }
     content.append(buf, byteRead);
     return true;
@@ -61,7 +61,7 @@ void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget&
         if (target.status == 403)
             res = Response::Error(403, "403 Forbidden");
         res =  Response::Error(target.status, "Error");
-        client->setBodyComplete(true);
+        client->setResponseComplete(true);
         return;
     }
     if (client->getResponseClass().getResponseState() == FIRST_SENT) // check si on a deja recuperer le headers

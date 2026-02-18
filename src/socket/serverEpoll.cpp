@@ -44,7 +44,7 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
     _ev.data.fd = _clientsMap.at(client->getFd())->getFd();
     epoll_ctl(this->_epFd, EPOLL_CTL_ADD, _clientsMap.at(client->getFd())->getFd(), &_ev);
     client->setClientState(WAITING);
-    client->setReadyToWrite(false);
+    client->setRequestComplete(false);
 }
 
 void Epoll::HeaderEnd(Client *client)
@@ -75,7 +75,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         if (client->getRequestClass().getMethod() == "GET")
         {
             client->setClientState(WAITING);
-            client->setReadyToWrite(true);
+            client->setRequestComplete(true);
             //client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST")
@@ -86,7 +86,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
             }                   
         }
     }    
-    if (client->getReadyToWrite() == true) // client prêt a recevoir une reponse
+    if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
     {
 		client->setClientState(GENERATING_RESPONSE);
 
@@ -98,12 +98,12 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 	// std::cout << "MANAGE CGI" << std::endl;
 	std::string bufferString(buf, byteReads);
 	client->getResponseBuffer().push_back(bufferString);
-    client->setBodyComplete(false);		
+    client->setResponseComplete(false);		
 	if ((bufferString.find("0\r\n\r\n"))!=std::string::npos)
 	{
 		// std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
 		epoll_ctl(this->_epFd, EPOLL_CTL_DEL, client->getCgiFd(), &_ev);    
-        client->setBodyComplete(true);		
+        client->setResponseComplete(true);		
 		close(client->getCgiFd());  
 	}
 }
@@ -167,7 +167,7 @@ void Epoll::HandleEpollout()
 		{
 			// std::cout << "send some byte" << std::endl;
 		}
-		if (_client->getBodyComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
+		if (_client->getResponseComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
 		{
 			std::cout << "send finished" << std::endl;                        
 			_ev.events = EPOLLIN ;
