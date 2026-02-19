@@ -92,7 +92,8 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     status = req.MethodAllowed(req, loc);
     if (status == 405)
     {
-        client->getResponseBuffer().push_front(Response::Error(405, "405 Method Not Allowed").constructResponse());       
+        client->getResponseBuffer().push_front(Response::Error(405, "405 Method Not Allowed").constructResponse());
+        client->setResponseComplete(true);   
         return ; 
     }
     // buildRedirectResponse(loc);
@@ -105,31 +106,31 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
         client->setClientState(GENERATING_CGI);
         return ;
     }
-    if (req.getMethod() == "POST")
-    {
+    // if (req.getMethod() == "POST")
+    // {
 
-        Upload up;
-        status = up.CheckBodySize(*loc, req);
-        if (status)
-        {
-            client->getResponseBuffer().push_front(Response::Error(413, "Payload Too Large").constructResponse());
-            client->setResponseComplete(true);
-            return ;         
-        }
-        if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
-        {
-            client->getResponseBuffer().push_front(Response::Error(400, "Bad Request").constructResponse());
-            client->setResponseComplete(true);       
-            return ;
-        }
-        if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
-            && req.getPath() == "/upload")
-        {
-            client->getResponseBuffer().push_front(up.Handle(*loc, req).constructResponse());
-            client->setResponseComplete(true);
-            return ;
-        }
-    }
+    //     Upload up;
+    //     status = up.CheckBodySize(*loc, req);
+    //     if (status)
+    //     {
+    //         client->getResponseBuffer().push_front(Response::Error(413, "Payload Too Large").constructResponse());
+    //         client->setResponseComplete(true);
+    //         return ;         
+    //     }
+    //     if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
+    //     {
+    //         client->getResponseBuffer().push_front(Response::Error(400, "Bad Request").constructResponse());
+    //         client->setResponseComplete(true);       
+    //         return ;
+    //     }
+    //     if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
+    //         && req.getPath() == "/upload")
+    //     {
+    //         client->getResponseBuffer().push_front(up.Handle(*loc, req).constructResponse());
+    //         client->setResponseComplete(true);
+    //         return ;
+    //     }
+    // }
 
     //upload handler (="POST") va venir écrire dans un fichiers
     // handleUpload(req, server, *loc);

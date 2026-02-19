@@ -18,6 +18,7 @@ std::string Cgi::GetEffectiveRoot(const ServerConfig &server, const LocationConf
 //cat.png = /image/cat.png - /images/
 std::string Cgi::GetRelativPath(const std::string &reqPath, const std::string &locPath)
 {
+    std::cout << "GetRelativPath: reqPath = " << reqPath << " locPath = " << locPath << std::endl;
     std::string relativePath = reqPath;
     if (relativePath.find(locPath) == 0)
         relativePath.erase(0, locPath.size());
@@ -102,8 +103,12 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
 {
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
-    _path = JoinPath(root, rel);
+    std::cout << "ROOT: " << root << std::endl;
+    std::cout << "REL: " << rel << std::endl;   
 
+    _path = JoinPath(root, rel);
+    std::cout << "PATH: " << _path << std::endl;
+    req.displayRequest();
     pid_t pid;
     int		pipe_in[2];
     int     pipe_out[2];
@@ -114,6 +119,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
         (char*)_path.c_str(), 
         NULL 
     };
+    std::cout << "CGI PATH: " << _path << std::endl;
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
         std::cout << "Pipe function error" << std::endl;
     MakeCgiEnv(req);      
