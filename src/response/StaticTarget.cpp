@@ -58,9 +58,10 @@ void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget&
     {
         if (target.status == 404)
             res = Response::Error(404, "404 Not Found");
-        if (target.status == 403)
+        else if (target.status == 403)
             res = Response::Error(403, "403 Forbidden");
-        res =  Response::Error(target.status, "Error");
+        else 
+            res =  Response::Error(target.status, "Error");
         client->setResponseComplete(true);
         return;
     }
@@ -97,8 +98,8 @@ std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const Loc
 std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::string &locPath)
 {
     std::string relativePath = reqPath;
-    if (relativePath.find(locPath) == 0)
-        relativePath.erase(0, locPath.size());
+    std::cout << "relative pass deux bases " << relativePath <<  std::endl;    
+    std::cout << "LE LOC PATH " << locPath <<  std::endl;
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;
@@ -127,7 +128,10 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
     std::string path = JoinPath(root, rel);
 
+    std::cout <<  "LE ROOT " << root <<  std::endl;
+    std::cout <<  "LE REL " << rel <<  std::endl;    
     struct stat st;
+    std::cout <<  "LE PATH " << path <<  std::endl;
     if (stat(path.c_str(), &st) != 0)
     {
         if (errno == ENOENT) { r.status = 404; r.reason = "Not Found"; }
