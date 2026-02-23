@@ -69,14 +69,15 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
             HeaderEnd(client);
         if (client->getClientState() != READING_BODY)
             client->setClientState(READING_HEADER);
-    }    
+    }
     if (client->getClientState() == READING_BODY)
     {
-        if (client->getRequestClass().getMethod() == "GET")
+        if (client->getRequestClass().getMethod() == "GET"
+			|| client->getRequestClass().getMethod() == "DELETE")
         {
             client->setClientState(WAITING);
             client->setRequestComplete(true);
-            //client->getRequestClass().displayRequest(); // affichage requete complete
+            // client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
@@ -221,4 +222,3 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	}
 	return ;
 }
-

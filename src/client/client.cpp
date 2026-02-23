@@ -123,7 +123,7 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
             return ;
         }
         if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
-            && req.getPath() == "/upload")
+            && req.getPath() == "/ekip")
         {
             client->getResponseBuffer().push_front(up.Handle(*loc, req).constructResponse());
             client->setResponseComplete(true);
