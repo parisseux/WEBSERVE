@@ -159,8 +159,8 @@ void Epoll::HandleEpollout()
 {
 	if (_client->getResponseBuffer().empty() == 0)
 	{
-		// std::cout << "MESSAGE ENVOYE" << std::endl;
-		// std::cout << _client->getResponseBuffer().front() << std::endl;
+		std::cout << "MESSAGE ENVOYE" << std::endl;
+		std::cout << _client->getResponseBuffer().front() << std::endl;
 		std::string response = _client->getResponseBuffer().front();
 		_client->getResponseBuffer().pop_front();
 		ssize_t byteReads = send(_client->getFd(), response.c_str(), response.size(), 0);
