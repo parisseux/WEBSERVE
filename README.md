@@ -77,9 +77,12 @@ You can test the server using:
 - curl
 
 exemple: 
-    curl -X GET http://localhost:8080  
-    curl -X POST -F "file=@test.txt" http://localhost:8080/upload
-
+```bash
+curl -X GET http://localhost:8080  
+```
+```bash
+curl -X POST -F "file=@test.txt" http://localhost:8080/upload
+```
 ##Resources 
 
 - RFC 7230 & 7231 (protocol HTTP)
