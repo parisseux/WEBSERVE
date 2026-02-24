@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sloth File Manager</title>
+<style>
+    body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #ff9ecf, #ffcce6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #4a0033;
+    }
+    .card {
+        background: white;
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        text-align: center;
+        width: 420px;
+    }
+    h1 {
+        margin-top: 0;
+    }
+    .emoji {
+        font-size: 60px;
+        margin-bottom: 10px;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 15px;
+        border: 1px solid #ff99cc;
+        font-family: inherit;
+    }
+    button {
+        margin-top: 15px;
+        background-color: #ff66b3;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 20px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button:hover {
+        background-color: #e0559c;
+    }
+    #result {
+        margin-top: 15px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="emoji">🦥💗</div>
+    <h1>Sloth File Manager</h1>
+
+    <h3>Upload</h3>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload 🦥</button>
+    </form>
+
+    <hr style="margin: 25px 0;">
+
+    <h3>Delete</h3>
+    <input type="text" id="filename" placeholder="Enter filename (example.txt)">
+    <button onclick="deleteFile()">Delete 🗑</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function deleteFile() {
+    const filename = document.getElementById("filename").value;
+
+    if (!filename) {
+        document.getElementById("result").innerText = "Please enter a filename 🦥";
+        return;
+    }
+
+    fetch("/uploads/" + filename, {
+        method: "DELETE"
+    })
+    .then(response => {
+        if (response.ok) {
+            document.getElementById("result").innerText = "File deleted successfully 💗";
+        } else {
+            document.getElementById("result").innerText =
+                "Error: " + response.status;
+        }
+    })
+    .catch(error => {
+        document.getElementById("result").innerText =
+            "Server error 🦥";
+    });
+}
+</script>
+
+</body>
+</html>
