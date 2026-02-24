@@ -8,5 +8,6 @@ RUN apt-get install -y nginx
 RUN apt-get install -y valgrind
 RUN apt-get install -y telnet
 RUN apt-get install -y curl
+RUN apt-get install -y python3
 WORKDIR /app
 ENTRYPOINT ["/bin/bash"]

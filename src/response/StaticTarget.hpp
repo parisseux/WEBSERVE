@@ -25,7 +25,7 @@ private:
     std::string GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
 public:
     void BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res);
-    ResolvedTarget ResolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
+    ResolvedTargetgit push --set-upstream origin autoindex ResolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
 };
 
 #endif
