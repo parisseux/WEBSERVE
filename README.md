@@ -1,5 +1,5 @@
 
-*This project has been created as part of the 42 curriculum by david, mawuli pchatagn.*
+*This project has been created as part of the 42 curriculum by dchellen, masase, pchatagn.*
 
 # Webserv
 
@@ -99,8 +99,8 @@ AI tools were used for:
 No AI-generated code was copied into the project
 
 ## Autors
-- David ..
-- Mawuli 
+- David Chellen
+- Mawuli-Kplim Asase
 - Parissa Chatagny
 
 42 School – Webserv Project

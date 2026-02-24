@@ -135,6 +135,29 @@ def handle_upload():
         return ("ok", "Upload réussi 🦥💗 : " + ", ".join(saved))
     return ("warn", "Aucun fichier détecté dans le multipart 🦥")
 
+def list_uploaded_files():
+    """Retourne une liste triée des fichiers dans UPLOAD_DIR (sans dossiers)."""
+    try:
+        if not os.path.isdir(UPLOAD_DIR):
+            return []
+        files = []
+        for name in os.listdir(UPLOAD_DIR):
+            p = os.path.join(UPLOAD_DIR, name)
+            if os.path.isfile(p):
+                files.append(name)
+        files.sort(key=str.lower)
+        return files
+    except:
+        return []
+
+def escape_html(s):
+    # petit escape pour éviter d'afficher des trucs bizarres
+    return (s.replace("&", "&amp;")
+             .replace("<", "&lt;")
+             .replace(">", "&gt;")
+             .replace('"', "&quot;")
+             .replace("'", "&#39;"))
+
 if __name__ == "__main__":
     method = os.environ.get('REQUEST_METHOD', 'GET')
 
@@ -162,21 +185,21 @@ if __name__ == "__main__":
         "warn": "#FFF4E5",
         "error":"#FFE7F0",
         "info": "#FFF0F8"
-    }.get(tone, "#FFF0F8")
+    }.get(status_tone, "#FFF0F8")
 
     badge_border = {
         "ok":   "#7BE3B1",
         "warn": "#FFB86B",
         "error":"#FF7BB0",
         "info": "#FF9ECF"
-    }.get(tone, "#FF9ECF")
+    }.get(status_tone, "#FF9ECF")
 
     badge_text = {
         "ok":   "#0F6B3E",
         "warn": "#8A4A00",
         "error":"#8A003C",
         "info": "#6A0036"
-    }.get(tone, "#6A0036")
+    }.get(status_tone, "#6A0036")
 
     html_start = f"""<!DOCTYPE html>
 <html lang="fr">
@@ -205,6 +228,68 @@ if __name__ == "__main__":
       box-shadow: 0 18px 50px rgba(0,0,0,0.15);
       padding: 34px 30px;
       text-align: center;
+    }}
+    .uploads-box {{
+        margin-top: 18px;
+        padding: 14px 14px;
+        border-radius: 18px;
+        background: #fff0f8;
+        border: 1px solid #ff9ecf;
+        text-align: left;
+    }}
+    .file-pill {{
+        background: #ff66b3;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.05s ease-in-out, background 0.2s ease;
+    }}
+    .file-pill:hover 
+    {{ background: #e0559c; }}
+        
+    .file-pill:active 
+    {{ transform: scale(0.98); }}
+
+    .file-pill small {{
+    opacity: 0.9;
+    font-weight: 700;
+    margin-left: 6px;
+    }}
+    .uploads-title {{
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #6A0036;
+    }}
+    .uploads-grid {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    }}
+    .file-pill {{
+    background: #ff66b3;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    }}
+    .uploads-empty {{
+    color: #6A0036;
+    opacity: 0.85;
+    font-weight: 600;
+    }}
+    .uploads-hint {{
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.8;
     }}
     .emoji {{
       font-size: 64px;
@@ -274,24 +359,79 @@ if __name__ == "__main__":
     <div class="emoji">🦥💗</div>
     <h1>Sloth CGI Uploader</h1>
     <p class="subtitle">Interface CGI simple, rose et sleepy.</p>
-    <div class="badge">{msg}</div>
+    <div class="badge">{status_msg}</div>
 """
     send_chunk(html_start)
 
     form_html = """
-    <form action="/cgi-bin/index.py" method="POST" enctype="multipart/form-data">
-      <input type="file" name="file" required>
-      <button class="btn" type="submit">Upload 🦥</button>
-    </form>
-    <div class="hint">
-      Tip: si tu testes au <code>curl</code>, pense à envoyer du multipart/form-data.
-    </div>
-  </div>
-</body>
-</html>
-"""
+        <form action="/cgi-bin/index.py" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button class="btn" type="submit">Upload 🦥</button>
+        </form>
+        <div class="hint">
+        Tip: si tu testes au <code>curl</code>, pense à envoyer du multipart/form-data.
+        </div>
+    """
     send_chunk(form_html)
+    files = list_uploaded_files()
+
+    if files:
+        files_html = """
+    <div class="uploads-box">
+      <div class="uploads-title">Uploaded files</div>
+      <div class="uploads-grid">
+"""
+        for f in files:
+            files_html += f'        <div class="file-pill" data-name="{escape_html(f)}">{escape_html(f)} <small>✕</small></div>\n'
+        files_html += """      </div>
+      <div class="uploads-hint">Tip: you can delete via DELETE /uploads/&lt;filename&gt;</div>
+    </div>
+"""
+    else:
+        files_html = """
+    <div class="uploads-box">
+      <div class="uploads-title">Uploaded files</div>
+      <div class="uploads-empty">No files yet 🦥</div>
+    </div>
+"""
+
+    send_chunk(files_html)
+
+    script_html = """
+    <script>
+    (function () {
+    const result = document.getElementById("result") || null;
+
+    async function deleteFile(name) {
+        if (!confirm("Delete " + name + " ?")) return;
+
+        try {
+        const res = await fetch("/cgi-bin/index.py?file=" + encodeURIComponent(name), {
+            method: "DELETE"
+        });
+
+        if (res.ok) {
+            location.reload();
+        } else {
+            alert("Delete failed: HTTP " + res.status);
+        }
+        } catch (e) {
+        alert("Server error 🦥");
+        }
+    }
+
+    document.querySelectorAll(".file-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+        const name = pill.getAttribute("data-name");
+        if (name) deleteFile(name);
+        });
+    });
+    })();
+    </script>
+    """
+    send_chunk(script_html)
 
     # fin chunked
     sys.stdout.buffer.write(b"0\r\n\r\n")
     sys.stdout.buffer.flush()
+

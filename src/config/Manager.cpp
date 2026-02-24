@@ -21,26 +21,22 @@ void Manager::initServers(const std::string &configFile)
     std::ifstream file(configFile.c_str());
     if (!file.is_open())
         throw std::runtime_error("could not open config file");
+
     this->_servers.clear();
     std::string line;
-    size_t serverCount = 0;
+
     while (std::getline(file, line))
     {
         ServerConfig config;
-        if (config.isServerStart(line))
-            ++serverCount;
-        try
-        {
-            config.parseServer(file);
-            if (!config.getHasListen())
-                throw std::runtime_error("missing listen directive");
-            config.applyServersDefaults();
-            this->_servers.push_back(config);
-        }
-        catch (const std::exception& e) 
-        {
-            throw std::runtime_error( e.what());
-        }
+        if (!config.isServerStart(line))
+            continue;
+        config.parseServer(file);
+
+        if (!config.getHasListen())
+            throw std::runtime_error("missing listen directive");
+
+        config.applyServersDefaults();
+        this->_servers.push_back(config);
     }
     if (this->_servers.empty())
         throw std::runtime_error("no valid server block found in config");
