@@ -15,11 +15,17 @@
 
 # include "../request/Request.hpp"
 
+enum TargetType {
+    FILE_TARGET,
+    AUTO_INDEX_TARGET
+};
+
 struct ResolvedTarget {
     int status;
     std::string path;
     struct stat st;
     std::string reason;
+    TargetType type;
 };
 
 enum ResponseState

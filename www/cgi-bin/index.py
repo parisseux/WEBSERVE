@@ -380,20 +380,20 @@ if __name__ == "__main__":
     <div class="uploads-box">
       <div class="uploads-title">Uploaded files</div>
       <div class="uploads-grid">
-"""
+    """
         for f in files:
             files_html += f'        <div class="file-pill" data-name="{escape_html(f)}">{escape_html(f)} <small>✕</small></div>\n'
         files_html += """      </div>
       <div class="uploads-hint">Tip: you can delete via DELETE /uploads/&lt;filename&gt;</div>
     </div>
-"""
+    """
     else:
         files_html = """
     <div class="uploads-box">
       <div class="uploads-title">Uploaded files</div>
       <div class="uploads-empty">No files yet 🦥</div>
     </div>
-"""
+    """
 
     send_chunk(files_html)
 

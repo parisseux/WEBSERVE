@@ -131,9 +131,6 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
         }
     }
 
-    //upload handler (="POST") va venir écrire dans un fichiers
-    // handleUpload(req, server, *loc);
-
     // static handler va lire un fichier
     //Ici on se charge de trouver la réponse quon doit envoyer au clients
     StaticTarget st;
@@ -141,13 +138,11 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     st.BuildStaticResponse(req, target, client, _response);
     if(_response.getResponseState() == FIRST_SENT)
     {
-        // std::cout << "ON  CREE UNE REPONSE COMPLETE" << std::endl;
         client->getResponseBuffer().push_front(_response.constructResponse().data());
         _response.setResponseState(N_SENT);
     }
     else
-    {
-        // std::cout << "ON CONTINUE L'ENVOIE" << std::endl;        
+    {      
         client->getResponseBuffer().push_front(_response.getBody());
     }
     _response.getBody().clear();

@@ -58,30 +58,43 @@ void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget&
     {
         if (target.status == 404)
             res = Response::Error(404, "404 Not Found");
-        if (target.status == 403)
+        else if (target.status == 403)
             res = Response::Error(403, "403 Forbidden");
-        res =  Response::Error(target.status, "Error");
+        else 
+            res =  Response::Error(target.status, "Error");
         client->setResponseComplete(true);
         return;
     }
-    if (client->getResponseClass().getResponseState() == FIRST_SENT) // check si on a deja recuperer le headers
+    if (target.type == AUTO_INDEX_TARGET)
     {
-        res.setStatus(200);
-        res.setHeader("Content-Type", getContentType(target.path));
-        std::ostringstream len;
-        len << target.st.st_size;
-        res.setHeader("Content-Length", len.str());
+        std::cout << "TEST autoindex ON" << std::endl;
+        if (!opendir(target.path.c_str()))
+            res = Response::Error(403, "403 Forbidden")
+        std::cout << "continuer de traiter autoindex" << std::endl;
+        return ;
     }
- // calculer la longueur du fichier entier
-    // ensuite lire le fichier jusqua un certain point
-    // garder le point et lire depuis ce point pour la prochaine fois
-    if (req.getMethod() != "HEAD")
+    else
     {
+        if (client->getResponseClass().getResponseState() == FIRST_SENT) // check si on a deja recuperer le headers
+        {
+            res.setStatus(200);
+            res.setHeader("Content-Type", getContentType(target.path));
+            std::ostringstream len;
+            len << target.st.st_size;
+            res.setHeader("Content-Length", len.str());
+        }
+        // ensuite lire le fichier jusqua un certain point
+        // garder le point et lire depuis ce point pour la prochaine fois
         std::string content;
         if (!ReadFile(target.path, content, client))
+        {
             res = Response::Error(403, "403 Forbidden");
+            return ;
+        }
         res.setBody(content);
+        }
     }
+    
 }
 
 std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
@@ -145,9 +158,17 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
         struct stat stIndex;
         if (stat(index.c_str(), &stIndex) != 0 || !S_ISREG(stIndex.st_mode))
         {
-            r.status = 403;
-            r.reason = "Directory access forbidden";
+            if (!loc.getAutoIndex())
+            {
+                r.status = 403;
+                r.reason = "Directory access forbidden";
+                return r;
+            }
+            r.path = path;
+            r.st = st;
+            r.type = AUTO_INDEX_TARGET;
             return r;
+
         }
         path = index;
         st = stIndex;
@@ -160,5 +181,6 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     }
     r.path = path;
     r.st = st;
+    r.type = FILE_TARGET;
     return r;
 }
