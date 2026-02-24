@@ -1,5 +1,5 @@
 
-*This project has been created as part of the 42 curriculum by <your_login>[, <login2>, pchatagn].*
+*This project has been created as part of the 42 curriculum by david, mawuli pchatagn.*
 
 # Webserv
 
@@ -83,7 +83,7 @@ curl -X GET http://localhost:8080
 ```bash
 curl -X POST -F "file=@test.txt" http://localhost:8080/upload
 ```
-##Resources 
+## Resources 
 
 - RFC 7230 & 7231 (protocol HTTP)
 - Nginx documentation
