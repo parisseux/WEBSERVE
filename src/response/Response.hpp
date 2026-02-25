@@ -30,8 +30,8 @@ struct ResolvedTarget {
 
 enum ResponseState
 {
-    FIRST_SENT,
-    N_SENT
+    FIRST_READ,
+    NEXT_READ
 };
 
 //------THEORY-----
@@ -52,7 +52,7 @@ class Response
         std::string _body;
         ResponseState _state;
     public:
-        Response() : _status(200), _statusLine("HTTP/1.1 200 OK"), _state(FIRST_SENT){}
+        Response() : _status(200), _statusLine("HTTP/1.1 200 OK"), _state(FIRST_READ){}
         ~Response() {}
 
         void setStatus(int code);
@@ -71,6 +71,7 @@ class Response
         std::string constructResponse();
     // Response buildUploadResponse(const std::vector<std::string>& files);
         std::string addBodyToResponseBuffer();
+        ssize_t getContentLength();
 };
 
 #endif

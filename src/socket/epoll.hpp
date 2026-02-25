@@ -27,8 +27,7 @@ class Epoll
         std::map<int, Client*>  _clientsMap;
         std::map<int, Cgi*>     _CgiMap;
 		std::map<int, Client*>::iterator _it;
-		Client *_client;
-		Client *_client_cgi;        
+		Client *_client;      
 		bool _is_listener;
 	    bool _isCgi;                   
     public:
@@ -54,7 +53,9 @@ class Epoll
         void MatchEventWithClient(int eventFd);
         void HandleEpollin(int eventFd);
         void HandleEpollout();
-        void generatePendingResponse(std::vector<ServerConfig> &servers);        
+        void closeCgiFd();
+        void generatePendingResponse(std::vector<ServerConfig> &servers);
+        void formatingchunk(Client *client, std::string bufferString);  
 };
 
 #endif

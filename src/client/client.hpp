@@ -39,7 +39,8 @@ class Client
         std::deque<std::string> _responseBuffer;
         bool        _responseComplete;
         bool        _requestComplete;
-        int         _byteSentPos;
+        ssize_t         _byteReadPos;
+        ssize_t         _byteSent;        
         ClientState _state;    
     public:
         Client() {std::cout << "Client constructor called" << std::endl;};
@@ -71,9 +72,12 @@ class Client
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
         int          getCgiFd(){return(_cgi_fd);}
-        void         addByteSentPos(int byte){_byteSentPos += byte;}
-        int          getByteSentPos(){return _byteSentPos;} 
-        void         setByteSentPos(int byte){_byteSentPos = byte;}       
+        void         addByteReadPos(int byte){_byteReadPos += byte;}
+        void         addByteSent(int byte){_byteSent += byte;}        
+        ssize_t      getByteSent(){return _byteSent;}
+        void         setByteSent(int byte){_byteSent = byte;}
+        ssize_t      getByteReadPos(){return _byteReadPos;} 
+        void         setByteReadPos(int byte){_byteReadPos = byte;}                
         void         setResponseComplete(bool responseComplete){_responseComplete = responseComplete;}
         bool         getResponseComplete(){return (_responseComplete);}
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);

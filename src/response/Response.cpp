@@ -115,6 +115,23 @@ std::string Response::addBodyToResponseBuffer()
     return (response);
 }
 
+ssize_t Response::getContentLength()
+{
+    std::map<std::string, std::string>::iterator it = this->getHeaders().begin();
+    while(it != this->getHeaders().end())
+    {
+        if (it->first == "Content-Length")
+        {
+            ssize_t content_length;
+            char *pEnd;
+            content_length = std::strtoul(it->second.c_str(), &pEnd, 10);          
+            return(content_length);
+        }
+        it++;
+    }
+    return(0);
+}
+
 //-----THEORY----------
 //API --> facon standardisé de demander qlc à un programme 
 // et d'obtenir une réponse

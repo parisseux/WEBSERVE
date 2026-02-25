@@ -50,6 +50,7 @@ class ServerConfig
         // const std::string& getServerName() const {return (_serverName);};
         const std::string& getRoot() const {return (_root);};
         const std::string& getIndex() const {return (_index);};
+        const std::vector<LocationConfig>& getLocations() const {return (_locations);}; // plus de const :(
         std::vector<LocationConfig>& getLocations() {return (_locations);}; // plus de const :(
         std::string getErrorPage(int status) const
         {

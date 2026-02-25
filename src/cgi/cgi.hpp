@@ -4,6 +4,7 @@
 # include <string>
 # include <vector>
 # include <map>
+# include "../config/LocationConfig.hpp"
 
 class Client;
 class Epoll;
@@ -18,17 +19,17 @@ class Cgi
     private:
         std::string _path;
         std::vector<std::string> _envCgiString;
-        std::vector<char*> _envCgi;       
-
+        std::vector<char*> _envCgi;
+        LocationConfig _cgiLoc;        
     public:
-        void handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll);
+        void handleCgi(Request &req, const ServerConfig &server, Client *client, Epoll &epoll);
         void readFd(int fd, std::string &content);
         void addCgiEnv(Request &req, std::string path, std::vector<std::string> &envCgiString);
         void MakeCgiEnv(Request &req);
         std::string GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
         std::string GetRelativPath(const std::string &reqPath, const std::string &locPath);
         std::string JoinPath(const std::string &root, const std::string &relativPath);
-
+        bool findCgiLocation(const ServerConfig &server);
 };
     bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig &loc);
 

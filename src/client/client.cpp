@@ -22,7 +22,7 @@ unsigned int Client::getContentLength()
 	if (*pEnd != '\0' && *pEnd != '\r')
 	{    
 		std::cout << "Error on content lenght ending char" << std::endl;              
-	}    
+	}
     return (content_length);
 }
 
@@ -53,7 +53,7 @@ void Client::clearResponse()
     getResponseClass().setStatus(200);
     getResponseClass().getHeaders().clear();
     getResponseClass().setBody("");
-    getResponseClass().setResponseState(FIRST_SENT);        
+    getResponseClass().setResponseState(FIRST_READ);        
 }
 
 void Client::clearClient()
@@ -65,11 +65,12 @@ void Client::clearClient()
     getResponseBuffer().clear();
     setClientState(WAITING);
     setResponseComplete(false);
-    setByteSentPos(0);
+    setByteReadPos(0);
+    setByteSent(0);    
     close(this->getFd());    
 }
 
-void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
+void Client::Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll)
 {
     int status = req.ValidateRequest(req);
     if (status != 200)
@@ -95,7 +96,7 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     if (isCgi(req, server, *loc))
     {
         Cgi cgi;
-        cgi.handleCgi(req, server, *loc, client, epoll);
+        cgi.handleCgi(req, server, client, epoll);
         client->setClientState(GENERATING_CGI);
         return ;
     }
