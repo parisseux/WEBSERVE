@@ -1,0 +1,17 @@
+Quand un client demande une URL qui correspond à un dossiers.
+Il peut se passer trois choses:
+
+Cas 1: si index existe -->  index.html
+ex: URL /photos/ et autoindex on/off peut importe
+photos/
+ └── index.html
+
+Cas 2. Si autoindex on -->  page HTML avec la liste des fichiers
+ex: URL /photos/ et autoindex on
+photos/
+ ├── img1.jpg
+ ├── img2.jpg
+ └── img3.jpg
+
+Cas 3. Si autoindex off --> erreur 403/404 (à choisir)
+ex: pas d'index et autoindex off donc on renvoie error
