@@ -345,3 +345,9 @@ Content-Length reçu : 30
 request reçu : POST
 Content-Length reçu : 43
 request reçu : POST
+Content-Length reçu : None
+request reçu : GET
+Content-Length reçu : None
+request reçu : GET
+Content-Length reçu : 27
+request reçu : POST
