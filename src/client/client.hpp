@@ -5,6 +5,8 @@
 # include <string>
 # include <vector>
 # include <fcntl.h>
+# include <fstream>
+# include <sstream>
 # include <deque>
 # include "../request/Request.hpp"
 # include "../response/Response.hpp"
@@ -75,7 +77,10 @@ class Client
         void         setResponseComplete(bool responseComplete){_responseComplete = responseComplete;}
         bool         getResponseComplete(){return (_responseComplete);}
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
-        void         clearClient();      
+        void         clearClient();    
+        
+        void sendError(int code, const std::string& reason, const ServerConfig& server);
+        void sendUpload();
 };
 
 void setNonBlocking(int fd);
