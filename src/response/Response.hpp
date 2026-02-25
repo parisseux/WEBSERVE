@@ -15,11 +15,17 @@
 
 # include "../request/Request.hpp"
 
+enum TargetType {
+    FILE_TARGET,
+    AUTO_INDEX_TARGET
+};
+
 struct ResolvedTarget {
     int status;
     std::string path;
     struct stat st;
     std::string reason;
+    TargetType type;
 };
 
 enum ResponseState
@@ -63,7 +69,7 @@ class Response
         static Response Error(int code, const std::string &s);
         void displayResponse();
         std::string constructResponse();
-        Response buildUploadResponse(const std::vector<std::string>& files);
+    // Response buildUploadResponse(const std::vector<std::string>& files);
         std::string addBodyToResponseBuffer();
         ssize_t getContentLength();
 };

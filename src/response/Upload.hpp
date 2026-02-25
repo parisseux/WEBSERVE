@@ -41,8 +41,7 @@ private:
     std::string extractBoundary(const std::string& contentType);
 public:
     int CheckBodySize(const LocationConfig &loc, const Request &req);
-    Response Handle(const LocationConfig &loc, const Request &req);
+    int Handle(const LocationConfig &loc, const Request &req);
 };
-
 
 #endif 

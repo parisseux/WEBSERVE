@@ -35,9 +35,9 @@ int Request::ValidateRequest(const Request &req)
     if (req.getProtocol() != "HTTP/1.1") //est ce quon autorise d'autre protocol??
         return 400;
     if (req.getMethod() != "GET" && req.getMethod() != "POST" 
-        && req.getMethod() != "DELETE" && req.getMethod() != "HEAD" )
+        && req.getMethod() != "DELETE" )
         return 501;
-    return 0;
+    return 200;
 }
 
 int Request::MethodAllowed(const Request& req, const LocationConfig* loc)

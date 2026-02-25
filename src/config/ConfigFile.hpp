@@ -52,7 +52,13 @@ class ServerConfig
         const std::string& getIndex() const {return (_index);};
         const std::vector<LocationConfig>& getLocations() const {return (_locations);}; // plus de const :(
         std::vector<LocationConfig>& getLocations() {return (_locations);}; // plus de const :(
-        // const std::map<int, std::string>& getErrorPages() const {return (_errorPages);};
+        std::string getErrorPage(int status) const
+        {
+            std::map<int, std::string>::const_iterator it = _errorPages.find(status);
+            if (it != _errorPages.end())
+                return it->second;
+            return "";
+        }
         const bool&        getHasListen() const {return (_hasListen);};
         // const bool&        getHasServerName() const {return (_hasServerName);};
         const bool&        getHasRoot() const {return (_hasRoot);};
