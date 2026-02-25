@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # --- HEADERS (CGI Style) ---
     # Si ton serveur C++ ne rajoute PAS de header lui-même, garde "HTTP/1.1 200 OK"
     # Sinon, utilise "Status: 200 OK"
-    sys.stdout.buffer.write(b"HTTP/1.1 200 OK\r\n")
+    # sys.stdout.buffer.write(b"HTTP/1.1 200 OK\r\n")
     sys.stdout.buffer.write(b"Content-Type: text/html; charset=utf-8\r\n")
     sys.stdout.buffer.write(b"Transfer-Encoding: chunked\r\n")
     sys.stdout.buffer.write(b"\r\n")

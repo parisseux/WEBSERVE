@@ -8,12 +8,12 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open())
         return false;
-    if (client->getByteSentPos() > 0)
-        file.seekg(client->getByteSentPos());
+    if (client->getByteReadPos() > 0)
+        file.seekg(client->getByteReadPos());
     char buf[100];
     file.read(buf, sizeof(buf));
     ssize_t byteRead = file.gcount();
-    client->addByteSentPos(byteRead);
+    client->addByteReadPos(byteRead);
     if (file.eof()) // check si on a lu touts le contenu
     {
         client->setResponseComplete(true);
@@ -64,7 +64,7 @@ void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget&
         client->setResponseComplete(true);
         return;
     }
-    if (client->getResponseClass().getResponseState() == FIRST_SENT) // check si on a deja recuperer le headers
+    if (client->getResponseClass().getResponseState() == FIRST_READ) // check si on a deja recuperer le headers
     {
         res.setStatus(200);
         res.setHeader("Content-Type", getContentType(target.path));

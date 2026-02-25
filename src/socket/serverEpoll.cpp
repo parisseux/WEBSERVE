@@ -3,23 +3,21 @@
 # include "../utils/utils.hpp"
 
 void print_ready_events(int num_events, struct epoll_event* events_array) {
-	// std::cout << "Nombre d'événements détectés : " << num_events << std::endl;
-
-	for (int i = 0; i < num_events; ++i) {
-		// On vérifie si le flag EPOLLIN est présent dans le champ events
-		if (events_array[i].events & EPOLLIN) {
-			std::cout << "  [FD " << events_array[i].data.fd 
-					  << "] est prêt pour la lecture (EPOLLIN)" << std::endl;
-		}
-		if (events_array[i].events & EPOLLOUT) {
-			std::cout << "  [FD " << events_array[i].data.fd 
-					  << "] est prêt pour la lecture (EPOLLOUT)" << std::endl;
-		}
-		// Optionnel : vérifier aussi les erreurs ou déconnexions
-		if (events_array[i].events & EPOLLERR) {
-			std::cerr << "  [FD " << events_array[i].data.fd << "] Erreur détectée !" << std::endl;
-		}
-	}
+    std::cout << "Nombre d'événements: " << num_events << std::endl;
+    for (int i = 0; i < num_events; ++i) {
+        std::cout << "  [FD " << events_array[i].data.fd << "] events=";
+        if (events_array[i].events & EPOLLIN)
+            std::cout << "EPOLLIN ";
+        if (events_array[i].events & EPOLLOUT)
+            std::cout << "EPOLLOUT ";
+        if (events_array[i].events & EPOLLHUP)
+            std::cout << "EPOLLHUP ";
+        if (events_array[i].events & EPOLLRDHUP)
+            std::cout << "EPOLLRDHUP ";
+        if (events_array[i].events & EPOLLERR)
+            std::cout << "EPOLLERR ";
+        std::cout << std::endl;
+    }
 }
 
 void Epoll::creatEpollFdListeners(std::vector<int>& listener_fds)
@@ -45,11 +43,19 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
     epoll_ctl(this->_epFd, EPOLL_CTL_ADD, _clientsMap.at(client->getFd())->getFd(), &_ev);
     client->setClientState(WAITING);
     client->setRequestComplete(false);
+    client->clearRequest();
+    client->getRequestBuffer().clear();
+    client->clearResponse();							
+    client->getResponseBuffer().clear();
+    client->setClientState(WAITING);
+    client->setResponseComplete(false);
+    client->setByteReadPos(0);
+    client->setByteSent(0);  	
 }
 
 void Epoll::HeaderEnd(Client *client)
 {
-    std::cout << "HEADER END" << std::endl;
+    // std::cout << "HEADER END" << std::endl;
     unsigned int found = client->getRequestBuffer().find("\r\n\r\n");                                                                                      
     client->getRequestClass().parseRequest(client->getRequestBuffer());
     client->getRequestBuffer().erase(0, found + 4);
@@ -76,7 +82,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         {
             client->setClientState(WAITING);
             client->setRequestComplete(true);
-            //client->getRequestClass().displayRequest(); // affichage requete complete
+            // client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
@@ -89,22 +95,48 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
     if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
     {
 		client->setClientState(GENERATING_RESPONSE);
-
     }
+}
+
+void Epoll::formatingchunk(Client *client, std::string bufferString)
+{
+	if (bufferString.empty())
+		return; 
+	std::stringstream ss;
+	ss << std::hex << bufferString.size();
+	std::string chunk;
+	chunk.append(ss.str());
+	chunk.append("\r\n");
+	chunk.append(bufferString);
+	chunk.append("\r\n");
+	client->getResponseBuffer().push_back(chunk);
 }
 
 void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 {
 	// std::cout << "MANAGE CGI" << std::endl;
 	std::string bufferString(buf, byteReads);
-	client->getResponseBuffer().push_back(bufferString);
-    client->setResponseComplete(false);		
-	if ((bufferString.find("0\r\n\r\n"))!=std::string::npos)
+	if (client->getResponseClass().getResponseState() == FIRST_READ)
 	{
-		// std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
-		epoll_ctl(this->_epFd, EPOLL_CTL_DEL, client->getCgiFd(), &_ev);    
-        client->setResponseComplete(true);		
-		close(client->getCgiFd());  
+		size_t pos = bufferString.find("\r\n\r\n");
+		if (pos == std::string::npos)
+			return ;		
+		std::string headerPart = bufferString.substr(0, pos);
+		std::string bodyPart = bufferString.substr(pos + 4);
+		std::string chunk;
+		chunk.append("HTTP/1.1 200 OKOK\r\n");
+		chunk.append("Transfer-Encoding: chunked\r\n");
+		chunk.append(headerPart);
+		chunk.append("\r\n\r\n");
+		client->getResponseBuffer().push_back(chunk);
+		formatingchunk(client, bodyPart);
+		client->getResponseClass().setResponseState(NEXT_READ);
+		client->setResponseComplete(false);			
+	}
+	else
+	{
+		formatingchunk(client, bufferString);
+		client->setResponseComplete(false);
 	}
 }
 
@@ -131,9 +163,9 @@ void Epoll::MatchEventWithClient(int eventFd)
 			_isCgi = false;
 			break ;
 		}
-		_client_cgi = _it->second;
-		if (eventFd == _client_cgi->getCgiFd())
+		if (eventFd == _it->second->getCgiFd())
 		{
+			_client = _it->second;
 			_isCgi = true;
 			break;
 		}
@@ -148,34 +180,33 @@ void Epoll::HandleEpollin(int eventFd)
 	{
 		// std::cout << byteReads << std::endl; 
 		if (_isCgi == true)
-			manageCgi(_client_cgi, byteReads, buf);
+			manageCgi(_client, byteReads, buf);
 		else
 			manageClientRequest(_clientsMap.at(eventFd), byteReads, buf);
-	}	
+	}
 }
 
 void Epoll::HandleEpollout()
 {
 	if (_client->getResponseBuffer().empty() == 0)
 	{
-		std::cout << "MESSAGE ENVOYE" << std::endl;
-		std::cout << _client->getResponseBuffer().front() << std::endl;
+		// std::cout << "MESSAGE ENVOYE" << std::endl;
+		// std::cout << _client->getResponseBuffer().front() << std::endl;
 		std::string response = _client->getResponseBuffer().front();
-		_client->getResponseBuffer().pop_front();
-		ssize_t byteReads = send(_client->getFd(), response.c_str(), response.size(), 0);
+		_client->getResponseBuffer().pop_front();		
+		ssize_t byteReads = send(_client->getFd(), response.data(), response.size(), 0);
 		if (byteReads > 0)
 		{
-			// std::cout << "send some byte" << std::endl;
-		}
-		if (_client->getResponseComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
+		}				
+		if (_client->getResponseBuffer().empty() && _client->getResponseComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
 		{
-			std::cout << "send finished" << std::endl;                        
+			std::cout << "send finished" << std::endl;                      
 			_ev.events = EPOLLIN ;
 			_ev.data.fd = _client->getFd();            
 			epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 			_client->clearClient();
 			// _clientsMap.erase(client->getFd()); // dans le cas d'un NON keep alive
-			// delete client;											
+			// delete client;										
 		}
 	}
 }
@@ -188,7 +219,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 		_client = _it->second;
 		if(_client->getClientState() == GENERATING_RESPONSE)
 		{
-			_client->Handle(_client->getRequestClass(),  servers[0].getLocations(), servers[0], _client, *this);	
+			_client->Handle(_client->getRequestClass(), servers[0], _client, *this);	
 			// client->setClientState(SENDING_RESPONSE);				
 			_ev.events = EPOLLOUT ;
 			_ev.data.fd = _client->getFd();            
@@ -198,6 +229,15 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 
 }
 
+void Epoll::closeCgiFd()
+{
+	// std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
+	epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getCgiFd(), &_ev);    
+	_client->getResponseBuffer().push_back("0\r\n\r\n");
+	_client->setResponseComplete(true);		
+	close(_client->getCgiFd());  	
+}
+
 void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers)
 {
 	creatEpollFdListeners(listener_fds);
@@ -205,17 +245,20 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	{
 		// std::cout << "waiting request..." << std::endl;
 		_eventWait = epoll_wait(_epFd, _events, 10, -1);
-		// print_ready_events(_event_wait, _events);
+		// print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
 			_is_listener = false;
 			NewClientConnection(listener_fds, _events[i].data.fd);
 			MatchEventWithClient(_events[i].data.fd);
+
 			if (!_is_listener && (_events[i].events & EPOLLIN))
 				HandleEpollin(_events[i].data.fd);
 			else if (!_is_listener && (_events[i].events & EPOLLOUT) && _isCgi == false)
 				HandleEpollout();
+			else if (_isCgi && (_events[i].events && EPOLLHUP | EPOLLRDHUP))
+				closeCgiFd();
 			generatePendingResponse(servers);					
 		}
 	}

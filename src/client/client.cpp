@@ -22,7 +22,7 @@ unsigned int Client::getContentLength()
 	if (*pEnd != '\0' && *pEnd != '\r')
 	{    
 		std::cout << "Error on content lenght ending char" << std::endl;              
-	}    
+	}
     return (content_length);
 }
 
@@ -53,7 +53,7 @@ void Client::clearResponse()
     getResponseClass().setStatus(200);
     getResponseClass().getHeaders().clear();
     getResponseClass().setBody("");
-    getResponseClass().setResponseState(FIRST_SENT);        
+    getResponseClass().setResponseState(FIRST_READ);        
 }
 
 void Client::clearClient()
@@ -65,11 +65,12 @@ void Client::clearClient()
     getResponseBuffer().clear();
     setClientState(WAITING);
     setResponseComplete(false);
-    setByteSentPos(0);
+    setByteReadPos(0);
+    setByteSent(0);    
     close(this->getFd());    
 }
 
-void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
+void Client::Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll)
 {
     // std::cout << "Handling request..." << "of client " << client->getFd() << std::endl;
     int status = req.ValidateRequest(req);
@@ -83,7 +84,7 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
         client->getResponseBuffer().push_front(Response::Error(501, "501 Not Implemented").constructResponse());      
         return ;        
     }
-    const LocationConfig *loc = req.MatchLocation(req.getPath(), locations);
+    const LocationConfig *loc = req.MatchLocation(req.getPath(), server.getLocations());
     if (!loc)
     {
         client->getResponseBuffer().push_front(Response::Error(500, "500 No location matched (unexpected)").constructResponse());    
@@ -102,54 +103,48 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
     if (isCgi(req, server, *loc))
     {
         Cgi cgi;
-        cgi.handleCgi(req, server, *loc, client, epoll);
+        cgi.handleCgi(req, server, client, epoll);
         client->setClientState(GENERATING_CGI);
         return ;
     }
-    // if (req.getMethod() == "POST")
-    // {
+    if (req.getMethod() == "POST")
+    {
 
-    //     Upload up;
-    //     status = up.CheckBodySize(*loc, req);
-    //     if (status)
-    //     {
-    //         client->getResponseBuffer().push_front(Response::Error(413, "Payload Too Large").constructResponse());
-    //         client->setResponseComplete(true);
-    //         return ;         
-    //     }
-    //     if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
-    //     {
-    //         client->getResponseBuffer().push_front(Response::Error(400, "Bad Request").constructResponse());
-    //         client->setResponseComplete(true);       
-    //         return ;
-    //     }
-    //     if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
-    //         && req.getPath() == "/upload")
-    //     {
-    //         client->getResponseBuffer().push_front(up.Handle(*loc, req).constructResponse());
-    //         client->setResponseComplete(true);
-    //         return ;
-    //     }
-    // }
+        Upload up;
+        status = up.CheckBodySize(*loc, req);
+        if (status)
+        {
+            client->getResponseBuffer().push_front(Response::Error(413, "Payload Too Large").constructResponse());
+            client->setResponseComplete(true);
+            return ;         
+        }
+        if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
+        {
+            client->getResponseBuffer().push_front(Response::Error(400, "Bad Request").constructResponse());
+            client->setResponseComplete(true);       
+            return ;
+        }
+        if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0
+            && req.getPath() == "/upload")
+        {
+            client->getResponseBuffer().push_front(up.Handle(*loc, req).constructResponse());
+            client->setResponseComplete(true);
+            return ;
+        }
+    }
 
-    //upload handler (="POST") va venir écrire dans un fichiers
-    // handleUpload(req, server, *loc);
-
-    // static handler va lire un fichier
-    //Ici on se charge de trouver la réponse quon doit envoyer au clients
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
     st.BuildStaticResponse(req, target, client, _response);
-    if(_response.getResponseState() == FIRST_SENT)
+    if(_response.getResponseState() == FIRST_READ)
     {
-        // std::cout << "ON  CREE UNE REPONSE COMPLETE" << std::endl;
-        client->getResponseBuffer().push_front(_response.constructResponse().data());
-        _response.setResponseState(N_SENT);
+        client->getResponseBuffer().push_back(_response.constructResponse());
+        _response.setResponseState(NEXT_READ);     
     }
     else
     {
-        // std::cout << "ON CONTINUE L'ENVOIE" << std::endl;        
-        client->getResponseBuffer().push_front(_response.getBody());
+        if (!_response.getBody().empty())      
+            client->getResponseBuffer().push_back(_response.getBody());      
     }
     _response.getBody().clear();
 }

@@ -18,7 +18,7 @@ void printBodyDebug(const std::vector<unsigned char>& body)
 
 void Request::parseBody(Client *client)
 {
-    std::cout << "PARSE BODY " << std::endl;
+    // std::cout << "PARSE BODY " << std::endl;
     _body = client->getRequestBuffer();
     _bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
     // printBodyDebug(this->_bodyBinary);
