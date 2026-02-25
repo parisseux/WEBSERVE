@@ -22,7 +22,7 @@ unsigned int Client::getContentLength()
 	if (*pEnd != '\0' && *pEnd != '\r')
 	{    
 		std::cout << "Error on content lenght ending char" << std::endl;              
-	}
+	}    
     return (content_length);
 }
 
@@ -66,11 +66,11 @@ void Client::clearClient()
     setClientState(WAITING);
     setResponseComplete(false);
     setByteReadPos(0);
-    setByteSent(0);    
+    setByteSent(0); 
     close(this->getFd());    
 }
 
-void Client::Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll)
+void         Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
 {
     int status = req.ValidateRequest(req);
     if (status != 200)
@@ -151,10 +151,10 @@ void Client::Handle(Request &req, const ServerConfig &server, Client *client, Ep
             sendError(403, "Forbidden", server);
         return;
     }
-    if(_response.getResponseState() == FIRST_SENT)
+    if(_response.getResponseState() == FIRST_READ)
     {
         client->getResponseBuffer().push_front(_response.constructResponse().data());
-        _response.setResponseState(N_SENT);
+        _response.setResponseState(NEXT_READ);
     }
     else
     {      

@@ -219,7 +219,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 		_client = _it->second;
 		if(_client->getClientState() == GENERATING_RESPONSE)
 		{
-			_client->Handle(_client->getRequestClass(), servers[0], _client, *this);	
+			_client->Handle(_client->getRequestClass(), servers[0].getLocations(),  servers[0], _client, *this);	
 			// client->setClientState(SENDING_RESPONSE);				
 			_ev.events = EPOLLOUT ;
 			_ev.data.fd = _client->getFd();            

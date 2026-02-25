@@ -60,7 +60,7 @@ int StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& 
         if (req.getMethod() != "GET")
             return (405);
         std::string html = GenerateAutoIndexHtml(target.path, req.getPath());
-        if (client->getResponseClass().getResponseState() == FIRST_SENT)
+        if (client->getResponseClass().getResponseState() == FIRST_READ)
         {
             res.setStatus(200);
             res.setHeader("Content-Type", "text/html; charset=utf-8");
