@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sloth Upload - Site 2</title>
+<style>
+    body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #ffb6d9, #ffe0f0);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #660033;
+    }
+    .card {
+        background: white;
+        padding: 45px;
+        border-radius: 25px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        text-align: center;
+        width: 440px;
+    }
+    .emoji {
+        font-size: 60px;
+        margin-bottom: 10px;
+    }
+    h1 {
+        margin: 0 0 10px 0;
+    }
+    p {
+        margin: 0 0 18px 0;
+        font-size: 16px;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 15px;
+        border: 1px solid #ff99cc;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+    button {
+        margin-top: 15px;
+        background-color: #ff66b3;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 20px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button:hover {
+        background-color: #e0559c;
+    }
+    .danger {
+        background-color: #ff4d88;
+    }
+    .danger:hover {
+        background-color: #e43e78;
+    }
+    #result {
+        margin-top: 15px;
+        font-weight: bold;
+        min-height: 22px;
+    }
+    hr {
+        border: none;
+        height: 1px;
+        background: #ffd1e6;
+        margin: 25px 0;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="emoji">🦥☁️</div>
+    <h1>Site 2</h1>
+    <p>Upload & delete files — simple and sleepy 💗</p>
+
+    <h3 style="margin-bottom:8px;">Upload</h3>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload 🦥</button>
+    </form>
+
+    <hr>
+
+    <h3 style="margin-bottom:8px;">Delete</h3>
+    <input type="text" id="filename" placeholder="Filename to delete (example.txt)">
+    <button class="danger" onclick="deleteFile()">Delete 🗑</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function deleteFile() {
+    const filename = document.getElementById("filename").value.trim();
+    const result = document.getElementById("result");
+
+    if (!filename) {
+        result.innerText = "Please enter a filename 🦥";
+        return;
+    }
+
+    fetch("/uploads/" + encodeURIComponent(filename), {
+        method: "DELETE"
+    })
+    .then(response => {
+        if (response.ok) {
+            result.innerText = "Deleted successfully 💗";
+        } else if (response.status === 404) {
+            result.innerText = "Not found (404) 🦥";
+        } else if (response.status === 403) {
+            result.innerText = "Forbidden (403) 🦥🚫";
+        } else if (response.status === 405) {
+            result.innerText = "Method not allowed (405) 🦥❌";
+        } else {
+            result.innerText = "Error: " + response.status;
+        }
+    })
+    .catch(() => {
+        result.innerText = "Server error 🦥";
+    });
+}
+</script>
+
+</body>
+</html>
