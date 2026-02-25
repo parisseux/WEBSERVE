@@ -195,7 +195,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 			_ev.data.fd = _client->getFd();            
 			epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 		}
-	}		
+	}
 
 }
 

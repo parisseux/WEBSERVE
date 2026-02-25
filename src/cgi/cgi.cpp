@@ -103,8 +103,8 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
 {
     std::string root = GetEffectiveRoot(server, loc);
     std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
-    std::cout << "ROOT: " << root << std::endl;
-    std::cout << "REL: " << rel << std::endl;   
+    // std::cout << "ROOT: " << root << std::endl;
+    // std::cout << "REL: " << rel << std::endl;   
 
     _path = JoinPath(root, rel);
 
@@ -116,7 +116,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
     char *args[] = {
         (char*)"python3",
         (char*)_path.c_str(), 
-        NULL 
+        NULL
     };
     std::cout << "CGI PATH: " << _path << std::endl;
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
@@ -135,7 +135,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
             close(pipe_in[0]);
             close(pipe_in[1]);
             close(pipe_out[0]);
-            close(pipe_out[1]);                  
+            close(pipe_out[1]);
             execve(pythonPath, args, _envCgi.data());
             exit(EXIT_SUCCESS);
             break ;
