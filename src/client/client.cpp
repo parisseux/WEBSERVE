@@ -132,6 +132,11 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
         }
     }
 
+    else if (req.getMethod() == "DELETE")
+    {
+        
+    }
+
     // upload handler (="POST") va venir écrire dans un fichiers
     // handleUpload(req, server, *loc);
 
