@@ -2,6 +2,7 @@
 #include "../response/Response.hpp"
 #include "../cgi/cgi.hpp"
 #include "../response/StaticTarget.hpp"
+#include "../delete/delete.hpp"
 
 bool Client::isUpload()
 {
@@ -137,6 +138,8 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
         std::cout << "Let's delete this shit" << std::endl;
         std::cout << client->getRequestBuffer() << std::endl;
         req.displayRequest();
+        Delete del;
+        del.isFileExisting(req);
     }
 
     // upload handler (="POST") va venir écrire dans un fichiers
