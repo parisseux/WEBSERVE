@@ -70,7 +70,7 @@ void Cgi::readFd(int fd, std::string &content)
 
 void Cgi::addCgiEnv(Request &req, std::string path, std::vector<std::string> &envCgiString)
 {
-    std::cout << "MakeCGI ENV" << std::endl;
+    // std::cout << "MakeCGI ENV" << std::endl;
     std::string ENV[5] = {
         "REQUEST_METHOD=", "CONTENT_LENGTH=",
         "CONTENT_TYPE=", "SCRIPT_NAME=", "SERVER_PROTOCOL=",
@@ -98,22 +98,38 @@ void Cgi::MakeCgiEnv(Request &req)
     _envCgi.push_back(NULL);
 }
 
-void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConfig &loc, Client *client, Epoll &epoll)
+bool Cgi::findCgiLocation(const ServerConfig &server)
 {
-    std::string root = GetEffectiveRoot(server, loc);
-    std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
-    _path = JoinPath(root, rel);
+    for (unsigned int i = 0; i < server.getLocations().size(); ++i)
+    {
+        if (server.getLocations()[i].getHasCgiBin() == true)
+            _cgiLoc = server.getLocations()[i];
+    }
+    if (_cgiLoc.getHasCgiBin() == false)
+    {
+        std::cout << "* No CGI locations found *" << std::endl;
+        return false;
+    }
+    return true;
+}
 
+void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Epoll &epoll)
+{
+    if (findCgiLocation(server) == false)
+        return ;
+    std::string root = GetEffectiveRoot(server, _cgiLoc);
+    std::string rel  = GetRelativPath(req.getPath(), _cgiLoc.getPath());
+    _path = JoinPath(root, rel);
     pid_t pid;
     int		pipe_in[2];
     int     pipe_out[2];
-    
-    const char *pythonPath = "/usr/bin/python3";
+
     char *args[] = {
         (char*)"python3", 
         (char*)_path.c_str(), 
         NULL 
     };
+    
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
         std::cout << "Pipe function error" << std::endl;
     MakeCgiEnv(req);      
@@ -131,7 +147,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
             close(pipe_in[1]);
             close(pipe_out[0]);
             close(pipe_out[1]);                  
-            execve(pythonPath, args, _envCgi.data());
+            execve(_cgiLoc.getCgiBin().data(), args, _envCgi.data());
             exit(EXIT_SUCCESS);
             break ;
         default:
@@ -141,13 +157,11 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, const LocationConf
             close(pipe_in[0]);
             close(pipe_in[1]);
             close(pipe_out[1]);                                                        
-            // res.setStatus(200);
-            // client->getResponseBuffer().push_front(res.AddToResponse());
             int flags = fcntl(pipe_out[0], F_GETFL, 0);
             fcntl(pipe_out[0], F_SETFL, flags | O_NONBLOCK);
             epoll.setEvent(EPOLLIN);
             epoll.setEventFd(pipe_out[0]);
-            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, pipe_out[0], epoll.getEvent());             
-            std::cout << "DONE with CGI" << std::endl;                
+            epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, pipe_out[0], epoll.getEvent());                           
     }
 }
+

@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 import json
 import cgi
 import cgitb
 import os
-import sys  # Import nécessaire pour écrire dans stdout directement
+import sys  # Toujours utile si on veut manipuler sys.stdout
 from datetime import datetime
+
 
 # Juste après l'import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,17 +22,6 @@ with open("debug.log", "a") as f:
 # Configuration du debug
 cgitb.enable()
 DB_FILE = 'data.json'
-
-def send_chunk(data):
-    """Encapsule une chaîne de caractères au format Chunked Transfer Encoding."""
-    if not data:
-        return
-    # On encode en utf-8 pour obtenir la taille réelle en octets
-    chunk_body = data.encode('utf-8')
-    size = hex(len(chunk_body))[2:].upper()
-    sys.stdout.buffer.write(f"{size}\r\n".encode('utf-8'))
-    sys.stdout.buffer.write(chunk_body + b"\r\n")
-    sys.stdout.buffer.flush()
 
 # --- Logique de traitement des données (inchangée) ---
 form = cgi.FieldStorage()
@@ -58,16 +50,13 @@ else:
 
 # --- Début de la réponse HTTP ---
 
-# Headers : On utilise sys.stdout.buffer pour éviter les conflits d'encodage
-sys.stdout.buffer.write(b"HTTP/1.0 200 OKOK\r\n")
-sys.stdout.buffer.write(b"Content-Type: text/html; charset=UTF-8\r\n")
-sys.stdout.buffer.write(b"Transfer-Encoding: chunked\r\n")
-sys.stdout.buffer.write(b"\r\n")
-sys.stdout.buffer.flush()
+# Headers standards
+print("Content-Type: text/html; charset=UTF-8")
+print("\r\n\r\n")  # Ligne vide obligatoire pour séparer headers et body
+sys.stdout.flush()
 
-# 1er morceau : Le Head et le Header
-send_chunk(f"""
-<!DOCTYPE html>
+# Le Head et le Header
+print(f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -86,24 +75,19 @@ send_chunk(f"""
   <main>
 """)
 
-# Morceaux suivants : Chaque article peut être un chunk séparé
+# Affichage des articles
 for take in takes:
-    article_html = f"""
+    print(f"""
     <article class="hot-take">
       <h2>{take['title']}</h2>
       <p class="date">Publié le {take['date']}</p>
       <p>{take['content']}</p>
     </article>
-    """
-    send_chunk(article_html)
+    """)
 
-# Dernier morceau : Fermeture du HTML
-send_chunk("""
+# Fermeture du HTML
+print("""
   </main>
 </body>
 </html>
 """)
-
-# Chunk de fin obligatoire
-sys.stdout.buffer.write(b"0\r\n\r\n")
-sys.stdout.buffer.flush()

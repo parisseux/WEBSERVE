@@ -1,0 +1,11 @@
+LOGIQUE à avoir 
+
+if (c'est un dossier)
+{
+    if (index existe)
+        servir index
+    else if (autoindex on)
+        générer listing
+    else
+        erreur
+}

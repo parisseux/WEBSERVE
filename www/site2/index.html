@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sloth Upload - Site 2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+    <div class="emoji">🦥☁️</div>
+    <h1>Site 2</h1>
+    <p>Upload & delete files — simple and sleepy 💗</p>
+
+    <h3>Upload</h3>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload 🦥</button>
+    </form>
+
+    <hr>
+
+    <h3>Delete</h3>
+    <input type="text" id="filename" placeholder="Filename to delete (example.txt)">
+    <button class="danger" onclick="deleteFile()">Delete 🗑</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function deleteFile() {
+    const filename = document.getElementById("filename").value.trim();
+    const result = document.getElementById("result");
+
+    if (!filename) {
+        result.innerText = "Please enter a filename 🦥";
+        return;
+    }
+
+    fetch("/uploads/" + encodeURIComponent(filename), {
+        method: "DELETE"
+    })
+    .then(response => {
+        if (response.ok) {
+            result.innerText = "Deleted successfully 💗";
+        } else if (response.status === 404) {
+            result.innerText = "Not found (404) 🦥";
+        } else if (response.status === 403) {
+            result.innerText = "Forbidden (403) 🦥🚫";
+        } else if (response.status === 405) {
+            result.innerText = "Method not allowed (405) 🦥❌";
+        } else {
+            result.innerText = "Error: " + response.status;
+        }
+    })
+    .catch(() => {
+        result.innerText = "Server error 🦥";
+    });
+}
+</script>
+
+</body>
+</html>

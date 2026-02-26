@@ -64,6 +64,8 @@ class LocationConfig
 		const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
 		const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
 		const bool&                      getHasUploadPath() const {return (_hasUploadPath);};
+		const bool&                      getHasCgiBin() const {return (_hasCgiBin);};
+		const bool&                      getHasCgiExt() const {return (_hasCgiExt);};
 
 		// //SETTERS
 		// void                       setPath(std::string path) {this->_path =  path;};

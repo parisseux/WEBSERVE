@@ -1,5 +1,6 @@
 #include "StaticTarget.hpp"
 #include "../client/client.hpp"
+#include "autoindex.hpp"
 
 //std::ios::binary empeche transformation automatique et du coup permet de lire differents type de contenu
 //et coherence entre les ios
@@ -8,12 +9,12 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open())
         return false;
-    if (client->getByteSentPos() > 0)
-        file.seekg(client->getByteSentPos());
+    if (client->getByteReadPos() > 0)
+        file.seekg(client->getByteReadPos());
     char buf[100];
     file.read(buf, sizeof(buf));
     ssize_t byteRead = file.gcount();
-    client->addByteSentPos(byteRead);
+    client->addByteReadPos(byteRead);
     if (file.eof()) // check si on a lu touts le contenu
     {
         client->setResponseComplete(true);
@@ -52,20 +53,27 @@ std::string StaticTarget::getContentType(const std::string& path)
     return "application/octet-stream";
 }
 
-void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res)
+int StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res)
 {
-    if (target.status != 200)
+    if (target.type == AUTO_INDEX_TARGET)
     {
-        if (target.status == 404)
-            res = Response::Error(404, "404 Not Found");
-        else if (target.status == 403)
-            res = Response::Error(403, "403 Forbidden");
-        else 
-            res =  Response::Error(target.status, "Error");
+        if (req.getMethod() != "GET")
+            return (405);
+        std::string html = GenerateAutoIndexHtml(target.path, req.getPath());
+        if (client->getResponseClass().getResponseState() == FIRST_READ)
+        {
+            res.setStatus(200);
+            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            std::ostringstream len;
+            len << html.size();
+            res.setHeader("Content-Length", len.str());
+        }
+
+        res.setBody(html);
         client->setResponseComplete(true);
-        return;
+        return (200);
     }
-    if (client->getResponseClass().getResponseState() == FIRST_SENT) // check si on a deja recuperer le headers
+    if (client->getResponseClass().getResponseState() == FIRST_READ) // check si on a deja recuperer le headers
     {
         res.setStatus(200);
         res.setHeader("Content-Type", getContentType(target.path));
@@ -73,16 +81,42 @@ void StaticTarget::BuildStaticResponse(const Request& req, const ResolvedTarget&
         len << target.st.st_size;
         res.setHeader("Content-Length", len.str());
     }
- // calculer la longueur du fichier entier
     // ensuite lire le fichier jusqua un certain point
     // garder le point et lire depuis ce point pour la prochaine fois
-    if (req.getMethod() != "HEAD")
+    std::string content;
+    if (!ReadFile(target.path, content, client))
+        return 403 ;
+    res.setBody(content);
+    return (200);
+}
+
+bool StaticTarget::IsLocationPrefix(const std::string& reqPath, const std::string& locPath)
+{
+    if (locPath == "/") 
+        return true;
+    if (reqPath.compare(0, locPath.size(), locPath) != 0)
+        return false;
+    if (reqPath.size() == locPath.size()) 
+        return true;
+    return reqPath[locPath.size()] == '/';
+}
+
+bool StaticTarget::ContainsDotDotSegment(const std::string& rel)
+{
+    size_t i = 0;
+    while (i < rel.size())
     {
-        std::string content;
-        if (!ReadFile(target.path, content, client))
-            res = Response::Error(403, "403 Forbidden");
-        res.setBody(content);
+        while (i < rel.size() && rel[i] == '/') i++;
+        size_t j = i;
+        while (j < rel.size() && rel[j] != '/') j++;
+        if (j > i)
+        {
+            std::string seg = rel.substr(i, j - i);
+            if (seg == "..") return true;
+        }
+        i = j;
     }
+    return false;
 }
 
 std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc)
@@ -95,9 +129,11 @@ std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const Loc
 
 //relativPath = req.path - matchloc.path
 //cat.png = /image/cat.png - /images/
-std::string StaticTarget::GetRelativPath(const std::string &reqPath)
+std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::string &locPath)
 {
     std::string relativePath = reqPath;
+    if (IsLocationPrefix(reqPath, locPath))
+        relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;
@@ -121,16 +157,32 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
 {
     ResolvedTarget r;
     r.status = 200;
-
+    r.reason = "OK";
+    r.type = FILE_TARGET;
     std::string root = GetEffectiveRoot(server, loc);
-    std::string rel  = GetRelativPath(req.getPath());
+    std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
+    if (ContainsDotDotSegment(rel))
+    {
+        r.status = 403;
+        r.reason = "Forbidden";
+        return r;
+    }
+    
     std::string path = JoinPath(root, rel);
   
     struct stat st;
     if (stat(path.c_str(), &st) != 0)
     {
-        if (errno == ENOENT) { r.status = 404; r.reason = "Not Found"; }
-        else { r.status = 403; r.reason = "Forbidden"; }
+        if (errno == ENOENT) 
+        { 
+            r.status = 404; 
+            r.reason = "Not Found";
+        }
+        else 
+        { 
+            r.status = 403;
+            r.reason = "Forbidden";
+        }
         return r;
     }
     // Directory -> index.html
@@ -142,15 +194,29 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
         index += "index.html";
 
         struct stat stIndex;
-        if (stat(index.c_str(), &stIndex) != 0 || !S_ISREG(stIndex.st_mode))
+
+        //cas ou on trouve index.html 
+        if (stat(index.c_str(), &stIndex) == 0 && S_ISREG(stIndex.st_mode))
         {
-            r.status = 403;
-            r.reason = "Directory access forbidden";
+            r.type = FILE_TARGET;
+            r.path = index;
+            r.st   = stIndex;
             return r;
         }
-        path = index;
-        st = stIndex;
+        //autoindex off
+        if (!loc.getAutoIndex())
+        {
+            r.status = 403;
+            r.reason = "Directory listing forbidden";
+            return r;
+        }
+        //autoindex on
+        r.path = path;
+        r.st = st;
+        r.type = AUTO_INDEX_TARGET;
+        return r;        
     }
+    //fichier normal, cad quon peut open()
     if (!S_ISREG(st.st_mode))
     {
         r.status = 403;
@@ -159,5 +225,6 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     }
     r.path = path;
     r.st = st;
+    r.type = FILE_TARGET;
     return r;
 }

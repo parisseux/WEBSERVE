@@ -1,28 +1,28 @@
 #include "Response.hpp"
 
-Response Response::buildUploadResponse(const std::vector<std::string>& files)
-{
-    Response res;
+// Response Response::buildUploadResponse(const std::vector<std::string>& files)
+// {
+//     Response res;
 
-    res.setStatus(201);
-    res.setHeader("Content-Type", "text/plain");
+//     res.setStatus(201);
+//     res.setHeader("Content-Type", "text/plain");
 
-    std::ostringstream body;
-    body << "Upload successful\n";
+//     std::ostringstream body;
+//     body << "Upload successful\n";
 
-    for (size_t i = 0; i < files.size(); ++i)
-        body << "- " << files[i] << "\n";
+//     for (size_t i = 0; i < files.size(); ++i)
+//         body << "- " << files[i] << "\n";
 
-    std::string bodyStr = body.str();
-    res.setBody(bodyStr);
+//     std::string bodyStr = body.str();
+//     res.setBody(bodyStr);
 
-    std::ostringstream len;
-    len << bodyStr.size();
-    res.setHeader("Content-Length", len.str());
-    res.setHeader("Connection", "close");
+//     std::ostringstream len;
+//     len << bodyStr.size();
+//     res.setHeader("Content-Length", len.str());
+//     res.setHeader("Connection", "close");
 
-    return res;
-}
+//     return res;
+// }
 
 std::string Response::makeStatusLine(int code)
 {
@@ -57,14 +57,14 @@ void Response::setBody(const std::string& b)
     _body = b;
 }
 
-Response Response::Error(int code, const std::string &s)
-{
-    Response res;
-    res.setStatus(code);
-    res.setHeader("Content-Type", "text/html");
-    res.setBody("<html><body><h1>" + s + "</h1></body></html>");
-    return (res);
-}
+// Response Response::Error(int code, const std::string &s)
+// {
+//     Response res;
+//     res.setStatus(code);
+//     res.setHeader("Content-Type", "text/html");
+//     res.setBody("<html><body><h1>" + s + "</h1></body></html>");
+//     return (res);
+// }
 
 void Response::displayResponse()
 {
@@ -113,6 +113,23 @@ std::string Response::addBodyToResponseBuffer()
     if (_body.empty() == 0)
         response.append(_body);
     return (response);
+}
+
+ssize_t Response::getContentLength()
+{
+    std::map<std::string, std::string>::iterator it = this->getHeaders().begin();
+    while(it != this->getHeaders().end())
+    {
+        if (it->first == "Content-Length")
+        {
+            ssize_t content_length;
+            char *pEnd;
+            content_length = std::strtoul(it->second.c_str(), &pEnd, 10);          
+            return(content_length);
+        }
+        it++;
+    }
+    return(0);
 }
 
 //-----THEORY----------
