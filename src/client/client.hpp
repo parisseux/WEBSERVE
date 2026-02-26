@@ -33,6 +33,7 @@ class Client
         int         _fd;
         int         _cgi_fd;
         int         _flags;
+        int         _serverIndex;
         Request     _request;
         Response    _response;
         std::string _requestBuffer;
@@ -80,6 +81,8 @@ class Client
         void         setByteReadPos(int byte){_byteReadPos = byte;}                
         void         setResponseComplete(bool responseComplete){_responseComplete = responseComplete;}
         bool         getResponseComplete(){return (_responseComplete);}
+        void         setServerIndex(int index){_serverIndex = index;}
+        int          getServerIndex(){return _serverIndex;}   
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
         // void            Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll);
         void         clearClient();    
