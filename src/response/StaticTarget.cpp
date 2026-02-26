@@ -95,11 +95,9 @@ std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const Loc
 
 //relativPath = req.path - matchloc.path
 //cat.png = /image/cat.png - /images/
-std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::string &locPath)
+std::string StaticTarget::GetRelativPath(const std::string &reqPath)
 {
     std::string relativePath = reqPath;
-    std::cout << "relative pass deux bases " << relativePath <<  std::endl;    
-    std::cout << "LE LOC PATH " << locPath <<  std::endl;
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;
@@ -125,13 +123,10 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     r.status = 200;
 
     std::string root = GetEffectiveRoot(server, loc);
-    std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
+    std::string rel  = GetRelativPath(req.getPath());
     std::string path = JoinPath(root, rel);
-
-    std::cout <<  "LE ROOT " << root <<  std::endl;
-    std::cout <<  "LE REL " << rel <<  std::endl;    
+  
     struct stat st;
-    std::cout <<  "LE PATH " << path <<  std::endl;
     if (stat(path.c_str(), &st) != 0)
     {
         if (errno == ENOENT) { r.status = 404; r.reason = "Not Found"; }
