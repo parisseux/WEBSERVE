@@ -179,9 +179,10 @@ void Request::displayRequest() const
 {
     std::map<std::string, std::string>::const_iterator it = _header.begin();
     std::cout << "* SERVER JUST RECEIVED A REQUEST *" << std::endl;
-    std::cout << _method << " "
-            <<  _requestTarget << " "
-            << _protocol << std::endl;
+    std::cout << _method << std::endl;
+    std::cout <<  _requestTarget << std::endl;
+    std::cout << _path << std::endl;
+    std::cout << _protocol << std::endl;
     while (it != _header.end())
     {
         std::cout << it->first << ": " << it->second << std::endl;

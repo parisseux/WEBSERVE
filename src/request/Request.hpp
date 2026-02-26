@@ -64,7 +64,7 @@ class Request
   
         //lecture seule
         const std::string& getMethod()  const { return _method; }
-        const std::string& getTarget()  const { return _requestTarget; }
+        const std::string& getRequestTarget()  const { return _requestTarget; }
         const std::string& getPath()    const { return _path; }
         const std::string& getQuery()   const { return _query; }
         const std::string& getProtocol()const { return _protocol; }
