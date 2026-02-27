@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #ffb6d9, #ffe0f0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #660033;
+}
+
+.card {
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    text-align: center;
+    max-width: 520px;
+    animation: float 4s ease-in-out infinite;
+}
+
+.emoji {
+    font-size: 60px;
+}
+
+h1 {
+    font-size: 48px;
+    margin: 15px 0;
+}
+
+p {
+    font-size: 18px;
+    margin: 8px 0;
+}
+
+.badge {
+    margin-top: 25px;
+    display: inline-block;
+    background: #ff6fa8;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    box-shadow: 0 5px 15px rgba(255,111,168,0.4);
+}

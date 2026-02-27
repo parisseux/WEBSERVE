@@ -9,5 +9,6 @@ RUN apt-get install -y valgrind
 RUN apt-get install -y telnet
 RUN apt-get install -y curl
 RUN apt-get install -y python3
+RUN apt-get install -y gdb
 WORKDIR /app
 ENTRYPOINT ["/bin/bash"]

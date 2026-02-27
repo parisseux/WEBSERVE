@@ -106,6 +106,17 @@ void LocationConfig::parseLocationCgiExt(const std::string& s)
     this->_hasCgiExt = true;
 }
 
+void LocationConfig::parseRedict(const std::string &s)
+{
+    std::cout << "Parsing Redirection" << std::endl;
+    if (this->_hasRedirect)
+        throw std::runtime_error("Duplicate 'redirection HTTP' directive in location " + this->_path);
+    this->_redirect = removeSemicolon(s.substr(11));
+    if (this->_redirect.empty())
+        throw std::runtime_error("Empty redirection HTTP in location " + this->_path);
+    this->_hasRedirect = true;
+}
+
 void LocationConfig::parseLocationHeader(const std::string& firstLine)
 {
     std::string t = trim(firstLine);
@@ -142,6 +153,8 @@ void LocationConfig::parseLocationLine(const std::string& s)
         this->parseLocationCgiExt(s);
     else if (s.find("upload_path ") == 0)
         this->parseLocationUploadPath(s);
+    else if (s.find("return 301 ") == 0)
+        this->parseRedict(s);
     else
         throw std::runtime_error("Unknown directive in location " + this->_path + ": " + s);
 }

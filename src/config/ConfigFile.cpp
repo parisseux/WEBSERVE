@@ -131,5 +131,6 @@ void ServerConfig::print_attributes()
         std::cout << "    max body size =   " << loc.getHasMaxBodySize() << std::endl;
         std::cout << "    cgi Bin   = " << loc.getCgiBin() << std::endl;
         std::cout << "    cgi Ext   = " << loc.getCgiExt() << std::endl;
+        std::cout << "   Redirect    = " << loc.getRedirect()<< std::endl;
     }
 }
