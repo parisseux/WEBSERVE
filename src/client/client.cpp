@@ -58,16 +58,15 @@ void Client::clearResponse()
 
 void Client::clearClient()
 {
-    setRequestComplete(false);
+    setClientState(WAITING);    
     clearRequest();
-    getRequestBuffer().clear();
-    clearResponse();							
+    clearResponse();    
+    getRequestBuffer().clear();		
     getResponseBuffer().clear();
-    setClientState(WAITING);
+    setRequestComplete(false);    
     setResponseComplete(false);
     setByteReadPos(0);
-    setByteSent(0); 
-    close(this->getFd());    
+    setByteSent(0);   
 }
 
 void         Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
@@ -91,6 +90,12 @@ void         Client::Handle(Request &req, const std::vector<LocationConfig>& loc
     if (status == 405)
     {
         sendError(405, "Method Not Allowed", server);
+        return ;
+    }
+    if (loc->getHasRedirect())
+    {
+        std::cout << "Lets handle redirect HTTP" << std::endl;
+        sendRedirect(loc->getRedirect());
         return ;
     }
     if (isCgi(req, server, *loc))
@@ -243,3 +248,47 @@ void Client::sendUpload()
     getResponseBuffer().push_front(res.constructResponse());
     setResponseComplete(true);
 }
+
+void Client::sendRedirect(const std::string &redir)
+{
+    std::stringstream html;
+
+html <<
+"<!DOCTYPE html>\n"
+"<html lang=\"en\">\n"
+"<head>\n"
+"  <meta charset=\"UTF-8\">\n"
+"  <title>Redirect HTTP...</title>\n"
+"  <style>\n"
+"    body{margin:0;padding:40px;background:#fdeef3;font-family:Segoe UI,Tahoma,sans-serif;color:#5e4a54;}\n"
+"    .container{max-width:700px;margin:auto;background:#fff7fa;padding:35px 45px;border-radius:22px;"
+"box-shadow:0 10px 35px rgba(214,164,181,.25);text-align:center;}\n"
+"    h1{margin-top:0;font-weight:500;font-size:24px;color:#c26d8d;}\n"
+"    p{font-size:15px;color:#a05574;margin:20px 0;}\n"
+"    a{text-decoration:none;color:#ffffff;background:#c26d8d;padding:10px 18px;"
+"border-radius:14px;display:inline-block;transition:all .25s ease;font-size:14px;}\n"
+"    a:hover{background:#a05574;}\n"
+"    footer{margin-top:30px;font-size:12px;color:#c9a5b5;}\n"
+"  </style>\n"
+"</head>\n"
+"<body>\n"
+"<div class=\"container\">\n"
+"  <h1>🌸 Page moved</h1>\n"
+"<p>This page has moved to: " << redir << "</p>\n"
+"<a href=\"" << redir << "\">" << redir << "</a>\n"
+"</div>\n"
+"</body>\n"
+"</html>\n";
+    Response res;
+    res.setStatus(301);
+    std::string body = html.str();
+    res.setHeader("Location", redir);
+    std::ostringstream len;
+    len << body.size();
+    res.setHeader("Content-Length", len.str());
+    res.setBody(body);
+    getResponseBuffer().push_front(res.constructResponse());
+    setResponseComplete(true);
+}
+
+

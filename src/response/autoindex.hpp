@@ -9,7 +9,7 @@
 # include <vector>
 # include <algorithm>
 
-class ResolvedTarget;
+struct ResolvedTarget;
 class Request;
 
 // diskPath   = chemin sur disque du dossier (ex: /var/www/site/images)

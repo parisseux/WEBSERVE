@@ -51,8 +51,7 @@ else:
 # --- Début de la réponse HTTP ---
 
 # Headers standards
-print("Content-Type: text/html; charset=UTF-8")
-print("\r\n\r\n")  # Ligne vide obligatoire pour séparer headers et body
+print("Content-Type: text/html; charset=UTF-8\r\n")  # Ligne vide obligatoire pour séparer headers et body
 sys.stdout.flush()
 
 # Le Head et le Header

@@ -33,6 +33,7 @@ class Client
         int         _fd;
         int         _cgi_fd;
         int         _flags;
+        int         _serverIndex;
         Request     _request;
         Response    _response;
         std::string _requestBuffer;
@@ -43,7 +44,19 @@ class Client
         ssize_t         _byteSent;        
         ClientState _state;    
     public:
-        Client() {std::cout << "Client constructor called" << std::endl;};
+        Client() {std::cout << "Client constructor called" << std::endl;
+    setFd(-1);
+    setCgiFd(-1);
+    setServerIndex(-1);
+    setClientState(WAITING);    
+    clearRequest();
+    clearResponse();    
+    getRequestBuffer().clear();		
+    getResponseBuffer().clear();
+    setRequestComplete(false);    
+    setResponseComplete(false);
+    setByteReadPos(0);
+    setByteSent(0);  };
         ~Client() {std::cout << "Client destructor called" << std::endl;};
 
         int&         getFd() {return (this->_fd);};
@@ -80,12 +93,15 @@ class Client
         void         setByteReadPos(int byte){_byteReadPos = byte;}                
         void         setResponseComplete(bool responseComplete){_responseComplete = responseComplete;}
         bool         getResponseComplete(){return (_responseComplete);}
+        void         setServerIndex(int index){_serverIndex = index;}
+        int          getServerIndex(){return _serverIndex;}   
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
         // void            Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll);
         void         clearClient();    
         
         void sendError(int code, const std::string& reason, const ServerConfig& server);
         void sendUpload();
+        void sendRedirect(const std::string &redir);
 };
 
 void setNonBlocking(int fd);
