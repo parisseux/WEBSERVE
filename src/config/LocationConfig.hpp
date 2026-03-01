@@ -27,6 +27,7 @@ class LocationConfig
 		std::string					_cgiBin;
 		std::string					_cgiExt;
 		std::string					_uploadPath;
+		std::string                 _redirect;
 
 		bool _hasRoot;
 		bool _hasIndex;
@@ -37,6 +38,7 @@ class LocationConfig
 		bool _hasCgiBin;
 		bool _hasCgiExt;
 		bool _hasUploadPath;
+		bool _hasRedirect;
 
 	public:
 		LocationConfig()
@@ -44,7 +46,7 @@ class LocationConfig
 					_autoindex(false), _hasAutoindex(false),
 					_hasAllowMethods(false), _hasMaxBodySize(false),
 					_hasCgiBin(false), _hasCgiExt(false),
-					_hasUploadPath(false)
+					_hasUploadPath(false), _hasRedirect(false)
 				{/*std::cout << "Location Config constructor called" << std::endl;*/};
 		~LocationConfig() {/*std::cout << "Location Config destructor called" << std::endl;*/};
 
@@ -57,6 +59,7 @@ class LocationConfig
 		const std::string&               getCgiBin() const {return (_cgiBin);};
 		const std::string&				 getCgiExt() const {return (_cgiExt);};
 		const std::string&               getUploadPath() const {return (_uploadPath);};
+		const std::string&               getRedirect() const {return (_redirect);};
 		const bool&                      getHasRoot() const {return (_hasRoot);};
 		const bool&                      getHasIndex() const {return (_hasIndex);};
 		const bool&                      getAutoIndex() const {return (_autoindex);};
@@ -64,6 +67,7 @@ class LocationConfig
 		const bool&                      getHasAllowMethods() const {return (_hasAllowMethods);};
 		const bool&                      getHasMaxBodySize() const {return (_hasMaxBodySize);};
 		const bool&                      getHasUploadPath() const {return (_hasUploadPath);};
+		const bool&                      getHasRedirect() const {return (_hasRedirect);};
 		const bool&                      getHasCgiBin() const {return (_hasCgiBin);};
 		const bool&                      getHasCgiExt() const {return (_hasCgiExt);};
 
@@ -89,6 +93,7 @@ class LocationConfig
 		void parseLocationCgiExt(const std::string& s);
 		void parseLocationLine(const std::string &s);
 		void parseLocationUploadPath(const std::string &s);
+		void parseRedict(const std::string &s);
 		
 		void parseLocationHeader(const std::string &firstLine);
 		void parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine);

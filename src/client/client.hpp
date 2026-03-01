@@ -101,6 +101,7 @@ class Client
         
         void sendError(int code, const std::string& reason, const ServerConfig& server);
         void sendUpload();
+        void sendRedirect(const std::string &redir);
 };
 
 void setNonBlocking(int fd);
