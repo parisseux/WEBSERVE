@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <cctype>
 
-// fonction de debug pour voir les parts faire par chat
+// fonction de debug pour voir les parts faire par CHATGPT
 void Upload::printParts() const
 {
     std::cout << "===== PRINTING PARTS =====" << std::endl;
@@ -83,41 +83,28 @@ int Upload::checkHeader(const LocationConfig &loc, const Request &req)
 {
     if (!parseBoundary(req))
         return 400;
-    std::cout << "good detection of boundary" << std::endl;
     std::string cl = req.getHeader("Content-Length");
     cl.erase(cl.find_last_not_of(" \r\n") + 1);
-    std::cout << "Content length: " << cl << std::endl;
     if (cl.empty())
         return 400;
-    std::cout << "good detection of contente length" << std::endl;
     char *endptr;
     long length = std::strtol(cl.c_str(), &endptr, 10);
     if (*endptr != '\0')
-    {
-        std::cout << "incorrect content lenght" << std::endl;
-        return 400;
-    }   
+        return 400; 
     if (length <= 0)
-    {
-        std::cout << "length is 0 or negativ" << std::endl;
         return 400;
-    }
     if (length > static_cast<long>(loc.getMaxBodySize()))
-    {
-        std::cout << "body size is too big, max body autorized : " << loc.getMaxBodySize() << std::endl;
         return 413;
-    }
     return 200;
 }
 
 int Upload::CheckBodySize(const LocationConfig &loc, const Request &req)
 {
     if (!loc.getHasMaxBodySize())
-        return 0;
-    std::cout << "Body size: " << req.getBody().size() << " Size autorized: " << loc.getMaxBodySize() << std::endl;
+        return 200;
     if (req.getBody().size() > loc.getMaxBodySize())
         return 413;
-    return (0);
+    return (200);
 }
 
 std::string Upload::trim(const std::string& s)
@@ -136,12 +123,10 @@ std::string Upload::extractBoundary(const std::string& contentType)
     size_t pos = contentType.find("boundary=");
     if (pos == std::string::npos)
         return "";
-
     std::string b = contentType.substr(pos + 9);
     size_t sc = b.find(';');
     if (sc != std::string::npos)
         b = b.substr(0, sc);
-
     b = trim(b);
     if (b.size() >= 2)
     {
@@ -158,7 +143,6 @@ std::map<std::string, std::string> Upload::FillHeaders(const std::string& header
     std::map<std::string, std::string> headers;
     std::stringstream ss(headerStr);
     std::string line;
-
     while (std::getline(ss, line))
     {
         if (!line.empty() && line[line.size() - 1] == '\r')
@@ -199,7 +183,7 @@ bool Upload::isSafeFilename(const std::string& name)
 void Upload::ProcessParts()
 {
     _uploadedFiles.clear();
-    printParts();
+    // printParts();
     for (size_t i = 0; i < _parts.size(); ++i)
     {
         Part &p = _parts[i];
@@ -231,7 +215,6 @@ void Upload::ProcessParts()
             std::cerr << "Unsafe filename rejected: " << filename << std::endl;
             continue;
         }
-
         //la je vais crer le fichier et remplir avec content
         std::string path = _uploadDir + "/" + filename;
         if (access(path.c_str(), F_OK) == 0)
@@ -245,14 +228,12 @@ void Upload::ProcessParts()
             std::cerr << "Cannot write file: " << path << std::endl;
             continue;
         }
-
         ofs.write(
             reinterpret_cast<const char*>(p.content.data()),
             p.content.size()
         );
         ofs.close();
         _uploadedFiles.push_back(filename);
-
         //debug
         std::cout << "Uploaded file: " << filename << " (" << p.content.size() << " bytes)" << std::endl;
     }
@@ -265,7 +246,6 @@ void Upload::ParseBody(const Request &req)
     const std::vector<unsigned char> &body = req.getBodyBinary();
     size_t pos = 0;
     static const unsigned char sep[] = {'\r','\n','\r','\n'};
-
     while (1)
     {
         std::vector<unsigned char>::const_iterator it =
@@ -302,27 +282,27 @@ void Upload::ParseBody(const Request &req)
     std::cout << "Parsing of body finish" << std::endl;
 }
 
-Response Upload::Handle(const LocationConfig &loc, const Request &req)
+int Upload::Handle(const LocationConfig &loc, const Request &req)
 {
     if (!loc.getHasUploadPath())
-        return (Response::Error(400, "Bad Request"));
+        return (400);
     _uploadDir = loc.getUploadPath();
     int status = checkHeader(loc, req);
     if (status == 400)
-        return (Response::Error(400, "Bad Request"));
+        return (400);
     if (status == 413)
-        return (Response::Error(413, "Request entity too large"));
+        return 413;
     if (!dirExists(_uploadDir))
-        return Response::Error(500, "Upload folder does not exist"); 
+        return 500;
     if (!canWrite(_uploadDir))
-        return Response::Error(403, "No write permission in upload folder");
+        return 403;
 
     // ----SI ON FAIT AVEC LA VRAI REQUEST RECU------
     // chercher la boundaries dans le header
     std::string contentType = req.getHeader("Content-Type");
     std::string boundary = extractBoundary(contentType);
     if (boundary.empty())
-        return Response::Error(400, "Bad Request (missing boundary)"); 
+        return 400;
     std::string delimiterStr = "--" + boundary;
     _delimiter = std::vector<unsigned char>(delimiterStr.begin(), delimiterStr.end());   
 
@@ -332,6 +312,7 @@ Response Upload::Handle(const LocationConfig &loc, const Request &req)
     ParseBody(req);
     ProcessParts();
 
-    Response res;
-    return (res.buildUploadResponse(_uploadedFiles));
+    // Response res_temp;
+    // res = res_temp.buildUploadResponse(_uploadedFiles);
+    return 200;
 }

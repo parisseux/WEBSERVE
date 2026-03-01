@@ -5,6 +5,8 @@
 # include <string>
 # include <vector>
 # include <fcntl.h>
+# include <fstream>
+# include <sstream>
 # include <deque>
 # include "../request/Request.hpp"
 # include "../response/Response.hpp"
@@ -31,16 +33,30 @@ class Client
         int         _fd;
         int         _cgi_fd;
         int         _flags;
+        int         _serverIndex;
         Request     _request;
         Response    _response;
         std::string _requestBuffer;
         std::deque<std::string> _responseBuffer;
         bool        _responseComplete;
         bool        _requestComplete;
-        int         _byteSentPos;
+        ssize_t         _byteReadPos;
+        ssize_t         _byteSent;        
         ClientState _state;    
     public:
-        Client() {std::cout << "Client constructor called" << std::endl;};
+        Client() {std::cout << "Client constructor called" << std::endl;
+    setFd(-1);
+    setCgiFd(-1);
+    setServerIndex(-1);
+    setClientState(WAITING);    
+    clearRequest();
+    clearResponse();    
+    getRequestBuffer().clear();		
+    getResponseBuffer().clear();
+    setRequestComplete(false);    
+    setResponseComplete(false);
+    setByteReadPos(0);
+    setByteSent(0);  };
         ~Client() {std::cout << "Client destructor called" << std::endl;};
 
         int&         getFd() {return (this->_fd);};
@@ -69,13 +85,23 @@ class Client
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
         int          getCgiFd(){return(_cgi_fd);}
-        void         addByteSentPos(int byte){_byteSentPos += byte;}
-        int          getByteSentPos(){return _byteSentPos;} 
-        void         setByteSentPos(int byte){_byteSentPos = byte;}       
+        void         addByteReadPos(int byte){_byteReadPos += byte;}
+        void         addByteSent(int byte){_byteSent += byte;}        
+        ssize_t      getByteSent(){return _byteSent;}
+        void         setByteSent(int byte){_byteSent = byte;}
+        ssize_t      getByteReadPos(){return _byteReadPos;} 
+        void         setByteReadPos(int byte){_byteReadPos = byte;}                
         void         setResponseComplete(bool responseComplete){_responseComplete = responseComplete;}
         bool         getResponseComplete(){return (_responseComplete);}
+        void         setServerIndex(int index){_serverIndex = index;}
+        int          getServerIndex(){return _serverIndex;}   
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
-        void         clearClient();      
+        // void            Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll);
+        void         clearClient();    
+        
+        void sendError(int code, const std::string& reason, const ServerConfig& server);
+        void sendUpload();
+        void sendRedirect(const std::string &redir);
 };
 
 void setNonBlocking(int fd);

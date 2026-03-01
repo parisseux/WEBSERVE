@@ -15,6 +15,7 @@ class ServerConfig;
 class LocationConfig;
 class Client;
 
+
 class StaticTarget {
 private:
     std::string getContentType(const std::string& path);
@@ -22,8 +23,10 @@ private:
     std::string JoinPath(const std::string &root, const std::string &relativPath);
     std::string GetRelativPath(const std::string &reqPath, const std::string &locPath);
     std::string GetEffectiveRoot(const ServerConfig &server, const LocationConfig &loc);
+    bool IsLocationPrefix(const std::string& reqPath, const std::string& locPath);
+    bool ContainsDotDotSegment(const std::string& rel);
 public:
-    void BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res);
+    int BuildStaticResponse(const Request& req, const ResolvedTarget& target, Client *client, Response &res);
     ResolvedTarget ResolveStaticTarget(const Request &req, const ServerConfig &server, const LocationConfig &loc);
 };
 
