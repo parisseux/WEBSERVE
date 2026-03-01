@@ -135,11 +135,14 @@ void Client::Handle(Request &req, const std::vector<LocationConfig>& locations, 
 
     else if (req.getMethod() == "DELETE")
     {
+        Response res;
         std::cout << "Let's delete this shit" << std::endl;
-        std::cout << client->getRequestBuffer() << std::endl;
-        req.displayRequest();
+        // req.displayRequest();
         Delete del;
         del.isFileExisting(req);
+        client->getResponseBuffer().push_front(res.buildDeleteResponse().constructResponse());
+        client->setResponseComplete(true);
+        return ;
     }
 
     // upload handler (="POST") va venir écrire dans un fichiers

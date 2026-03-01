@@ -24,19 +24,28 @@ Response Response::buildUploadResponse(const std::vector<std::string>& files)
     return res;
 }
 
+Response Response::buildDeleteResponse()
+{
+    this->setStatus(204);
+    this->setHeader("Content-Length", "0");
+    return (*this);
+}
+
 std::string Response::makeStatusLine(int code)
 {
         if (code == 200)
             return "HTTP/1.0 200 OK";
-        if (code == 400)
+        else if (code == 204)
+            return ("HTTP/1.0 204 No Content");
+        else if (code == 400)
             return "HTTP/1.0 400 Bad Request";
-        if (code == 403)
+        else if (code == 403)
             return "HTTP/1.0 403 Forbidden";
-        if (code == 404)
+        else if (code == 404)
             return "HTTP/1.0 404 Not Found";
-        if (code == 405)
+        else if (code == 405)
             return "HTTP/1.0 405 Method Not Allowed";
-        if (code == 501)
+        else if (code == 501)
             return "HTTP/1.0 501 Not Implemented";
         return "HTTP/1.0 500 Internal Server Error";
 }

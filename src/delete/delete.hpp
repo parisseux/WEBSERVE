@@ -8,12 +8,12 @@
 # include <fstream>
 # include <vector>
 # include <algorithm>
+# include <cstdio>
 # include "../response/Response.hpp"
 # include "../config/LocationConfig.hpp"
 
 class Delete
 {
-    private:
     public:
         int isFileExisting(const Request& req);
 };
