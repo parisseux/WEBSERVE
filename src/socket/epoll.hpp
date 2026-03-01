@@ -57,6 +57,7 @@ class Epoll
         void generatePendingResponse(std::vector<ServerConfig> &servers);
         void formatingchunk(Client *client, std::string bufferString); 
         void printClientMap();
+        void deleteClient();
 };
 
 #endif

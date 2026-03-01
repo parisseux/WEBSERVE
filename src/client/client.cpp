@@ -58,16 +58,15 @@ void Client::clearResponse()
 
 void Client::clearClient()
 {
-    setRequestComplete(false);
+    setClientState(WAITING);    
     clearRequest();
-    getRequestBuffer().clear();
-    clearResponse();							
+    clearResponse();    
+    getRequestBuffer().clear();		
     getResponseBuffer().clear();
-    setClientState(WAITING);
+    setRequestComplete(false);    
     setResponseComplete(false);
     setByteReadPos(0);
-    setByteSent(0); 
-    close(this->getFd());    
+    setByteSent(0);   
 }
 
 void         Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
