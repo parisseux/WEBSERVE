@@ -61,7 +61,7 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
     {
         this->setStatus(404);
         this->setHeader("content-Type", "text/plain");
-        // this->setHeader("content-Length", "t");
+        this->setHeader("Content-Length", "0");
     }
     // if (this->getStatus() == 200)
     //     this->makeDeleteBody();
