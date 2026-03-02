@@ -100,12 +100,6 @@ void Cgi::MakeCgiEnv(Request &req)
 
 bool Cgi::findCgiLocation(const ServerConfig &server)
 {
-<<<<<<< HEAD
-    std::string root = GetEffectiveRoot(server, loc);
-    std::string rel  = GetRelativPath(req.getPath(), loc.getPath());
-    // std::cout << "ROOT: " << root << std::endl;
-    // std::cout << "REL: " << rel << std::endl;   
-=======
     for (unsigned int i = 0; i < server.getLocations().size(); ++i)
     {
         if (server.getLocations()[i].getHasCgiBin() == true)
@@ -118,7 +112,6 @@ bool Cgi::findCgiLocation(const ServerConfig &server)
     }
     return true;
 }
->>>>>>> origin/main
 
 void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Epoll &epoll)
 {
@@ -127,12 +120,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
     std::string root = GetEffectiveRoot(server, _cgiLoc);
     std::string rel  = GetRelativPath(req.getPath(), _cgiLoc.getPath());
     _path = JoinPath(root, rel);
-<<<<<<< HEAD
-
-    pid_t   pid;
-=======
     pid_t pid;
->>>>>>> origin/main
     int		pipe_in[2];
     int     pipe_out[2];
 
@@ -158,13 +146,8 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
             close(pipe_in[0]);
             close(pipe_in[1]);
             close(pipe_out[0]);
-<<<<<<< HEAD
-            close(pipe_out[1]);
-            execve(pythonPath, args, _envCgi.data());
-=======
             close(pipe_out[1]);                  
             execve(_cgiLoc.getCgiBin().data(), args, _envCgi.data());
->>>>>>> origin/main
             exit(EXIT_SUCCESS);
             break ;
         default:
@@ -173,13 +156,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
             write(pipe_in[1], req.getBody().c_str(), req.getBody().size());
             close(pipe_in[0]);
             close(pipe_in[1]);
-<<<<<<< HEAD
-            close(pipe_out[1]);
-            // res.setStatus(200);
-            // client->getResponseBuffer().push_front(res.AddToResponse());
-=======
             close(pipe_out[1]);                                                        
->>>>>>> origin/main
             int flags = fcntl(pipe_out[0], F_GETFL, 0);
             fcntl(pipe_out[0], F_SETFL, flags | O_NONBLOCK);
             epoll.setEvent(EPOLLIN);
@@ -187,7 +164,3 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
             epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, pipe_out[0], epoll.getEvent());                           
     }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main

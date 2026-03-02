@@ -4,6 +4,7 @@
 # include <iostream>
 # include <fstream>
 # include <string>
+# include <fcntl.h>
 # include <cstdlib>
 # include <arpa/inet.h>
 # include <vector>
@@ -70,7 +71,8 @@ class Response
         void displayResponse();
         std::string constructResponse();
         // Response buildUploadResponse(const std::vector<std::string>& files);
-        Response buildDeleteResponse();
+        void makeDeleteBody();
+        Response buildDeleteResponse(int hasBeenDeleted);
         std::string addBodyToResponseBuffer();
         ssize_t getContentLength();
 };

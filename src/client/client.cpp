@@ -2,7 +2,7 @@
 #include "../response/Response.hpp"
 #include "../cgi/cgi.hpp"
 #include "../response/StaticTarget.hpp"
-#include "../delete/delete.hpp"
+#include "../response/delete.hpp"
 
 bool Client::isUpload()
 {
@@ -148,8 +148,8 @@ void         Client::Handle(Request &req, const std::vector<LocationConfig>& loc
         std::cout << "Let's delete this shit" << std::endl;
         // req.displayRequest();
         Delete del;
-        del.isFileExisting(req);
-        client->getResponseBuffer().push_front(res.buildDeleteResponse().constructResponse());
+        int hasBeenDeleted = del.isFileExisting(req);
+        client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
         client->setResponseComplete(true);
         return ;
     }
@@ -228,6 +228,9 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
     setResponseComplete(true);
 }
 
+// on peut utiliser le sendUpload pour envoyer body pour
+// les autres types de reponses qu on a en faisant un template
+// ou un variable pour le finalPath
 void Client::sendUpload()
 {
     std::string finalPath = "/app/www/siteUpload/index.html";

@@ -1,0 +1,32 @@
+/* Supprime les marges par défaut */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Image de fond */
+body {
+    height: 100vh;
+    background-image: url("background.jpg"); /* mets ton image ici */
+    background-size: cover;          /* couvre toute la page */
+    background-position: center;     /* centre l’image */
+    background-repeat: no-repeat;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Centrage parfait */
+.overlay {
+    height: 100%;
+    display: flex;
+    justify-content: center;  /* centre horizontal */
+    align-items: center;      /* centre vertical */
+}
+
+/* Style du texte */
+h1 {
+    color: white;
+    font-size: 4rem;          /* très grand texte */
+    text-align: center;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7); /* ombre pour meilleure lisibilité */
+}

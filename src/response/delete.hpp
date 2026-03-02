@@ -14,6 +14,8 @@
 
 class Delete
 {
+    private:
+        int _status;
     public:
         int isFileExisting(const Request& req);
 };
