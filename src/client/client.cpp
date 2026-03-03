@@ -307,5 +307,3 @@ html <<
     getResponseBuffer().push_front(res.constructResponse());
     setResponseComplete(true);
 }
-
-

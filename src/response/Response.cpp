@@ -26,7 +26,7 @@
 
 void Response::makeDeleteBody()
 {
-    std::string path = "/app/www/delete/indeex.html";
+    std::string path = "/app/www/delete/index.html";
     std::string body;
 
     int fd = open(path.c_str(), O_RDONLY);
@@ -63,8 +63,6 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
         this->setHeader("content-Type", "text/plain");
         this->setHeader("Content-Length", "0");
     }
-    // if (this->getStatus() == 200)
-    //     this->makeDeleteBody();
     return (*this);
 }
 
