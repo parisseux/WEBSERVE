@@ -196,7 +196,6 @@ void Request::displayRequest() const
     std::cout << "* END OF REQUEST *"<< std::endl;
 }
 
-
 void printBodyDebug(const std::vector<unsigned char>& body)
 {
     std::cout << "Body size = " << body.size() << " bytes\n";

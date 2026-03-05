@@ -146,13 +146,22 @@ void         Client::Handle(Request &req, const std::vector<LocationConfig>& loc
     {
         Response res;
         std::cout << "Let's delete this shit" << std::endl;
-        // req.displayRequest();
+        std::cout << "real http delete request" << std::endl;
+        req.displayRequest();
         Delete del;
         int hasBeenDeleted = del.isFileExisting(req);
         client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
         client->setResponseComplete(true);
         return ;
     }
+    // std::cout << "//------------------------//" << std::endl;
+    // req.displayRequest();
+    // std::cout << "//------------------------//" << std::endl;
+    // else if (req.getMethod() == "POST" && req.getPath() == "/delete")
+    // {
+    //     std::cout << "Let's delete this shit" << std::endl;
+    //     std::cout << "http delete from HTML" << std::endl;
+    // }
 
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
