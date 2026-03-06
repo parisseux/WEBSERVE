@@ -154,14 +154,6 @@ void         Client::Handle(Request &req, const std::vector<LocationConfig>& loc
         client->setResponseComplete(true);
         return ;
     }
-    // std::cout << "//------------------------//" << std::endl;
-    // req.displayRequest();
-    // std::cout << "//------------------------//" << std::endl;
-    // else if (req.getMethod() == "POST" && req.getPath() == "/delete")
-    // {
-    //     std::cout << "Let's delete this shit" << std::endl;
-    //     std::cout << "http delete from HTML" << std::endl;
-    // }
 
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
@@ -181,7 +173,7 @@ void         Client::Handle(Request &req, const std::vector<LocationConfig>& loc
     }
     if(_response.getResponseState() == FIRST_READ)
     {
-        client->getResponseBuffer().push_front(_response.constructResponse().data());
+        client->getResponseBuffer().push_front(_response.constructResponse());
         _response.setResponseState(NEXT_READ);
     }
     else

@@ -36,13 +36,23 @@ function sendDelete(filename) {
     fetch("/uploads/" + encodeURIComponent(filename), {
         method: "DELETE"
     })
-    .then(response => response.text())
+    .then(response => {
+
+        if (response.status === 404) {
+            document.getElementById("result").innerHTML =
+                "<p style='color:red;'>File not found ❌</p>";
+            return null;
+        }
+
+        return response.text();
+    })
     .then(html => {
-        document.body.innerHTML = html;
+        if (html) {
+            document.body.innerHTML = html;
+        }
     });
 }
 
-// Récupère la valeur de l'input et envoie DELETE
 function deleteFromInput() {
     const filename = document.getElementById("filename").value.trim();
     sendDelete(filename);

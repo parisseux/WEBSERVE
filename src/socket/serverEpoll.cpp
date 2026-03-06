@@ -91,7 +91,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         {
             client->setClientState(WAITING);
             client->setRequestComplete(true);
-            // client->getRequestClass().displayRequest(); // affichage requete complete
+            client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
@@ -230,8 +230,8 @@ void Epoll::HandleEpollout()
 {
 	if (_client->getResponseBuffer().empty() == 0)
 	{
-		std::cout << "MESSAGE ENVOYE" << std::endl;
-		std::cout << _client->getResponseBuffer().front() << std::endl;
+		// std::cout << "MESSAGE ENVOYE" << std::endl;
+		// std::cout << _client->getResponseBuffer().front() << std::endl;
 		std::string response = _client->getResponseBuffer().front();
 		_client->getResponseBuffer().pop_front();		
 		ssize_t byteReads = send(_client->getFd(), response.data(), response.size(), 0);
@@ -248,7 +248,7 @@ void Epoll::HandleEpollout()
 				_ev.data.fd = _client->getFd();            
 				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 				_client->clearClient();
-			}
+			}	
 			else
 				deleteClient();	
 		}

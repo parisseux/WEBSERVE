@@ -84,9 +84,9 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
     else if (hasBeenDeleted == -1)
     {
         this->setStatus(404);
-        this->setHeader("content-Type", "text/plain");
         this->setHeader("Content-Length", "0");
     }
+
     return (*this);
 }
 
