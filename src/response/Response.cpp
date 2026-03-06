@@ -55,6 +55,11 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
 {
     if (hasBeenDeleted == 0)
     {
+        this->setStatus(204);
+        this->setHeader("Content-Legth", "0");
+    }
+    else if (hasBeenDeleted == 0)
+    {
         this->setStatus(200);
         // this->setHeader("Content-Length", "0");
         std::string path = "/app/www/delete/index.html";
