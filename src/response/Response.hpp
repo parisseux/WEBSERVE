@@ -71,7 +71,6 @@ class Response
         void displayResponse();
         std::string constructResponse();
         // Response buildUploadResponse(const std::vector<std::string>& files);
-        void makeDeleteBody();
         Response buildDeleteResponse(int hasBeenDeleted);
         std::string addBodyToResponseBuffer();
         ssize_t getContentLength();

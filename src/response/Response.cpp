@@ -24,44 +24,12 @@
 //     return res;
 // }
 
-void Response::makeDeleteBody()
-{
-    std::string path = "/app/www/delete/index.html";
-    std::string body;
-
-    int fd = open(path.c_str(), O_RDONLY);
-    if (fd < 0)
-    {
-        std::cout << "Open failed" << std::endl;
-        close(fd);
-        return ;
-    }
-    else
-    {
-        ssize_t bytes;
-        char buf[4096];
-        while ((bytes = read(fd, buf, sizeof(buf))) > 0)
-            body.append(buf, bytes);
-        close(fd);
-    }
-    std::ostringstream len;
-    len << body.size();
-    this->setBody(body);
-    this->setHeader("Content-Length", len.str());
-
-}
-
 Response Response::buildDeleteResponse(int hasBeenDeleted)
 {
+    // le cas au status 200 est pour un delete reussi avec un body
     if (hasBeenDeleted == 0)
     {
-        this->setStatus(204);
-        this->setHeader("Content-Legth", "0");
-    }
-    else if (hasBeenDeleted == 0)
-    {
         this->setStatus(200);
-        // this->setHeader("Content-Length", "0");
         std::string path = "/app/www/delete/index.html";
         std::string body;
 
@@ -69,8 +37,10 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
         if (fd < 0)
         {
             std::cout << "Open failed" << std::endl;
+            this->setStatus(500);
+            this->setHeader("Content-Length", "0");
             close(fd);
-            // return ;
+            return (*this);
         }
         else
         {
@@ -86,6 +56,11 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
         this->setHeader("Content-Type", "text/html");        
         this->setHeader("Content-Length", len.str());      
     }
+    // else if (hasBeenDeleted == 0)
+    // {
+    //     this->setStatus(204);
+    //     this->setHeader("Content-Length", "0");
+    // }
     else if (hasBeenDeleted == -1)
     {
         this->setStatus(404);
