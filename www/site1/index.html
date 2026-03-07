@@ -29,37 +29,7 @@
     <div id="result"></div>
 </div>
 
-<script>
-function sendDelete(filename) {
-    if (!filename) return;
+<script src="script.js"></script>
 
-    fetch("/uploads/" + encodeURIComponent(filename), {
-        method: "DELETE"
-    })
-    .then(response => {
-
-        if (response.status === 404) {
-            document.getElementById("result").innerHTML =
-                "<p style='color:red;'>File not found ❌</p>";
-            return null;
-        }
-
-        return response.text();
-    })
-    .then(html => {
-        if (html) {
-            document.body.innerHTML = html;
-        }
-    });
-}
-
-function deleteFromInput() {
-    const filename = document.getElementById("filename").value.trim();
-    sendDelete(filename);
-}
-</script>
-
-</body>
-</html>
 </body>
 </html>
