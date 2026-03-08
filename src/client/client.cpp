@@ -145,9 +145,9 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     else if (req.getMethod() == "DELETE")
     {
         Response res;
-        std::cout << "Let's delete this shit" << std::endl;
-        std::cout << "real http delete request" << std::endl;
-        req.displayRequest();
+        // std::cout << "Let's delete this shit" << std::endl;
+        // std::cout << "real http delete request" << std::endl;
+        // req.displayRequest();
         Delete del;
         int hasBeenDeleted = del.isFileExisting(req);
         client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
