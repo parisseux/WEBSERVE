@@ -7,6 +7,7 @@
 # include <iostream>
 # include <fstream>
 # include "../response/Response.hpp"
+# include "../config/Macro.hpp"
 
 class Request;
 class Response;

@@ -10,6 +10,7 @@
 # include "../config/ConfigFile.hpp"
 # include "../response/Response.hpp"
 # include "../request/Request.hpp"
+# include "../config/Macro.hpp"
 
 # include "../cgi/cgi.hpp"
 
@@ -23,7 +24,7 @@ class Epoll
         int                     _epFd;
         int                     _eventWait;
         struct  epoll_event     _ev;
-        struct  epoll_event     _events[10];
+        struct  epoll_event     _events[MAX_CLIENTS];
         std::map<int, Client*>  _clientsMap;
         std::map<int, Cgi*>     _CgiMap;
 		std::map<int, Client*>::iterator _it;

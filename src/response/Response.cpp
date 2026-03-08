@@ -71,18 +71,20 @@ void Response::displayResponse()
     std::map<std::string, std::string>::iterator it = _headers.begin();
     std::cout << "* SERVER JUST create A Response *" << std::endl;
     std::cout << "Status: "<< _status << "\nStatus line: "
-            <<  _statusLine << "\nBody: " << _body << std::endl;
+            <<  _statusLine << std::endl;
     while (it != _headers.end())
     {
         std::cout << it->first << ": " << it->second << std::endl;
         ++it;
     }
+    std::cout << "BODY:" << std::endl;
     if (_body.empty() == 0)
     {
         std::cout << std::endl;
         std::cout << _body;
     }
     std::cout << std::endl;
+    std::cout << "* END OF RESPONSE *" << std::endl;    
 }
 
 std::string Response::constructResponse()

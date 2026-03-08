@@ -99,8 +99,6 @@ void    Request::parseRequest(std::string request)
     std::stringstream request_stream(request);
     std::string line;
 
-    if (!request_stream)
-        throw std::runtime_error("couldn't open the request");
     if (_method.empty())
     {
         parseRequestFirstLine(request_stream);
@@ -199,7 +197,6 @@ void Request::displayRequest() const
 void printBodyDebug(const std::vector<unsigned char>& body)
 {
     std::cout << "Body size = " << body.size() << " bytes\n";
-
     for (size_t i = 0; i < body.size(); i++)
     {
         std::cout  << std::hex

@@ -18,9 +18,10 @@ std::string Cgi::GetEffectiveRoot(const ServerConfig &server, const LocationConf
 //cat.png = /image/cat.png - /images/
 std::string Cgi::GetRelativPath(const std::string &reqPath, const std::string &locPath)
 {
+    (void)locPath;
     std::string relativePath = reqPath;
-    if (relativePath.find(locPath) == 0)
-        relativePath.erase(0, locPath.size());
+    // if (relativePath.find(locPath) == 0)
+    //     relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;

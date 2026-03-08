@@ -11,7 +11,7 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
         return false;
     if (client->getByteReadPos() > 0)
         file.seekg(client->getByteReadPos());
-    char buf[100];
+    char buf[MAX_READ_SIZE];
     file.read(buf, sizeof(buf));
     ssize_t byteRead = file.gcount();
     client->addByteReadPos(byteRead);
@@ -131,9 +131,10 @@ std::string StaticTarget::GetEffectiveRoot(const ServerConfig &server, const Loc
 //cat.png = /image/cat.png - /images/
 std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::string &locPath)
 {
+    (void)locPath;
     std::string relativePath = reqPath;
-    if (IsLocationPrefix(reqPath, locPath))
-        relativePath.erase(0, locPath.size());
+    // if (IsLocationPrefix(reqPath, locPath)) // si on decommente et on ne peut chercher une location
+    //     relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;
@@ -191,7 +192,7 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
         std::string index = path;
         if (!index.empty() && index[index.size() - 1] != '/')
             index += '/';
-        index += "index.html";
+        index += loc.getIndex(); // faudrait prendre ce que le config file a apres index
 
         struct stat stIndex;
 
