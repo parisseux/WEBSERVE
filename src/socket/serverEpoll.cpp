@@ -87,10 +87,11 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
             HeaderEnd(client);
         if (client->getClientState() != READING_BODY)
             client->setClientState(READING_HEADER);
-    }    
+    }
     if (client->getClientState() == READING_BODY)
     {
-        if (client->getRequestClass().getMethod() == "GET")
+        if (client->getRequestClass().getMethod() == "GET"
+			|| client->getRequestClass().getMethod() == "DELETE")
         {
             client->setClientState(WAITING);
             client->setRequestComplete(true);
@@ -267,7 +268,7 @@ void Epoll::HandleEpollout()
 				_ev.data.fd = _client->getFd();            
 				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 				_client->clearClient();
-			}
+			}	
 			else
 			{						
 				deleteClient();
@@ -296,7 +297,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 			_ev.data.fd = _client->getFd();            
 			epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 		}
-	}		
+	}
 }
 
 void Epoll::closeCgiFd()
@@ -360,4 +361,3 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	}
 	return;
 }
-

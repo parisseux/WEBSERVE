@@ -44,4 +44,4 @@ public:
     int Handle(const LocationConfig &loc, const Request &req);
 };
 
-#endif 
+#endif

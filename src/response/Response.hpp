@@ -4,6 +4,7 @@
 # include <iostream>
 # include <fstream>
 # include <string>
+# include <fcntl.h>
 # include <cstdlib>
 # include <arpa/inet.h>
 # include <vector>
@@ -12,7 +13,6 @@
 # include <sys/stat.h>
 # include <fstream>
 # include <sstream>
-
 # include "../request/Request.hpp"
 
 enum TargetType {
@@ -58,18 +58,20 @@ class Response
         void setStatus(int code);
         void setHeader(const std::string& k, const std::string& v);
         void setBody(const std::string& b);
+        void setResponseState(ResponseState state){_state = state;}        
+        static std::string makeStatusLine(int code);
 
         int getStatus() { return _status; }
         std::string& getStatusLine() { return _statusLine; }
         std::map<std::string, std::string>& getHeaders() { return _headers; }
         std::string& getBody() { return _body; }
         ResponseState& getResponseState(){return _state;}
-        void setResponseState(ResponseState state){_state = state;}        
-        static std::string makeStatusLine(int code);
+        
         static Response Error(int code, const std::string &s);
         void displayResponse();
         std::string constructResponse();
-    // Response buildUploadResponse(const std::vector<std::string>& files);
+        // Response buildUploadResponse(const std::vector<std::string>& files);
+        Response buildDeleteResponse(int hasBeenDeleted);
         std::string addBodyToResponseBuffer();
         ssize_t getContentLength();
 };

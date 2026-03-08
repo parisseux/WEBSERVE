@@ -11,7 +11,11 @@ bool StaticTarget::ReadFile(const std::string &path, std::string &content, Clien
         return false;
     if (client->getByteReadPos() > 0)
         file.seekg(client->getByteReadPos());
+<<<<<<< HEAD
     char buf[MAX_READ_SIZE];
+=======
+    char buf[32 * 1024];
+>>>>>>> origin/main
     file.read(buf, sizeof(buf));
     ssize_t byteRead = file.gcount();
     client->addByteReadPos(byteRead);
@@ -133,7 +137,11 @@ std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::
 {
     (void)locPath;
     std::string relativePath = reqPath;
+<<<<<<< HEAD
     // if (IsLocationPrefix(reqPath, locPath)) // si on decommente et on ne peut chercher une location
+=======
+    // if (IsLocationPrefix(reqPath, locPath))
+>>>>>>> origin/main
     //     relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);

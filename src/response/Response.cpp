@@ -24,19 +24,67 @@
 //     return res;
 // }
 
+Response Response::buildDeleteResponse(int hasBeenDeleted)
+{
+    // le cas au status 200 est pour un delete reussi avec un body
+    if (hasBeenDeleted == 0)
+    {
+        this->setStatus(200);
+        std::string path = "/app/www/delete/index.html";
+        std::string body;
+
+        int fd = open(path.c_str(), O_RDONLY);
+        if (fd < 0)
+        {
+            std::cout << "Open failed" << std::endl;
+            this->setStatus(500);
+            this->setHeader("Content-Length", "0");
+            close(fd);
+            return (*this);
+        }
+        else
+        {
+            ssize_t bytes;
+            char buf[4096];
+            while ((bytes = read(fd, buf, sizeof(buf))) > 0)
+                body.append(buf, bytes);
+            close(fd);
+        }
+        std::ostringstream len;
+        len << body.size();
+        this->setBody(body);
+        this->setHeader("Content-Type", "text/html");        
+        this->setHeader("Content-Length", len.str());      
+    }
+    // else if (hasBeenDeleted == 0)
+    // {
+    //     this->setStatus(204);
+    //     this->setHeader("Content-Length", "0");
+    // }
+    else if (hasBeenDeleted == -1)
+    {
+        this->setStatus(404);
+        this->setHeader("Content-Length", "0");
+    }
+
+    return (*this);
+}
+
 std::string Response::makeStatusLine(int code)
 {
         if (code == 200)
             return "HTTP/1.0 200 OK";
-        if (code == 400)
+        else if (code == 204)
+            return ("HTTP/1.0 204 No Content");
+        else if (code == 400)
             return "HTTP/1.0 400 Bad Request";
-        if (code == 403)
+        else if (code == 403)
             return "HTTP/1.0 403 Forbidden";
-        if (code == 404)
+        else if (code == 404)
             return "HTTP/1.0 404 Not Found";
-        if (code == 405)
+        else if (code == 405)
             return "HTTP/1.0 405 Method Not Allowed";
-        if (code == 501)
+        else if (code == 501)
             return "HTTP/1.0 501 Not Implemented";
         return "HTTP/1.0 500 Internal Server Error";
 }

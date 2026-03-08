@@ -126,14 +126,14 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
     int     pipe_out[2];
 
     char *args[] = {
-        (char*)"python3", 
+        (char*)"python3",
         (char*)_path.c_str(), 
-        NULL 
+        NULL
     };
     
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
         std::cout << "Pipe function error" << std::endl;
-    MakeCgiEnv(req);      
+    MakeCgiEnv(req);
     pid = fork();
     switch (pid)
     {
@@ -143,7 +143,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
         case 0:
             // std::cout << "Child Process" << std::endl;      
             dup2(pipe_in[0], STDIN_FILENO);
-            dup2(pipe_out[1], STDOUT_FILENO);   
+            dup2(pipe_out[1], STDOUT_FILENO);
             close(pipe_in[0]);
             close(pipe_in[1]);
             close(pipe_out[0]);
@@ -154,7 +154,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
         default:
             // std::cout << "Parent Process" << std::endl;
             client->setCgiFd(pipe_out[0]);
-            write(pipe_in[1], req.getBody().c_str(), req.getBody().size());  
+            write(pipe_in[1], req.getBody().c_str(), req.getBody().size());
             close(pipe_in[0]);
             close(pipe_in[1]);
             close(pipe_out[1]);                                                        
@@ -165,4 +165,3 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
             epoll_ctl(epoll.getEpFd(), EPOLL_CTL_ADD, pipe_out[0], epoll.getEvent());                           
     }
 }
-
