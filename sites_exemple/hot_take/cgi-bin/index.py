@@ -28,6 +28,10 @@ form = cgi.FieldStorage()
 new_title = form.getvalue('title')
 new_content = form.getvalue('content')
 
+# counter = 0
+# while True:
+#   counter +=1
+
 if new_title and new_content:
     if os.path.exists(DB_FILE):
         with open(DB_FILE, 'r', encoding='utf-8') as f:

@@ -56,6 +56,7 @@ class Epoll
         void HandleEpollout();
         void closeCgiFd();
         void generatePendingResponse(std::vector<ServerConfig> &servers);
+        void handlingTimeout(std::vector<ServerConfig> &servers);
         void formatingchunk(Client *client, std::string bufferString); 
         void printClientMap();
         void deleteClient();

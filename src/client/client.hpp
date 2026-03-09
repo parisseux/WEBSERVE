@@ -10,6 +10,7 @@
 # include <deque>
 # include "../request/Request.hpp"
 # include "../response/Response.hpp"
+# include <ctime>
 
 # define MAX_PENDING 20
 
@@ -32,7 +33,9 @@ class Client
     private:
         int         _fd;
         int         _cgi_fd;
+        pid_t       _cgiPid;
         int         _flags;
+        time_t      _timeout;
         int         _serverIndex;
         Request     _request;
         Response    _response;
@@ -47,7 +50,9 @@ class Client
         Client() {std::cout << "Client constructor called" << std::endl;
     setFd(-1);
     setCgiFd(-1);
+    setCgiPid(-1);
     setServerIndex(-1);
+    setTimeout(std::time(NULL));
     setClientState(WAITING);    
     clearRequest();
     clearResponse();    
@@ -85,6 +90,8 @@ class Client
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
         int          getCgiFd(){return(_cgi_fd);}
+        void         setCgiPid(pid_t pid){_cgiPid = pid;}
+        pid_t        getCgiPid(){return _cgiPid;}        
         void         addByteReadPos(int byte){_byteReadPos += byte;}
         void         addByteSent(int byte){_byteSent += byte;}        
         ssize_t      getByteSent(){return _byteSent;}
@@ -95,6 +102,8 @@ class Client
         bool         getResponseComplete(){return (_responseComplete);}
         void         setServerIndex(int index){_serverIndex = index;}
         int          getServerIndex(){return _serverIndex;}   
+        void         setTimeout(time_t timeout){_timeout = timeout;}
+        time_t       getTimeout(){return _timeout;}
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
         // void            Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll);
         void         clearClient();    

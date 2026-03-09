@@ -141,7 +141,6 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
             return;
         }
     }
-
     else if (req.getMethod() == "DELETE")
     {
         Response res;
