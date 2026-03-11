@@ -1,11 +1,18 @@
 #include "delete.hpp"
 
-int Delete::isFileExisting(const Request& req)
+int Delete::isFileExisting(const Request& req, const LocationConfig &loc)
 {
-    std::string path = "." + req.getRequestTarget();
-
+    if (!loc.getHasUploadPath())
+    {
+        std::cout << "pas de upload path" << std::endl;
+        return (400);
+    }
+    _uploadDir =  loc.getUploadPath();
+    std::string path = _uploadDir + req.getRequestTarget();
+    std::cout << "REQUEST TARGET"  << req.getPath() << std::endl;
+    std::cout << "PAAAAAATH:" << path << std::endl;
     // Vérifie si le fichier existe
-    if (access(path.c_str(), F_OK) != 0)
+    if (access(_uploadDir.c_str(), F_OK) != 0)
     {
         std::cout << "File does not exist: " << path << std::endl;
         return -1;

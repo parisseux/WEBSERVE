@@ -121,6 +121,7 @@ void    Request::parseRequestFirstLine(std::stringstream &stream)
         _requestTarget = _requestTarget.substr(0, found);
     }
     _path = _requestTarget;
+    std::cout << "DEBUG" << _path << std::endl;
     stream >> word;    
     _protocol = word;
 }
