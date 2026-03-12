@@ -196,15 +196,15 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
     std::string path = server.getErrorPage(code);
     std::string body;
     std::string finalPath;
-    if (path.empty())
-        finalPath = "/app/www/errors/default.html"; // voir si il faudrait pas un path codé dans le config file
+    // if (path.empty())
+        // finalPath = "/app/www/errors/default.html"; // voir si il faudrait pas un path codé dans le config file
+    // else
+    // {
+    if (!path.empty() && path[0] == '/')
+        finalPath = server.getRoot() + path;
     else
-    {
-        if (!path.empty() && path[0] == '/')
-            finalPath = server.getRoot() + path;
-        else
-            finalPath = path;
-    }
+        finalPath = path;
+    // }
     int fd = open(finalPath.c_str(), O_RDONLY);
     if (fd >= 0)
     {
@@ -226,8 +226,6 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
         body = ss.str();
     }
     Response res;
-    std::cout << "LE PATH" << std::endl;
-    std::cout << finalPath << std::endl;
     std::cout << "Code:  " << code << std::endl;
     res.setStatus(code);
     res.setBody(body);
