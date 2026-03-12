@@ -93,8 +93,11 @@ int Upload::checkHeader(const LocationConfig &loc, const Request &req)
         return 400; 
     if (length <= 0)
         return 400;
-    if (length > static_cast<long>(loc.getMaxBodySize()))
-        return 413;
+    if (loc.getHasMaxBodySize())
+    {
+        if (length > static_cast<long>(loc.getMaxBodySize()))
+            return 413;
+    } 
     return 200;
 }
 
@@ -103,7 +106,10 @@ int Upload::CheckBodySize(const LocationConfig &loc, const Request &req)
     if (!loc.getHasMaxBodySize())
         return 200;
     if (req.getBody().size() > loc.getMaxBodySize())
-        return 413;
+    {
+        std::cout << loc.getMaxBodySize() << std::endl;
+        return 413;        
+    }
     return (200);
 }
 

@@ -9,13 +9,13 @@
 # include <vector>
 # include <algorithm>
 # include <cstdio>
-# include "../response/Response.hpp"
+# include "Response.hpp"
 # include "../config/LocationConfig.hpp"
 
 class Delete
 {
     private:
-        int _status;
+        // int _status;
     public:
         int isFileExisting(const Request& req);
 };

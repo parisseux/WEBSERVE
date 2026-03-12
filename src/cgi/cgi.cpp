@@ -159,7 +159,6 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
             break ;
         default:
             // std::cout << "Parent Process" << std::endl;
-            throw std::runtime_error("fork error");
             client->setCgiPid(pid);
             client->setCgiFd(pipe_out[0]);
             write(pipe_in[1], req.getBody().c_str(), req.getBody().size());
