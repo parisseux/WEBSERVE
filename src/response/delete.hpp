@@ -18,7 +18,7 @@ class Delete
         int _status;
         std::string _uploadDir;
     public:
-        int isFileExisting(const Request& req, const LocationConfig &loc);
+        int isFileExisting(const Request& req);
 };
 
 #endif
