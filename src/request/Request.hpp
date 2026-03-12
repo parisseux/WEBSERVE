@@ -78,7 +78,7 @@ class Request
 
         void setMethod(std::string method);
         void setTarget(std::string target);
-        void setPath(std::string path);
+        void setPath(std::string path){_path = path;}
         void setQuery(std::string query);
         void setProtocol(std::string protocol);
         // void setBody(const std::string &s);

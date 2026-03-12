@@ -139,9 +139,13 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 		size_t pos = bufferString.find("\r");
 		if (pos == std::string::npos)
 		{
-			std::cout << "No found of the new line after header" << std::endl;
-			client->setResponseComplete(false);
-			return ;
+			pos = bufferString.find("\n");
+			if (pos == std::string::npos)
+			{
+				std::cout << "No found of the new line after header" << std::endl;
+				client->setResponseComplete(false);
+				return ;
+			}
 		}
 		std::string headerPart = bufferString.substr(0, pos);
 		std::string chunk;
@@ -265,6 +269,10 @@ void Epoll::HandleEpollout()
 		_client->setTimeout(std::time(NULL));
 		if (byteReads == -1)
 			throw std::runtime_error("Error occurs during the send function (EPOLLOUT)\n");
+		if (byteReads == 0 && _client->getResponseComplete() == false)
+		{
+			_client->setClientState(GENERATING_RESPONSE);
+		}
 		if (_client->getResponseBuffer().empty() && _client->getResponseComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
 		{
 			std::cout << "send finished" << std::endl;
@@ -297,13 +305,17 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 			}
 			catch (const std::exception& e) {
 				std::cerr << e.what() << '\n';
-				deleteClient();						
-			}
-			if (_client->getResponseBuffer().empty() == 0)
-			{
+				_client->sendError(500, "Internal Servor Error", servers[_client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
 				_ev.data.fd = _client->getFd();            
+				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);			
+			}
+			if (_client->getResponseBuffer().empty() == 0)
+			{
+				// _client->setClientState(SENDING_RESPONSE); // marche pas pour le moment
+				_ev.events = EPOLLOUT | EPOLLRDHUP;
+				_ev.data.fd = _client->getFd();         
 				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 			}
 		}

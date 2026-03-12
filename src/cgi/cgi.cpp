@@ -41,16 +41,22 @@ std::string Cgi::JoinPath(const std::string &root, const std::string &relativPat
     return r + "/" + p;
 }
 
-bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig &loc)
+bool isCgi(Request &req, const ServerConfig &server, const LocationConfig &loc)
 {
-    Cgi cgi; 
-    std::string root = cgi.GetEffectiveRoot(server, loc);
-    std::string rel  = cgi.GetRelativPath(req.getPath(), loc.getPath());
-    std::string path = cgi.JoinPath(root, rel);    
-    size_t dot = path.rfind('.');
-    std::string ext = path.substr(dot + 1);
+    StaticTarget st;
+    ResolvedTarget target = st.ResolveStaticTarget(req, server, loc);
+    size_t dot = target.path.rfind('.');
+    std::string ext = target.path.substr(dot + 1);
     if (ext == "py")
-        return (true);
+    {
+        // req.setPath(target.path);        
+        return true;
+    }    
+    // if (target.status != 200)
+    // {
+    //     client->sendError(target.status, target.reason, server);
+    //     return target.status;
+    // }       
     return (false);
 }
 
@@ -61,7 +67,7 @@ void Cgi::readFd(int fd, std::string &content)
     while ((byteRead = read(fd, buff, 100)) > 0)
     {
         if (byteRead == 0)
-            break;
+            break ;
         buff[byteRead] = '\0';
         std::string buffString(buff);
         content += buffString;
@@ -118,9 +124,9 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
 {
     if (findCgiLocation(server) == false)
         return ;
-    std::string root = GetEffectiveRoot(server, _cgiLoc);
-    std::string rel  = GetRelativPath(req.getPath(), _cgiLoc.getPath());
-    _path = JoinPath(root, rel);
+    // std::string root = GetEffectiveRoot(server, _cgiLoc);
+    // std::string rel  = GetRelativPath(req.getPath(), _cgiLoc.getPath());
+    _path = req.getPath();
     pid_t pid;
     int		pipe_in[2];
     int     pipe_out[2];
@@ -132,13 +138,13 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
     };
     
     if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
-        std::cout << "Pipe function error" << std::endl;
+        throw std::runtime_error("Pipe function error");  
     MakeCgiEnv(req);
     pid = fork();
     switch (pid)
     {
         case -1:
-            std::cout << "fork error" << std::endl;
+            throw std::runtime_error("fork error");
             break ;
         case 0:
             // std::cout << "Child Process" << std::endl;      
@@ -153,6 +159,7 @@ void Cgi::handleCgi(Request &req, const ServerConfig &server, Client *client, Ep
             break ;
         default:
             // std::cout << "Parent Process" << std::endl;
+            throw std::runtime_error("fork error");
             client->setCgiPid(pid);
             client->setCgiFd(pipe_out[0]);
             write(pipe_in[1], req.getBody().c_str(), req.getBody().size());

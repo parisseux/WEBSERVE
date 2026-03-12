@@ -195,7 +195,7 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
         index += loc.getIndex(); // faudrait prendre ce que le config file a apres index
 
         struct stat stIndex;
-
+             
         //cas ou on trouve index.html 
         if (stat(index.c_str(), &stIndex) == 0 && S_ISREG(stIndex.st_mode))
         {
@@ -215,7 +215,7 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
         r.path = path;
         r.st = st;
         r.type = AUTO_INDEX_TARGET;
-        return r;        
+        return r;          
     }
     //fichier normal, cad quon peut open()
     if (!S_ISREG(st.st_mode))

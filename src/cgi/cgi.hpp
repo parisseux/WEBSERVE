@@ -31,6 +31,6 @@ class Cgi
         std::string JoinPath(const std::string &root, const std::string &relativPath);
         bool findCgiLocation(const ServerConfig &server);
 };
-    bool isCgi(const Request &req, const ServerConfig &server, const LocationConfig &loc);
+    bool isCgi(Request &req, const ServerConfig &server, const LocationConfig &loc);
 
 #endif

@@ -101,6 +101,14 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     if (isCgi(req, server, *loc))
     {
+        StaticTarget st;
+        ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);        
+        if (target.status != 200)
+        {
+            client->sendError(target.status, target.reason, server);
+            return;
+        }
+        req.setPath(target.path);
         Cgi cgi;
         cgi.handleCgi(req, server, client, epoll);
         client->setClientState(GENERATING_CGI);
@@ -108,6 +116,7 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     if (req.getMethod() == "POST")
     {
+        std::cout << "UPLOAD" << std::endl; 
         Upload up;
         status = up.CheckBodySize(*loc, req);
         if (status != 200)
@@ -217,6 +226,8 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
         body = ss.str();
     }
     Response res;
+    std::cout << "LE PATH" << std::endl;
+    std::cout << finalPath << std::endl;
     std::cout << "Code:  " << code << std::endl;
     res.setStatus(code);
     res.setBody(body);
@@ -233,6 +244,7 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
 // ou un variable pour le finalPath
 void Client::sendUpload()
 {
+    std::cout << "SEND UPLOAD" << std::endl;
     std::string finalPath = "/app/www/siteUpload/index.html";
     std::string body;
 
