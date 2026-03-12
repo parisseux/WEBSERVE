@@ -4,53 +4,6 @@
 #include <iomanip>
 #include <cctype>
 
-// fonction de debug pour voir les parts faire par CHATGPT
-void Upload::printParts() const
-{
-    std::cout << "===== PRINTING PARTS =====" << std::endl;
-
-    for (size_t i = 0; i < _parts.size(); ++i)
-    {
-        const Part &p = _parts[i];
-
-        std::cout << "\n--- Part " << i + 1 << " ---" << std::endl;
-
-        // 🔹 Print headers
-        std::cout << "[Headers]" << std::endl;
-        for (std::map<std::string, std::string>::const_iterator it = p.headers.begin();
-             it != p.headers.end(); ++it)
-        {
-            std::cout << it->first << ": " << it->second << std::endl;
-        }
-
-        // 🔹 Print content size
-        std::cout << "\n[Content size] "
-                  << p.content.size() << " bytes" << std::endl;
-
-        // 🔹 Print content preview (safe for binary)
-        std::cout << "[Content preview]" << std::endl;
-
-        size_t previewSize = std::min((size_t)100, p.content.size());
-
-        for (size_t j = 0; j < previewSize; ++j)
-        {
-            unsigned char c = p.content[j];
-
-            if (std::isprint(c))
-                std::cout << c;
-            else
-                std::cout << ".";
-        }
-
-        if (p.content.size() > previewSize)
-            std::cout << "...";
-
-        std::cout << std::endl;
-    }
-
-    std::cout << "\n===== END =====" << std::endl;
-}
-
 
 bool Upload::dirExists(const std::string &path)
 {

@@ -86,6 +86,8 @@ std::string Response::makeStatusLine(int code)
             return "HTTP/1.0 405 Method Not Allowed";
         else if (code == 501)
             return "HTTP/1.0 501 Not Implemented";
+        else if (code == 301)
+            return "HTTP/1.0 301 Moved Permanently";
         return "HTTP/1.0 500 Internal Server Error";
 }
 
