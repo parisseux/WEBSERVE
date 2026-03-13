@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sloth Upload - Site 2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+    <div class="emoji">🦥☁️</div>
+    <h1>Site 2</h1>
+    <p>Upload & delete files — simple and sleepy 💗</p>
+
+    <!-- Upload form (inchangé) -->
+    <h3 class="section-title">Upload</h3>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload 🦥</button>
+    </form>
+
+    <hr>
+
+    <!-- Delete section -->
+    <h3 class="section-title">Delete</h3>
+    <input type="text" id="filename" placeholder="Filename to delete (example.txt)" required>
+    <button class="danger" type="button" onclick="deleteFromInput()">Delete 🗑</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function sendDelete(filename) {
+    if (!filename) return;
+
+    fetch("/uploads/" + encodeURIComponent(filename), {
+        method: "DELETE"
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.body.innerHTML = html;
+    });
+}
+
+// Récupère la valeur de l'input et envoie DELETE
+function deleteFromInput() {
+    const filename = document.getElementById("filename").value.trim();
+    sendDelete(filename);
+}
+</script>
+
+</body>
+</html>
