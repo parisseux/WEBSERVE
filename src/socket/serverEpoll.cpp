@@ -261,8 +261,8 @@ void Epoll::HandleEpollout()
 {
 	if (_client->getResponseBuffer().empty() == 0)
 	{
-		// std::cout << "MESSAGE ENVOYE" << std::endl;
-		// std::cout << _client->getResponseBuffer().front() << std::endl;
+		std::cout << "MESSAGE ENVOYE" << std::endl;
+		std::cout << _client->getResponseBuffer().front() << std::endl;
 		std::string response = _client->getResponseBuffer().front();
 		_client->getResponseBuffer().pop_front();
 		ssize_t byteReads = send(_client->getFd(), response.data(), response.size(), 0);
@@ -298,7 +298,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 	{
 		//std::cout << "MAP CLIENTS SIZE: " << _clientsMap.size() << std::endl;
 		_client = _it->second;
-		if(_client->getClientState() == GENERATING_RESPONSE)
+		if(_client->getClientState() == GENERATING_RESPONSE && _client->getResponseComplete() == false)
 		{
 			try{
 				_client->Handle(_client->getRequestClass(), servers[_client->getServerIndex()].getLocations(),  servers[_client->getServerIndex()], _client, *this);	

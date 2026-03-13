@@ -128,7 +128,8 @@ void ServerConfig::print_attributes()
         std::cout << "    method allowed = " << std::endl;
         for (size_t i = 0; i < loc.getAllowMethods().size(); i++)
             std::cout << loc.getAllowMethods()[i] << std::endl;
-        std::cout << "    max body size =   " << loc.getHasMaxBodySize() << std::endl;
+        std::cout << "    max body size on ? =   " << loc.getHasMaxBodySize() << std::endl;
+        std::cout << "    max body size =   " << loc.getMaxBodySize() << std::endl;        
         std::cout << "    cgi Bin   = " << loc.getCgiBin() << std::endl;
         std::cout << "    cgi Ext   = " << loc.getCgiExt() << std::endl;
     }

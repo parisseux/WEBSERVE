@@ -84,6 +84,8 @@ std::string Response::makeStatusLine(int code)
             return "HTTP/1.0 404 Not Found";
         else if (code == 405)
             return "HTTP/1.0 405 Method Not Allowed";
+        else if (code == 413)
+            return "HTTP/1.0 413 Payload Too Large";
         else if (code == 501)
             return "HTTP/1.0 501 Not Implemented";
         else if (code == 301)
