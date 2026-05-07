@@ -1,7 +1,7 @@
 function sendDelete(filename) {
     if (!filename) return;
 
-    fetch("/uploads/" + encodeURIComponent(filename), {
+    fetch("/upload/" + encodeURIComponent(filename), {
         method: "DELETE"
     })
     .then(response => {
