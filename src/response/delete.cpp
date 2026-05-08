@@ -1,8 +1,10 @@
 #include "delete.hpp"
 
-int Delete::isFileExisting(const Request& req)
+int Delete::isFileExisting(const Request& req, const LocationConfig& loc)
 {
-    std::string path = "./www" + req.getRequestTarget();
+    std::string target = req.getRequestTarget();
+    std::string filename = target.substr(req.getRequestTarget().find_last_of("/"));
+    std::string path = loc.getUploadPath() + filename;
 
     // Vérifie si le fichier existe
     if (access(path.c_str(), F_OK) != 0)

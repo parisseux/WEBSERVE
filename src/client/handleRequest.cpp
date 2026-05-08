@@ -93,7 +93,7 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
         // std::cout << "real http delete request" << std::endl;
         // req.displayRequest();
         Delete del;
-        int hasBeenDeleted = del.isFileExisting(req);
+        int hasBeenDeleted = del.isFileExisting(req, *loc);
         client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
         client->setResponseComplete(true);
         return ;
