@@ -374,10 +374,12 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 			_isCgi = false;
 			_is_listener = false;
 			_client = NULL;
-			try {
+			try 
+			{
 				NewClientConnection(listener_fds, _events[i].data.fd);
 			}
-			catch (const std::exception& e) {
+			catch (const std::exception& e)
+			{
 				std::cerr << e.what() << '\n';
 			}
 			if (_is_listener)
@@ -429,7 +431,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 		}
 		handlingTimeout(servers);
 		generatePendingResponse(servers);			
-		// printClientMap();		
+		// printClientMap();
 	}
 	return;
 }

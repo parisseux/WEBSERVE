@@ -32,7 +32,7 @@ int Request::ValidateRequest(const Request &req)
         return 400;
     if (req.getPath()[0] != '/')
         return 400;
-    if (req.getProtocol() != "HTTP/1.1") //est ce quon autorise d'autre protocol??
+    if (req.getProtocol() != "HTTP/1.0") //est ce quon autorise d'autre protocol??
         return 400;
     if (req.getMethod() != "GET" && req.getMethod() != "POST" 
         && req.getMethod() != "DELETE" )

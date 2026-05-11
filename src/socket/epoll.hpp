@@ -21,16 +21,16 @@ class Cgi;
 class Epoll
 {
     private:
-        int                     _epFd;
-        int                     _eventWait;
-        struct  epoll_event     _ev;
-        struct  epoll_event     _events[MAX_CLIENTS];
-        std::map<int, Client*>  _clientsMap;
-        std::map<int, Cgi*>     _CgiMap;
-		std::map<int, Client*>::iterator _it;
-		Client *_client;      
-		bool _is_listener;
-	    bool _isCgi;                   
+        int                                 _epFd;
+        int                                 _eventWait;
+        struct  epoll_event                 _ev;
+        struct  epoll_event                 _events[MAX_CLIENTS];
+        std::map<int, Client*>              _clientsMap;
+        std::map<int, Cgi*>                 _CgiMap;
+		std::map<int, Client*>::iterator    _it;
+		Client*                             _client; 
+		bool                                _is_listener;
+	    bool                                _isCgi;                   
     public:
         Epoll() {std::cout << "Epoll constructor called" << std::endl;};
         ~Epoll() {std::cout << "Epoll destructor called" << std::endl;};
