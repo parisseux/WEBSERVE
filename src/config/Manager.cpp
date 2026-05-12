@@ -8,7 +8,7 @@ void Manager::startWebserv()
         _listener_fds.push_back(_servers[i].createListener());
     
     //lancer boucle principale
-    std::cout << "Lancement de la boucle principale" << std::endl;
+    // std::cout << "Lancement de la boucle principale" << std::endl;
     _epoll.epollManagment(_listener_fds, _servers);
 
     //fermer les sockets d'écoute

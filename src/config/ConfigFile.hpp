@@ -32,7 +32,6 @@ class ServerConfig
         bool                        _hasRoot;
         bool                        _hasIndex;
 
-
     public:
         int createListener();
         ServerConfig()
@@ -41,8 +40,8 @@ class ServerConfig
             _hasServerName(false),
             _hasRoot(false),
             _hasIndex(false)
-        {std::cout << "Server Config constructor called" << std::endl;};
-        ~ServerConfig() {std::cout << "Server Config destructor called" << std::endl;};
+        {/*std::cout << "Server Config constructor called" << std::endl;*/};
+        ~ServerConfig() {/*std::cout << "Server Config destructor called" << std::endl;*/};
 
         // //GETTER
         // const int         getListenPort() const {return (_listenPort);};

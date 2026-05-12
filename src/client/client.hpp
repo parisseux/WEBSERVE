@@ -47,7 +47,7 @@ class Client
         ssize_t         _byteSent;        
         ClientState _state;    
     public:
-        Client() {std::cout << "Client constructor called" << std::endl;
+        Client() {/*std::cout << "Client constructor called" << std::endl;*/
     setFd(-1);
     setCgiFd(-1);
     setCgiPid(-1);
@@ -61,8 +61,8 @@ class Client
     setRequestComplete(false);    
     setResponseComplete(false);
     setByteReadPos(0);
-    setByteSent(0);  };
-        ~Client() {std::cout << "Client destructor called" << std::endl;};
+    setByteSent(0);};
+        ~Client() {/*std::cout << "Client destructor called" << std::endl;*/};
 
         int&         getFd() {return (this->_fd);};
         int&         getFlags() {return (this->_flags);};

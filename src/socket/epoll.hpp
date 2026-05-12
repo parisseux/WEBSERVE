@@ -32,8 +32,8 @@ class Epoll
 		bool                                _is_listener;
 	    bool                                _isCgi;                   
     public:
-        Epoll() {std::cout << "Epoll constructor called" << std::endl;};
-        ~Epoll() {std::cout << "Epoll destructor called" << std::endl;};
+        Epoll() {/*std::cout << "Epoll constructor called" << std::endl;*/};
+        ~Epoll() {/*std::cout << "Epoll destructor called" << std::endl;*/};
 
         int&    getEpFd() {return (this->_epFd);};
         int&    getEventWait() {return (this->_eventWait);};

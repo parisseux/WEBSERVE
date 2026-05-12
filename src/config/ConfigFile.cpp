@@ -54,7 +54,7 @@ void ServerConfig::parseServer(std::ifstream &file)
 
 int ServerConfig::createListener()
 {
-    std::cout << "Creating listener for port:" << _listenPort << std::endl;
+    // std::cout << "Creating listener for port:" << _listenPort << std::endl;
     
     int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
     if (sockfd == -1)
@@ -93,10 +93,9 @@ int ServerConfig::createListener()
         // throw std::runtime_error("couldn't listen on port " + std::to_string(server.listenPort));
     }
     // setNonBlocking(sockfd); // se fait dans la boucle de epoll
-    std::cout << "Listener ready on " << _listenHost << ":" << _listenPort << std::endl;
+    std::cout << "Listener ready on " << ": " << _listenPort << "..." << std::endl;
     return sockfd;
 }
-
 
 void ServerConfig::print_attributes()
 {

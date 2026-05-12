@@ -108,7 +108,7 @@ void LocationConfig::parseLocationCgiExt(const std::string& s)
 
 void LocationConfig::parseRedict(const std::string &s)
 {
-    std::cout << "Parsing Redirection" << std::endl;
+    // std::cout << "Parsing Redirection" << std::endl;
     if (this->_hasRedirect)
         throw std::runtime_error("Duplicate 'redirection HTTP' directive in location " + this->_path);
    this->_redirect = removeSemicolon(s.substr(11));
