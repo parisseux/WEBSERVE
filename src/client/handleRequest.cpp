@@ -10,12 +10,13 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     if (status != 200)
     {
         if (status == 400)
-            sendError(400, "Bad Request", server);     
+            sendError(400, "Bad Request", server);
         else if (status == 501)
             sendError(501, "Not Implemented", server);
         return ; 
     }
-    const LocationConfig *loc = req.MatchLocation(req.getPath(), locations);
+    LocationConfig fallback;
+    const LocationConfig *loc = req.MatchLocation(req.getPath(), locations, server, fallback);
     if (!loc)
     {
         sendError(500, "No location matched (unexpected)", server);

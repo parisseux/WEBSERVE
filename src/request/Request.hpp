@@ -48,7 +48,7 @@ class Request
         //handler
         bool StartsWith(const std::string& s, const std::string& prefix);
         void Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
-        const LocationConfig *MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations);
+        const LocationConfig *MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations, const ServerConfig serv, LocationConfig& fallBack);
         int MethodAllowed(const Request& req, const LocationConfig* loc);
         int ValidateRequest(const Request &req);
 

@@ -73,8 +73,8 @@ class LocationConfig
 
 		// //SETTERS
 		// void                       setPath(std::string path) {this->_path =  path;};
-		// void                       setRoot(std::string root) {this->_root =  root;};
-		// void                       setIndex(std::string index) {this->_index = index;};
+		void                       setRoot(std::string root) {this->_root =  root;};
+		void                       setIndex(std::string index) {this->_index = index;};
 		// void                       setAllowMethods( std::vector<std::string> allowMethods) {this->_allowMethods = allowMethods;};
 		// void                       setMaxBodySize(size_t maxBodySize) {this->_maxBodySize = maxBodySize;};
 		// void                       setHasRoot(const bool hasRoot) {this->_hasRoot = hasRoot;};
@@ -94,7 +94,7 @@ class LocationConfig
 		void parseLocationLine(const std::string &s);
 		void parseLocationUploadPath(const std::string &s);
 		void parseRedict(const std::string &s);
-		
+
 		void parseLocationHeader(const std::string &firstLine);
 		void parseLocationDirective(ServerConfig& server, std::ifstream &file, const std::string &firstLine);
 

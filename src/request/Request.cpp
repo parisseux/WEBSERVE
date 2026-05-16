@@ -68,9 +68,18 @@ bool Request::StartsWith(const std::string& s, const std::string& prefix)
     return true;
 }
 
-const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations)
+LocationConfig ServerConfig::builServFromLocation() const
 {
-    const LocationConfig* bestLoc = NULL;
+    LocationConfig fallBack;
+    fallBack.setRoot(this->_root);
+    if (this->_hasIndex == true)
+        fallBack.setIndex(this->_index);
+    return (fallBack);
+}
+
+const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const std::vector<LocationConfig> &locations, const ServerConfig serv, LocationConfig& fallBack)
+{
+    const LocationConfig*   bestLoc = NULL;
     size_t bestLen = 0;
 
     for (size_t i = 0; i < locations.size(); ++i)
@@ -81,6 +90,11 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
             bestLoc = &loc;
             bestLen = loc.getPath().size();
         }
+    }
+    if (bestLoc == NULL && serv.getHasRoot() == true)
+    {
+        fallBack = serv.builServFromLocation();
+        return (&fallBack);
     }
     return (bestLoc);
 }

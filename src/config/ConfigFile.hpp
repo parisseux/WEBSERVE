@@ -43,6 +43,8 @@ class ServerConfig
         {/*std::cout << "Server Config constructor called" << std::endl;*/};
         ~ServerConfig() {/*std::cout << "Server Config destructor called" << std::endl;*/};
 
+        LocationConfig builServFromLocation() const;
+
         // //GETTER
         // const int         getListenPort() const {return (_listenPort);};
         // const std::string& getListenHost() const {return (_listenHost);};
