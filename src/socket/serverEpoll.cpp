@@ -391,10 +391,10 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 			{
 				if (_isCgi)
 				{
-					int status;
+					int status = 0;
 					std::cout << "waitpid" << std::endl;
-					waitpid(_client->getCgiPid(), &status, WNOHANG);
-					if (WIFEXITED(status))
+					pid_t waitResult = waitpid(_client->getCgiPid(), &status, WNOHANG);
+					if (waitResult > 0 && WIFEXITED(status))
 					{
 						if (WEXITSTATUS(status) > 0)
 						{
