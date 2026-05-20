@@ -97,7 +97,6 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     if (loc->getHasRedirect())
     {
-        std::cout << "Lets handle redirect HTTP" << std::endl;
         sendRedirect(loc->getRedirect());
         return ;
     }

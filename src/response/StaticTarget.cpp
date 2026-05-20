@@ -133,8 +133,6 @@ std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::
 {
     (void)locPath;
     std::string relativePath = reqPath;
-    // if (IsLocationPrefix(reqPath, locPath)) // si on decommente et on ne peut chercher une location
-    //     relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;
@@ -189,7 +187,7 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     // Directory -> index.html
     if (S_ISDIR(st.st_mode))
     {
-        if (req.getPath()[req.getPath().size() - 1] != '/')
+        if (req.getPath()[req.getPath().size() - 1] != '/'  && (req.getMethod() == "GET"))
         {
             r.status = 301;
             r.path = req.getPath() + "/";

@@ -6,6 +6,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/epoll.h>
+# include <signal.h>
 # include "../client/client.hpp"
 # include "../config/ConfigFile.hpp"
 # include "../response/Response.hpp"
@@ -17,6 +18,8 @@
 class Request;
 class Client;
 class Cgi;
+
+extern volatile int stop;
 
 class Epoll
 {

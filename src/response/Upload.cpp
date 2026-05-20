@@ -142,7 +142,6 @@ bool Upload::isSafeFilename(const std::string& name)
 void Upload::ProcessParts()
 {
     _uploadedFiles.clear();
-    // printParts();
     for (size_t i = 0; i < _parts.size(); ++i)
     {
         Part &p = _parts[i];
@@ -193,15 +192,12 @@ void Upload::ProcessParts()
         );
         ofs.close();
         _uploadedFiles.push_back(filename);
-        //debug
-        std::cout << "Uploaded file: " << filename << " (" << p.content.size() << " bytes)" << std::endl;
     }
 }
 
 void Upload::ParseBody(const Request &req)
 {
     _parts.clear();
-    std::cout << "Request body size: " << req.getBodyBinary().size() << std::endl;
     const std::vector<unsigned char> &body = req.getBodyBinary();
     size_t pos = 0;
     static const unsigned char sep[] = {'\r','\n','\r','\n'};
@@ -238,7 +234,6 @@ void Upload::ParseBody(const Request &req)
         _parts.push_back(p);
         pos = static_cast<size_t>(content_end_it - body.begin());
     }
-    std::cout << "Parsing of body finish" << std::endl;
 }
 
 int Upload::Handle(const LocationConfig &loc, const Request &req)
@@ -255,23 +250,13 @@ int Upload::Handle(const LocationConfig &loc, const Request &req)
         return 500;
     if (!canWrite(_uploadDir))
         return 403;
-
-    // ----SI ON FAIT AVEC LA VRAI REQUEST RECU------
-    // chercher la boundaries dans le header
     std::string contentType = req.getHeader("Content-Type");
     std::string boundary = extractBoundary(contentType);
     if (boundary.empty())
         return 400;
     std::string delimiterStr = "--" + boundary;
     _delimiter = std::vector<unsigned char>(delimiterStr.begin(), delimiterStr.end());   
-
-    // Parser le body factice et découper en parts
-    //req.displayRequest();
-    // vrai request
     ParseBody(req);
     ProcessParts();
-
-    // Response res_temp;
-    // res = res_temp.buildUploadResponse(_uploadedFiles);
     return 200;
 }

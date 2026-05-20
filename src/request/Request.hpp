@@ -74,21 +74,16 @@ class Request
         std::string getHeader(const std::string& k) const {
         std::map<std::string,std::string>::const_iterator it = _header.find(k);
         return (it == _header.end()) ? "" : it->second; }
-        // const std::vector<unsigned char>& getBodyBinary() const {return (_bodyBinary);};
-
         void setMethod(std::string method);
         void setTarget(std::string target);
         void setPath(std::string path){_path = path;}
         void setQuery(std::string query);
         void setProtocol(std::string protocol);
-        // void setBody(const std::string &s);
-        // void setHeader(const std::string &key, const std::string &s);
 
         bool hasHeader(const std::string& k) const { return _header.find(k) != _header.end(); }
         void displayRequest() const;
         std::string constructRequest();
 
-        // resquest
 };
 
 std::string headerValue(std::string key, Request &req);
