@@ -61,6 +61,8 @@ std::string Response::makeStatusLine(int code)
             return "HTTP/1.0 501 Not Implemented";
         else if (code == 301)
             return "HTTP/1.0 301 Moved Permanently";
+        else if (code == 504)
+            return "HTTP/1.0 504 Gateway Timeout";
         return "HTTP/1.0 500 Internal Server Error";
 }
 

@@ -306,7 +306,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 			}
 			catch (const std::exception& e) {
 				std::cerr << e.what() << '\n';
-				_client->sendError(500, "Internal Servor Error", servers[_client->getServerIndex()]);
+				_client->sendError(504, "Gateway Timeout", servers[_client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
 				_ev.data.fd = _client->getFd();            
@@ -337,7 +337,13 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 				{
 					kill(_client->getCgiPid(), SIGKILL);
 				}
-				_client->sendError(500, "Timeout", servers[_client->getServerIndex()]);
+				if (_client->getClientState() == GENERATING_CGI)
+				{
+					kill(_client->getCgiPid(), SIGKILL);
+					_client->sendError(504, "Gateway Timeout", servers[_client->getServerIndex()]);
+				}
+				else
+					_client->sendError(500, "Internal Server Error", servers[_client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
 				_ev.data.fd = _client->getFd();            

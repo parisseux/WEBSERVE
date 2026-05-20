@@ -74,7 +74,7 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
                 else if (upStatus == 400)
                     sendError(400, "Bad Request", server);
                 else
-                    sendError(500, "Internal Server Error", server);
+                    sendError(500, "Internal server errror", server);
                 return;
             }
             sendUpload();
