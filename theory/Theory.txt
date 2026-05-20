@@ -1,0 +1,54 @@
+Request du client ?? message texte envoyé pas un navigateur au serveur 
+
+exemple:
+GET /images/cat.png?size=small HTTP/1.1 //request line --> la plus importante
+Host: localhost:8080 
+User-Agent: Mozilla/5.0
+Accept: image/webp,image/*
+Connection: keep-alive //les headers (infos suplémentaires)
+
+Host: à quel site je parle?
+user-Agent: qui suis-je ?
+Accept: quel type de réponse j'accepte?
+connection: est ce que je garde la connexion ouverte?
+
+Host et connection sont importants!!!
+
+GET: n'a pas de body
+
+POST: le body coneitn les données envoyées par le client 
+
+Rôle du server:
+1. lire la request 
+2. comprendre la request (ce que comprend classe Request)
+3. Décider quoi répondre 
+4. envoyer une response HTTP
+
+Pour décider quoi répondre, il faut:
+1. est ce que la méthode est autorisé?
+2. est ce /images/ correspond à une location??
+3. Quel est le root associé?
+4. Le fichier existe-il ?
+5. est ce un fichier ou un dossier?
+6. ai-je le droit de l'afficher?
+7. Dois je afficher un index ou un autoindex?
+
+
+
+validateRequest         → 400 / 501
+matchLocation
+checkMethodAllowed      → 405 
+↓
+getEffectiveRoot (si loc.root, sinon server.loc)
+stripLocationPrefix
+resolveFsPath
+securityCheck
+↓
+stat(fsPath)
+   ├─ not exists → 404
+   ├─ forbidden  → 403
+   ├─ file       → 200
+   └─ directory
+        ├─ index exists → 200
+        ├─ autoindex on → 200
+        └─ else         → 403
