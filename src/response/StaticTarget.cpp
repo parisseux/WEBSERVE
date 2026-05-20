@@ -187,7 +187,7 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     // Directory -> index.html
     if (S_ISDIR(st.st_mode))
     {
-        if (req.getPath()[req.getPath().size() - 1] != '/')
+        if (req.getPath()[req.getPath().size() - 1] != '/'  && (req.getMethod() == "GET"))
         {
             r.status = 301;
             r.path = req.getPath() + "/";

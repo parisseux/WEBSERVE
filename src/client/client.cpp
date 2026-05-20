@@ -88,8 +88,6 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
             body.append(buffer, bytes);
         close(fd);
     }
-    else 
-        std::cout << "sending server basic error page" << std::endl;
     if (body.empty())
     {
         std::ostringstream ss;
