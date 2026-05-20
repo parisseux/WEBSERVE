@@ -4,6 +4,73 @@
 #include "../response/StaticTarget.hpp"
 #include "../response/delete.hpp"
 
+void Client::HandleCgi(Request &req, const ServerConfig &server, Client *client, Epoll &epoll, const LocationConfig &loc)
+{
+    StaticTarget st;
+    ResolvedTarget target = st.ResolveStaticTarget(req, server, loc);        
+    if (target.status != 200)
+    {
+        client->sendError(target.status, target.reason, server);
+        return;
+    }
+    req.setPath(target.path);
+    Cgi cgi;
+    cgi.handleCgi(req, server, client, epoll);
+    client->setClientState(GENERATING_CGI);
+    return ;    
+}
+
+void Client::HandlePost(Request &req, const ServerConfig &server, const LocationConfig &loc)
+{
+    std::cout << "UPLOAD" << std::endl; 
+    Upload up;
+    int status = up.CheckBodySize(loc, req);
+    if (status != 200)
+    {
+        sendError(413, "Payload Too Large", server);
+        return ;         
+    }
+    if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
+    {
+        sendError(400, "Bad Request", server);        
+        return ;
+    }
+    if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0 && req.getPath() == "/upload")
+    {
+        // Response uploadRes;
+        // int upStatus = up.Handle(*loc, req, uploadRes);
+        int upStatus = up.Handle(loc, req);
+        if (upStatus != 200)
+        {
+            if (upStatus == 413)
+                sendError(413, "Payload Too Large", server);
+            else if (upStatus == 403)
+                sendError(403, "Forbidden", server);
+            else if (upStatus == 400)
+                sendError(400, "Bad Request", server);
+            else
+                sendError(500, "Internal Server Error", server);
+            return;
+        }
+        sendUpload();
+        return;
+    }
+}
+void Client::HandleDelete(Request &req, const LocationConfig &loc, Client *client)
+{
+    req.displayRequest();
+
+    Response res;
+    // std::cout << "Let's delete this shit" << std::endl;
+    // std::cout << "real http delete request" << std::endl;
+    // req.displayRequest();
+    Delete del;
+    int hasBeenDeleted = del.isFileExisting(req, loc);
+    client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
+    client->setResponseComplete(true);
+    return ;
+}
+
 void    Client::Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll)
 {
     int status = req.ValidateRequest(req);
@@ -34,62 +101,11 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
         return ;
     }
     if (isCgi(req, server, *loc))
-    {
-        StaticTarget st;
-        ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);        
-        if (target.status != 200)
-        {
-            client->sendError(target.status, target.reason, server);
-            return;
-        }
-        req.setPath(target.path);
-        Cgi cgi;
-        cgi.handleCgi(req, server, client, epoll);
-        client->setClientState(GENERATING_CGI);
-        return ;
-    }
+        return (HandleCgi(req, server, client, epoll, *loc));
     if (req.getMethod() == "POST")
-    {
-        Upload up;
-        status = up.CheckBodySize(*loc, req);
-        if (status != 200)
-        {
-            sendError(413, "Payload Too Large", server);
-            return ;         
-        }
-        if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
-        {
-            sendError(400, "Bad Request", server);        
-            return ;
-        }
-        if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0 && req.getPath() == "/upload")
-        {
-            int upStatus = up.Handle(*loc, req);
-            if (upStatus != 200)
-            {
-                if (upStatus == 413)
-                    sendError(413, "Payload Too Large", server);
-                else if (upStatus == 403)
-                    sendError(403, "Forbidden", server);
-                else if (upStatus == 400)
-                    sendError(400, "Bad Request", server);
-                else
-                    sendError(500, "Internal server errror", server);
-                return;
-            }
-            sendUpload();
-            return;
-        }
-    }
+        return (HandlePost(req, server, *loc));        
     else if (req.getMethod() == "DELETE")
-    {
-        Response res;
-        Delete del;
-        int hasBeenDeleted = del.isFileExisting(req, *loc);
-        client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
-        client->setResponseComplete(true);
-        return ;
-    }
+        return (HandleDelete(req, *loc, client));
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
     if (target.status == 301)

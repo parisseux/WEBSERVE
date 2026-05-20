@@ -94,6 +94,11 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
 			client->setClientState(GENERATING_RESPONSE);
 			return ;
 		}
+		else
+		{
+			client->setClientState(WAITING_FOR_HEADER);
+			return;
+		}
         if (client->getClientState() != READING_BODY)
             client->setClientState(READING_HEADER);
     }
@@ -220,14 +225,21 @@ void Epoll::NewClientConnection(std::vector<int>& listener_fds, int eventFd)
 
 void Epoll::MatchEventWithClient(int eventFd)
 {
-	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it) // choisi le bon client en fonction du fd de l'event recu
+	_it = _clientsMap.find(eventFd);
+	if(_it != _clientsMap.end())
 	{
-		if (eventFd == _it->first)
-		{
 			_client = _it->second;
 			_isCgi = false;	
-			break ;
-		}
+			return ;		
+	}
+	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it) // choisi le bon client en fonction du fd de l'event recu
+	{
+		// if (eventFd == _it->first)
+		// {
+		// 	_client = _it->second;
+		// 	_isCgi = false;	
+		// 	break ;
+		// }
 		if (eventFd == _it->second->getCgiFd())
 		{
 			_client = _it->second;
@@ -237,7 +249,7 @@ void Epoll::MatchEventWithClient(int eventFd)
 	}
 }
 
-void Epoll::HandleEpollin(int eventFd)
+void Epoll::HandleEpollin(int eventFd, std::vector<ServerConfig> &servers)
 {
 	char buf[MAX_READ_SIZE];
 	ssize_t byteReads = read(eventFd, buf, sizeof(buf));
@@ -251,7 +263,14 @@ void Epoll::HandleEpollin(int eventFd)
 	else if (byteReads == 0)
 	{
 		if(!_isCgi)
-		{
+		{	
+            Client *client = _clientsMap.at(eventFd);
+            if (!client->getRequestBuffer().empty() &&
+                client->getClientState() == READING_HEADER)
+            {
+                // Reçu des données mais jamais eu \r\n\r\n → 400
+                client->sendError(400, "Bad Request", servers[client->getServerIndex()]);
+            }					
 			deleteClient();
 		}
 
@@ -333,10 +352,12 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it)
 	{
 		_client = _it->second;
-		if (_client->getClientState() == GENERATING_RESPONSE || _client->getClientState() == GENERATING_CGI)
+		// std::cout << "client °" << _client->getFd() << std::endl;
+		if (_client->getClientState() == GENERATING_RESPONSE || _client->getClientState() == GENERATING_CGI || _client->getClientState() == WAITING_FOR_HEADER || _client->getClientState() == WAITING)
 		{
 			time_t current_time;
 			current_time = std::time(NULL);
+			// std::cout << "client °" << _client->getFd() << std::endl;
 			if (difftime(current_time, _client->getTimeout()) >= MAX_TIMEOUT)
 			{
 				if (_client->getClientState() == GENERATING_CGI)
@@ -357,7 +378,6 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 			}
 		}
 	}
-
 }
 
 void Epoll::closeCgiFd()
@@ -373,18 +393,49 @@ void Epoll::closeCgiFd()
 	}
 }
 
+void Epoll::handleCgiAndErrors(std::vector<ServerConfig> &servers)
+{
+	if (_isCgi)
+	{
+		int status;
+		// std::cout << "waitpid" << std::endl;
+		waitpid(_client->getCgiPid(), &status, WNOHANG);
+		if (WIFEXITED(status))
+		{
+			if (WEXITSTATUS(status) > 0)
+			{
+				// std::cout << "on capte un probleme cgi" << std::endl;
+				_client->sendError(500, "Error with the script", servers[_client->getServerIndex()]);
+				_client->setClientState(SENDING_RESPONSE);
+				_ev.events = EPOLLOUT | EPOLLRDHUP;
+				_ev.data.fd = _client->getFd();            
+				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
+				epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getCgiFd(), &_ev);								
+			}
+			else if (WEXITSTATUS(status) == 0 && _client->getClientState() == SENDING_RESPONSE)
+			{							
+				std::cout << "on close le CGI" << std::endl;
+				closeCgiFd();
+			}
+		}
+	}
+	else
+		deleteClient();
+}
 void signalHandler(int sig)
 {
     (void)sig;
     stop = 1;
 }
+
 void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers)
 {
 	creatEpollFdListeners(listener_fds);
 	while (!stop)
 	{
 		signal(SIGINT, signalHandler);
-		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 10000);
+		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 5000);
+		print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
@@ -405,35 +456,12 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 				continue;
 			if (_events[i].events & EPOLLRDHUP || _events[i].events & EPOLLERR || _events[i].events & EPOLLHUP )
 			{
-				if (_isCgi)
-				{
-					int status;
-					waitpid(_client->getCgiPid(), &status, WNOHANG);
-					if (WIFEXITED(status))
-					{
-						if (WEXITSTATUS(status) > 0)
-						{
-							_client->sendError(500, "Error with the script", servers[_client->getServerIndex()]);
-							_client->setClientState(SENDING_RESPONSE);
-							_ev.events = EPOLLOUT | EPOLLRDHUP;
-							_ev.data.fd = _client->getFd();            
-							epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
-							epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getCgiFd(), &_ev);								
-						}
-						else if (WEXITSTATUS(status) == 0 && _client->getClientState() == SENDING_RESPONSE)
-						{							
-							closeCgiFd();
-						}
-
-					}
-				}
-				else
-					deleteClient();
+				handleCgiAndErrors(servers);
 				continue;
 			}
 			try {
 				if (!_is_listener && (_events[i].events & EPOLLIN))
-					HandleEpollin(_events[i].data.fd);
+					HandleEpollin(_events[i].data.fd, servers);
 				else if (!_is_listener && (_events[i].events & EPOLLOUT) && _isCgi == false)
 					HandleEpollout();
 			}
@@ -445,8 +473,11 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 		handlingTimeout(servers);
 		generatePendingResponse(servers);			
 	}
+	std::cout << "Server Off..." << std::endl;
 	close(this->_epFd);
 	for (size_t i = 0; i < listener_fds.size(); i++)
+	{
 		close(listener_fds[i]);
+	}
 	return;
 }
