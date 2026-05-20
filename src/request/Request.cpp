@@ -1,4 +1,3 @@
-
 #include "Request.hpp"
 #include "../cgi/cgi.hpp"
 #include "../client/client.hpp"
@@ -26,16 +25,16 @@ std::string headerValue(std::string key, Request &req)
 
 int Request::ValidateRequest(const Request &req)
 {
-    if (req.getMethod().empty())
+    if (req._method.empty())
         return 400;
-    if (req.getPath().empty())
+    if (req._path.empty())
         return 400;
-    if (req.getPath()[0] != '/')
+    if (req._path[0] != '/')
         return 400;
-    if (req.getProtocol() != "HTTP/1.0" && req.getProtocol() != "HTTP/1.1") //est ce quon autorise d'autre protocol??
+    if (req._protocol != "HTTP/1.0" && req._protocol != "HTTP/1.1") //est ce quon autorise d'autre protocol??
         return 400;
-    if (req.getMethod() != "GET" && req.getMethod() != "POST" 
-        && req.getMethod() != "DELETE" )
+    if (req._method != "GET" && req._method != "POST" 
+        && req._method != "DELETE" )
         return 501;
     return 200;
 }
@@ -44,7 +43,7 @@ int Request::MethodAllowed(const Request& req, const LocationConfig* loc)
 {
     if (!loc) 
         return 0;
-    std::string m = req.getMethod();
+    std::string m = req._method;
     if (!loc->getHasAllowMethods())
         return 0;
     for (std::vector<std::string>::const_iterator it = loc->getAllowMethods().begin();
@@ -102,8 +101,8 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
 void Request::parseBody(Client *client)
 {
     std::cout << "PARSE BODY " << std::endl;
-    _body = client->getRequestBuffer();
-    _bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
+    this->_body = client->getRequestBuffer();
+    this->_bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
     // printBodyDebug(this->_bodyBinary);
     client->setRequestComplete(true);
 }
@@ -113,7 +112,7 @@ void    Request::parseRequest(std::string request)
     std::stringstream request_stream(request);
     std::string line;
 
-    if (_method.empty())
+    if (this->_method.empty())
     {
         parseRequestFirstLine(request_stream);
         parseHeader(request_stream);
@@ -126,18 +125,18 @@ void    Request::parseRequestFirstLine(std::stringstream &stream)
     size_t found;
 
     stream >> word;  
-    _method = word;
+    this->_method = word;
     stream >> word;    
     _requestTarget = word;
     if ((found = word.find('?')) != std::string::npos)
     {
-        _query = _requestTarget.substr(found + 1);
-        _requestTarget = _requestTarget.substr(0, found);
+        this->_query = this->_requestTarget.substr(found + 1);
+        this->_requestTarget = this->_requestTarget.substr(0, found);
     }
-    _path = _requestTarget;
-    std::cout << "DEBUG" << _path << std::endl;
+    this->_path = this->_requestTarget;
+    std::cout << "DEBUG" << this->_path << std::endl;
     stream >> word;    
-    _protocol = word;
+    this->_protocol = word;
 }
 
 void Request::parseHeader(std::stringstream &stream)
@@ -156,22 +155,22 @@ void Request::parseHeader(std::stringstream &stream)
             break ;
         key = line.substr(0, found);
         value = line.substr(found + 2, line.size());
-        _header[key] = value;
+        this->_header[key] = value;
     }
 }
 
 std::string Request::constructRequest()
 {
-    std::map<std::string, std::string>::iterator it = _header.begin();
+    std::map<std::string, std::string>::iterator it = this->_header.begin();
     std::string request;
-    request.append(_method);
+    request.append(this->_method);
     request.append(" ");
-    request.append(_requestTarget);
+    request.append(this->_requestTarget);
     request.append(" ");
-    request.append(_protocol);
+    request.append(this->_protocol);
     request.append("\r\n");           
 
-    while (it != _header.end())
+    while (it != this->_header.end())
     {
         request.append(it->first);
         request.append(": ");
@@ -180,9 +179,9 @@ std::string Request::constructRequest()
         ++it;                            
     }
         request.append("\r\n");    
-    if (_body.empty() == 0)
+    if (this->_body.empty() == 0)
     {
-        request.append(_body);
+        request.append(this->_body);
     }
     return (request);
 }
@@ -190,20 +189,20 @@ std::string Request::constructRequest()
 //function de debug
 void Request::displayRequest() const
 {
-    std::map<std::string, std::string>::const_iterator it = _header.begin();
+    std::map<std::string, std::string>::const_iterator it = this->_header.begin();
     std::cout << "* SERVER JUST RECEIVED A REQUEST *" << std::endl;
-    std::cout << _method << " ";
-    std::cout <<  _requestTarget << " ";
-    std::cout << _protocol << std::endl;
-    while (it != _header.end())
+    std::cout << this->_method << " ";
+    std::cout <<  this->_requestTarget << " ";
+    std::cout << this->_protocol << std::endl;
+    while (it != this->_header.end())
     {
         std::cout << it->first << ": " << it->second << std::endl;
         ++it;
     }
-    if (_body.empty() == 0)
+    if (this->_body.empty() == 0)
     {
         std::cout << "* BODY *" << std::endl;
-        std::cout << _body;
+        std::cout << this->_body;
     }
     std::cout << std::endl;
     std::cout << "* END OF REQUEST *"<< std::endl;

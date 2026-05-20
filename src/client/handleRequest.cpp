@@ -109,12 +109,17 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
         return (HandleDelete(req, *loc, client));
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
+    if (target.status == 301)
+    {
+        sendRedirect(target.path);
+        return;
+    }
     if (target.status != 200)
     {
         sendError(target.status, target.reason, server);
         return;
     }
-    int stStatus = st.BuildStaticResponse(req, target, client, _response);
+    int stStatus = st.BuildStaticResponse(req, target, client, this->_response);
     if (stStatus != 200)
     {
         if (stStatus == 405)
@@ -123,14 +128,14 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
             sendError(403, "Forbidden", server);
         return;
     }
-    if(_response.getResponseState() == FIRST_READ)
+    if(this->_response.getResponseState() == FIRST_READ)
     {    
-        client->getResponseBuffer().push_front(_response.constructResponse());
-        _response.setResponseState(NEXT_READ);
+        client->getResponseBuffer().push_front(this->_response.constructResponse());
+        this->_response.setResponseState(NEXT_READ);
     }
     else
     {          
-        client->getResponseBuffer().push_front(_response.getBody());     
+        client->getResponseBuffer().push_front(this->_response.getBody());     
     }
-    _response.getBody().clear();
+    this->_response.getBody().clear();
 }

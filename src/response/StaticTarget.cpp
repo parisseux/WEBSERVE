@@ -189,6 +189,14 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
     // Directory -> index.html
     if (S_ISDIR(st.st_mode))
     {
+        if (req.getPath()[req.getPath().size() - 1] != '/')
+        {
+            r.status = 301;
+            r.path = req.getPath() + "/";
+            r.reason = "Moved Permanently";
+            return r;
+        }
+
         std::string index = path;
         if (!index.empty() && index[index.size() - 1] != '/')
             index += '/';

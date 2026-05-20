@@ -36,9 +36,9 @@ class Request
         std::string                         _body;
         std::vector<unsigned char>          _bodyBinary;
     public:
-        Request() {std::cout << "Request constructor called" << std::endl;};
+        Request() {/*std::cout << "Request constructor called" << std::endl;*/};
         Request(std::string request);
-        ~Request() {std::cout << "Request destructor called" << std::endl;};
+        ~Request() {/*std::cout << "Request destructor called" << std::endl;*/};
 
         void parseRequest(std::string request);
         void parseRequestFirstLine(std::stringstream &stream);
@@ -61,7 +61,7 @@ class Request
         std::string& getBody() { return _body; }
         std::vector<unsigned char>  &getBodyBinary() { return _bodyBinary; }
         std::map<std::string,std::string>& getHeaders() { return _header; }    
-  
+
         //lecture seule
         const std::string& getMethod()  const { return _method; }
         const std::string& getRequestTarget()  const { return _requestTarget; }
