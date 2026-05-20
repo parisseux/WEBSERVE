@@ -46,9 +46,6 @@ class ServerConfig
         LocationConfig builServFromLocation() const;
 
         // //GETTER
-        // const int         getListenPort() const {return (_listenPort);};
-        // const std::string& getListenHost() const {return (_listenHost);};
-        // const std::string& getServerName() const {return (_serverName);};
         const std::string& getRoot() const {return (_root);};
         const std::string& getIndex() const {return (_index);};
         const std::vector<LocationConfig>& getLocations() const {return (_locations);}; // plus de const :(
@@ -61,7 +58,6 @@ class ServerConfig
             return "";
         }
         const bool&        getHasListen() const {return (_hasListen);};
-        // const bool&        getHasServerName() const {return (_hasServerName);};
         const bool&        getHasRoot() const {return (_hasRoot);};
         const bool&        getHasIndex() const {return (_hasIndex);};
 

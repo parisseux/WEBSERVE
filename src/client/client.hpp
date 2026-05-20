@@ -68,7 +68,6 @@ class Client
         int&         getFlags() {return (this->_flags);};
         std::string& getRequestBuffer() {return (this->_requestBuffer);};
         std::deque<std::string>& getResponseBuffer(){return this->_responseBuffer;}        
-        // std::string& getResponseBuffer() {return (this->_responseBuffer);};
         bool&        getRequestComplete() {return (this->_requestComplete);};
         Request&     getRequestClass() {return (this->_request);};
         ClientState  getClientState() {return (this->_state);};
@@ -76,7 +75,6 @@ class Client
         void         setFd(int fd) {this->_fd = fd;};
         void         setFlags(int flags) {this->_flags = flags;};
         void         setRequestBuffer(std::string requestBuffer) {this->_requestBuffer = requestBuffer;};
-        // void         setResponseBuffer(std::string responseBuffer) {this->_responseBuffer = responseBuffer;};
         void         setRequestComplete(bool requestComplete) {this->_requestComplete = requestComplete;};
         void         setClientState(ClientState state) {this->_state = state;};
         void         setResponseBuffer(std::deque<std::string> _responseBuffer);
@@ -85,7 +83,6 @@ class Client
         void         clearRequest();
         unsigned int getContentLength();
         bool         isUpload();
-        // std::vector<unsigned char>& getBuffer(){return _buffer;}
         void         clearResponse();
         int          getResponseBufferLength();
         void         setCgiFd(int fd){_cgi_fd = fd;}
@@ -105,7 +102,6 @@ class Client
         void         setTimeout(time_t timeout){_timeout = timeout;}
         time_t       getTimeout(){return _timeout;}
         void         Handle(Request &req, const std::vector<LocationConfig>& locations, const ServerConfig &server, Client *client, Epoll &epoll);
-        // void            Handle(Request &req, const ServerConfig &server, Client *client, Epoll &epoll);
         void         clearClient();    
         
         void sendError(int code, const std::string& reason, const ServerConfig& server);

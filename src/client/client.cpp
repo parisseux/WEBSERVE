@@ -75,15 +75,10 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
     std::string path = server.getErrorPage(code);
     std::string body;
     std::string finalPath;
-    // if (path.empty())
-        // finalPath = "/app/www/errors/default.html"; // voir si il faudrait pas un path codé dans le config file
-    // else
-    // {
     if (!path.empty() && path[0] == '/')
         finalPath = server.getRoot() + path;
     else
         finalPath = path;
-    // }
     int fd = open(finalPath.c_str(), O_RDONLY);
     if (fd >= 0)
     {
@@ -95,7 +90,6 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
     }
     else 
         std::cout << "sending server basic error page" << std::endl;
-    //AU CAS OU PROBLeME DOUVERTURE DE FICHIER jpense c bien quon garde 
     if (body.empty())
     {
         std::ostringstream ss;
@@ -105,7 +99,6 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
         body = ss.str();
     }
     Response res;
-    std::cout << "Code:  " << code << std::endl;
     res.setStatus(code);
     res.setBody(body);
     res.setHeader("Content-Type", "text/html");
@@ -121,7 +114,6 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
 // ou un variable pour le finalPath
 void Client::sendUpload()
 {
-    std::cout << "SEND UPLOAD" << std::endl;
     std::string finalPath = "/app/www/siteUpload/index.html";
     std::string body;
 
@@ -162,8 +154,6 @@ void Client::sendRedirect(const std::string &redir)
     res.setStatus(301);
 
     std::string location = redir;
-    std::cout << "TEST: REDIRECTION " << location << std::endl;
-
     res.setHeader("Location", location);
     res.setHeader("Content-Length", "0");
 

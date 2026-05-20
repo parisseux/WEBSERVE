@@ -8,7 +8,6 @@ void Manager::startWebserv()
         _listener_fds.push_back(_servers[i].createListener());
     
     //lancer boucle principale
-    // std::cout << "Lancement de la boucle principale" << std::endl;
     _epoll.epollManagment(_listener_fds, _servers);
 
     //fermer les sockets d'écoute
@@ -37,7 +36,6 @@ void Manager::initServers(const std::string &configFile)
 
         config.applyServersDefaults();
         this->_servers.push_back(config);
-        // print_servers_attributes();
     }
     if (this->_servers.empty())
         throw std::runtime_error("no valid server block found in config");

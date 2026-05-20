@@ -133,8 +133,6 @@ std::string StaticTarget::GetRelativPath(const std::string &reqPath, const std::
 {
     (void)locPath;
     std::string relativePath = reqPath;
-    // if (IsLocationPrefix(reqPath, locPath)) // si on decommente et on ne peut chercher une location
-    //     relativePath.erase(0, locPath.size());
     if (!relativePath.empty() && relativePath[0] == '/')
         relativePath.erase(0, 1);
     return relativePath;

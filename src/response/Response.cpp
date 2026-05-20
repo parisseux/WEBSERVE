@@ -1,29 +1,5 @@
 #include "Response.hpp"
 
-// Response Response::buildUploadResponse(const std::vector<std::string>& files)
-// {
-//     Response res;
-
-//     res.setStatus(201);
-//     res.setHeader("Content-Type", "text/plain");
-
-//     std::ostringstream body;
-//     body << "Upload successful\n";
-
-//     for (size_t i = 0; i < files.size(); ++i)
-//         body << "- " << files[i] << "\n";
-
-//     std::string bodyStr = body.str();
-//     res.setBody(bodyStr);
-
-//     std::ostringstream len;
-//     len << bodyStr.size();
-//     res.setHeader("Content-Length", len.str());
-//     res.setHeader("Connection", "close");
-
-//     return res;
-// }
-
 Response Response::buildDeleteResponse(int hasBeenDeleted)
 {
     // le cas au status 200 est pour un delete reussi avec un body
@@ -56,11 +32,6 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
         this->setHeader("Content-Type", "text/html");        
         this->setHeader("Content-Length", len.str());      
     }
-    // else if (hasBeenDeleted == 0)
-    // {
-    //     this->setStatus(204);
-    //     this->setHeader("Content-Length", "0");
-    // }
     else if (hasBeenDeleted == -1)
     {
         this->setStatus(404);
@@ -108,15 +79,6 @@ void Response::setBody(const std::string& b)
 {
     _body = b;
 }
-
-// Response Response::Error(int code, const std::string &s)
-// {
-//     Response res;
-//     res.setStatus(code);
-//     res.setHeader("Content-Type", "text/html");
-//     res.setBody("<html><body><h1>" + s + "</h1></body></html>");
-//     return (res);
-// }
 
 void Response::displayResponse()
 {
@@ -185,32 +147,3 @@ ssize_t Response::getContentLength()
     }
     return(0);
 }
-
-//-----THEORY----------
-//API --> facon standardisé de demander qlc à un programme 
-// et d'obtenir une réponse
-//en gros un programme peut faire des choses, mais personne ne peut pas lui parler
-//une API définit comment on lui parle, définit ce quon peut lui demander, 
-//définit ce quil réponse 
-//Attention une API est destiné à un programme pas à un humain
-
-
-//------THEORY-------
-//lien youtube: https://www.youtube.com/watch?v=qmpUfWN7hh4
-//HTTP status code (IMPORTANT)
-//1XX --> informational 
-//2XX --> succes 
-    //200 succesful 
-    //201 something created 
-    // 204 something deleted (as asked)
-//3XX -->  Redirection 
-//4XX --> Client error (le server dit au client de vérifier sa request)
-    //400 bad request
-    //401 unauthorized 
-    //403 Forbiden (privacy)
-    //404 not found 
-    //429 too many request --> asked the client to slow down
-//5XX --> Servor error 
-    //500 server error 
-    //502 bad gateway (server overload, misconfiguration, ...)
-    //503 service unvaliable (at the moment)
