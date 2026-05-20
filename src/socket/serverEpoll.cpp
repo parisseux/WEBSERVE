@@ -104,9 +104,11 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
             if(client->getRequestBuffer().size() >= client->getContentLength())
             {
                 client->getRequestClass().parseBody(client);   
-            }                   
+            }
         }
-    }    
+		else
+			client->setRequestComplete(true);
+    }
     if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
     {
 		// client->getRequestClass().displayRequest(); // affichage requete complete
@@ -300,7 +302,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 		_client = _it->second;
 		if(_client->getClientState() == GENERATING_RESPONSE && _client->getResponseComplete() == false)
 		{
-			try{
+			try {
 				_client->Handle(_client->getRequestClass(), servers[_client->getServerIndex()].getLocations(),  servers[_client->getServerIndex()], _client, *this);	
 			}
 			catch (const std::exception& e) {
@@ -368,7 +370,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	while (1)
 	{
 		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 10000);
-		// print_ready_events(_eventWait, _events);
+		print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
