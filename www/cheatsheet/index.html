@@ -24,7 +24,7 @@
   <pre>curl -v --http1.1 -H "Connection: keep-alive" http://localhost:8080/index.html</pre>
 
   <h2>POST / Upload</h2>
-  <p class="expect err">→ 415 Unsupported Media Type</p>
+  <p class="expect err">→ 403 Unsupported Media Type</p>
   <pre>curl -v -X POST http://localhost:8080/upload \
   -H "Content-Type: text/plain" \
   -d "hello world"</pre>
