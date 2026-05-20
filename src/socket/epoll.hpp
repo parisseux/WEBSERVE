@@ -54,6 +54,7 @@ class Epoll
         void MatchEventWithClient(int eventFd);
         void HandleEpollin(int eventFd);
         void HandleEpollout();
+        void handleCgiAndErrors(std::vector<ServerConfig> &servers);
         void closeCgiFd();
         void generatePendingResponse(std::vector<ServerConfig> &servers);
         void handlingTimeout(std::vector<ServerConfig> &servers);

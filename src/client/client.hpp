@@ -111,7 +111,9 @@ class Client
         void sendError(int code, const std::string& reason, const ServerConfig& server);
         void sendUpload();
         void sendRedirect(const std::string &redir);
-};
+        void HandleCgi(Request &req, const ServerConfig &server, Client *client, Epoll &epoll, const LocationConfig &loc);
+        void HandlePost(Request &req, const ServerConfig &server, const LocationConfig &loc);        
+    };
 
 void setNonBlocking(int fd);
 
