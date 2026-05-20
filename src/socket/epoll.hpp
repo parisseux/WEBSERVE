@@ -52,7 +52,7 @@ class Epoll
         void HeaderEnd(Client *client);
         void NewClientConnection(std::vector<int>& listener_fds, int eventFd);
         void MatchEventWithClient(int eventFd);
-        void HandleEpollin(int eventFd);
+        void HandleEpollin(int eventFd, std::vector<ServerConfig> &servers);
         void HandleEpollout();
         void handleCgiAndErrors(std::vector<ServerConfig> &servers);
         void closeCgiFd();

@@ -49,7 +49,7 @@ void Client::HandlePost(Request &req, const ServerConfig &server, const Location
             else if (upStatus == 400)
                 sendError(400, "Bad Request", server);
             else
-                sendError(500, "Internal Server Error", server);
+                sendError(504, "Gateway Timeout", server);
             return;
         }
         sendUpload();
