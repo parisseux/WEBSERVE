@@ -14,7 +14,7 @@ bool ServerConfig::isServerStart(const std::string &line)
     if (t.rfind("server", 0) != 0)
         return false;
     std::string rest = trim(t.substr(6));
-    return (rest == "{");
+    return (rest == "{" || rest.empty());
 }
 
 void ServerConfig::applyServersDefaults()
@@ -39,7 +39,7 @@ void ServerConfig::parseServer(std::ifstream &file)
 
         if (t == "}")
             break;
-        if (t.empty())
+        if (t.empty() || t == "{"  || t[0] == '#')
             continue;
         if (t.rfind("location ", 0) == 0)
         {
