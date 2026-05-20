@@ -100,6 +100,11 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     StaticTarget st;
     ResolvedTarget target = st.ResolveStaticTarget(req, server, *loc);
+    if (target.status == 301)
+    {
+        sendRedirect(target.path);
+        return;
+    }
     if (target.status != 200)
     {
         sendError(target.status, target.reason, server);

@@ -1,0 +1,10 @@
+server {
+    listen 8081;
+    server_name localhost;
+    root ./www/site1;
+    index index.html;
+
+    location / {
+        allow_methods GET;
+    }
+}
