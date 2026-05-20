@@ -61,7 +61,7 @@ class Request
         std::string& getBody() { return _body; }
         std::vector<unsigned char>  &getBodyBinary() { return _bodyBinary; }
         std::map<std::string,std::string>& getHeaders() { return _header; }    
-  
+
         //lecture seule
         const std::string& getMethod()  const { return _method; }
         const std::string& getRequestTarget()  const { return _requestTarget; }
