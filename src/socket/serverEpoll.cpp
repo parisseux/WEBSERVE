@@ -88,6 +88,12 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         bool hasDelimiter = (pos !=std::string::npos); 
         if (hasDelimiter && (client->getClientState() == READING_HEADER || client->getClientState() == WAITING))
             HeaderEnd(client);
+		if (client->getRequestClass().getParseError() != 0)
+		{
+			client->setRequestComplete(true);
+			client->setClientState(GENERATING_RESPONSE);
+			return ;
+		}
         if (client->getClientState() != READING_BODY)
             client->setClientState(READING_HEADER);
     }
@@ -101,7 +107,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
-            if(client->getRequestBuffer().size() >= client->getContentLength())
+            if (client->getRequestBuffer().size() >= client->getContentLength())
             {
                 client->getRequestClass().parseBody(client);   
             }

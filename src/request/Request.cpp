@@ -25,6 +25,8 @@ std::string headerValue(std::string key, Request &req)
 
 int Request::ValidateRequest(const Request &req)
 {
+    if (req.getParseError() != 0)
+        return req.getParseError();
     if (req._method.empty())
         return 400;
     if (req._path.empty())
@@ -115,6 +117,14 @@ void    Request::parseRequest(std::string request)
         parseRequestFirstLine(request_stream);
         parseHeader(request_stream);
     }
+    std::string cl = getHeader("Content-Length");
+    if (!cl.empty())
+    {
+        long length = std::strtol(cl.c_str(), NULL, 10);
+        if (length < 0)
+            _parseError = 400;
+    }
+    
 }
 
 void    Request::parseRequestFirstLine(std::stringstream &stream)
