@@ -88,16 +88,16 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         bool hasDelimiter = (pos !=std::string::npos); 
         if (hasDelimiter && (client->getClientState() == READING_HEADER || client->getClientState() == WAITING))
             HeaderEnd(client);
+		else
+		{
+			client->setClientState(WAITING_FOR_HEADER);
+			return;
+		}			
 		if (client->getRequestClass().getParseError() != 0)
 		{
 			client->setRequestComplete(true);
 			client->setClientState(GENERATING_RESPONSE);
 			return ;
-		}
-		else
-		{
-			client->setClientState(WAITING_FOR_HEADER);
-			return;
 		}
         if (client->getClientState() != READING_BODY)
             client->setClientState(READING_HEADER);
