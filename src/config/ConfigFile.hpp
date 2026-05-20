@@ -31,6 +31,8 @@ class ServerConfig
         bool                        _hasServerName;
         bool                        _hasRoot;
         bool                        _hasIndex;
+        size_t                      _maxBodySize;
+        bool                        _hasMaxBodySize;
 
     public:
         int createListener();
@@ -39,16 +41,15 @@ class ServerConfig
             _hasListen(false),
             _hasServerName(false),
             _hasRoot(false),
-            _hasIndex(false)
+            _hasIndex(false), 
+            _maxBodySize(0),
+            _hasMaxBodySize(false)
         {/*std::cout << "Server Config constructor called" << std::endl;*/};
         ~ServerConfig() {/*std::cout << "Server Config destructor called" << std::endl;*/};
 
         LocationConfig builServFromLocation() const;
 
         // //GETTER
-        // const int         getListenPort() const {return (_listenPort);};
-        // const std::string& getListenHost() const {return (_listenHost);};
-        // const std::string& getServerName() const {return (_serverName);};
         const std::string& getRoot() const {return (_root);};
         const std::string& getIndex() const {return (_index);};
         const std::vector<LocationConfig>& getLocations() const {return (_locations);}; // plus de const :(
@@ -61,10 +62,10 @@ class ServerConfig
             return "";
         }
         const bool&        getHasListen() const {return (_hasListen);};
-        // const bool&        getHasServerName() const {return (_hasServerName);};
         const bool&        getHasRoot() const {return (_hasRoot);};
         const bool&        getHasIndex() const {return (_hasIndex);};
-
+        const size_t& getMaxBodySize() const { return _maxBodySize; };
+        const bool&   getHasMaxBodySize() const { return _hasMaxBodySize; };
         // //SETTER
         // void setListenPort(int listenPort) {this->_listenPort = listenPort;};
         // void setListenHost(std::string listenHost) {this->_listenHost = listenHost;};
@@ -91,6 +92,7 @@ class ServerConfig
         void parseIndexDirective(const std::string &t);
         void parseErrorPageDirective(const std::string &t);
         void parseServerLine(const std::string &t);
+        void parseClientMaxBodySizeDirective(const std::string &t);
 
         void applyServersDefaults(); 
 

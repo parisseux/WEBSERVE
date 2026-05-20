@@ -34,15 +34,6 @@ enum ResponseState
     NEXT_READ
 };
 
-//------THEORY-----
-//anatomy of HTTP response 
-//stauts code: tell the client what happened with the request
-//ici le body contiens les data que le clients a demandé
-//body optional mais usually present
-
-//concept statlessness: each request is independant of the others
-//no request is aware of what other request did before
-
 class Response 
 {
     private:
@@ -70,7 +61,6 @@ class Response
         static Response Error(int code, const std::string &s);
         void displayResponse();
         std::string constructResponse();
-        // Response buildUploadResponse(const std::vector<std::string>& files);
         Response buildDeleteResponse(int hasBeenDeleted);
         std::string addBodyToResponseBuffer();
         ssize_t getContentLength();

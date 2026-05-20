@@ -71,7 +71,6 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
 
 void Epoll::HeaderEnd(Client *client)
 {
-    // std::cout << "HEADER END" << std::endl;
     unsigned int found = client->getRequestBuffer().find("\r\n\r\n");                                                                                      
     client->getRequestClass().parseRequest(client->getRequestBuffer());
     client->getRequestBuffer().erase(0, found + 4);
@@ -99,7 +98,6 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         {
             client->setClientState(WAITING);
             client->setRequestComplete(true);
-            // client->getRequestClass().displayRequest(); // affichage requete complete
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
@@ -113,7 +111,6 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
     }
     if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
     {
-		// client->getRequestClass().displayRequest(); // affichage requete complete
 		client->setClientState(GENERATING_RESPONSE);
     }
 }
@@ -134,7 +131,6 @@ void Epoll::formatingchunk(Client *client, std::string bufferString)
 
 void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 {
-	std::cout << "MANAGE CGI" << std::endl;
 	std::string bufferString(buf, byteReads);
 	if (bufferString.empty())
 		return ;
@@ -146,7 +142,6 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 			pos = bufferString.find("\n");
 			if (pos == std::string::npos)
 			{
-				std::cout << "No found of the new line after header" << std::endl;
 				client->setResponseComplete(false);
 				return ;
 			}
@@ -185,7 +180,6 @@ void Epoll::deleteClient()
 {
 	if (_client != NULL && _client->getFd() >= 0 )
 	{
-		std::cout << "Client: "<< _client->getFd()<< " is disconnected" << std::endl;
 		epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getFd(), &_ev);
 		if (_client->getCgiFd() > 0)
 		{
@@ -243,7 +237,6 @@ void Epoll::HandleEpollin(int eventFd)
 	ssize_t byteReads = read(eventFd, buf, sizeof(buf));
 	if (byteReads > 0)
 	{
-		// std::cout << byteReads << std::endl; 
 		if (_isCgi == true)
 			manageCgi(_client, byteReads, buf);
 		else
@@ -265,11 +258,17 @@ void Epoll::HandleEpollout()
 {
 	if (_client->getResponseBuffer().empty() == 0)
 	{
-		std::cout << "MESSAGE ENVOYE" << std::endl;
-		std::cout << _client->getResponseBuffer().front() << std::endl;
 		std::string response = _client->getResponseBuffer().front();
 		_client->getResponseBuffer().pop_front();
 		ssize_t byteReads = send(_client->getFd(), response.data(), response.size(), 0);
+		if (response.size() >= 5 && response.substr(0, 5) == "HTTP/")
+		{
+			size_t end = response.find('\n');
+			if (end != std::string::npos)
+				std::cout << _client->getRequestClass().getMethod() << " "
+						<< _client->getRequestClass().getPath() << " "
+						<< response.substr(0, end) << std::endl;
+		}
 		_client->setTimeout(std::time(NULL));
 		if (byteReads == -1)
 			throw std::runtime_error("Error occurs during the send function (EPOLLOUT)\n");
@@ -279,7 +278,6 @@ void Epoll::HandleEpollout()
 		}
 		if (_client->getResponseBuffer().empty() && _client->getResponseComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
 		{
-			std::cout << "send finished" << std::endl;
 			std::string connectionType = _client->getRequestClass().getHeader("Connection");			
 			if (connectionType == "keep-alive\r")
 		  	{  
@@ -300,7 +298,6 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 {
 	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it)
 	{
-		//std::cout << "MAP CLIENTS SIZE: " << _clientsMap.size() << std::endl;
 		_client = _it->second;
 		if(_client->getClientState() == GENERATING_RESPONSE && _client->getResponseComplete() == false)
 		{
@@ -317,7 +314,6 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 			}
 			if (_client->getResponseBuffer().empty() == 0)
 			{
-				// _client->setClientState(SENDING_RESPONSE); // marche pas pour le moment
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
 				_ev.data.fd = _client->getFd();         
 				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
@@ -354,7 +350,6 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 
 void Epoll::closeCgiFd()
 {
-	// std::cout << "DELETE AND CLOSE CGI FD" <<  std::endl;
 	epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getCgiFd(), &_ev);    
 	_client->getResponseBuffer().push_back("0\r\n\r\n");
 	_client->setResponseComplete(true);
@@ -378,8 +373,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	{
 		signal(SIGINT, signalHandler);
 		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 10000);
-
-		// print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
@@ -403,13 +396,11 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 				if (_isCgi)
 				{
 					int status;
-					std::cout << "waitpid" << std::endl;
 					waitpid(_client->getCgiPid(), &status, WNOHANG);
 					if (WIFEXITED(status))
 					{
 						if (WEXITSTATUS(status) > 0)
 						{
-							// std::cout << "on capte un probleme cgi" << std::endl;
 							_client->sendError(500, "Error with the script", servers[_client->getServerIndex()]);
 							_client->setClientState(SENDING_RESPONSE);
 							_ev.events = EPOLLOUT | EPOLLRDHUP;
@@ -419,7 +410,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 						}
 						else if (WEXITSTATUS(status) == 0 && _client->getClientState() == SENDING_RESPONSE)
 						{							
-							std::cout << "on close le CGI" << std::endl;
 							closeCgiFd();
 						}
 
@@ -442,7 +432,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 		}
 		handlingTimeout(servers);
 		generatePendingResponse(servers);			
-		// printClientMap();
 	}
 	close(this->_epFd);
 	for (size_t i = 0; i < listener_fds.size(); i++)

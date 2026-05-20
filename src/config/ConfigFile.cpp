@@ -54,7 +54,6 @@ void ServerConfig::parseServer(std::ifstream &file)
 
 int ServerConfig::createListener()
 {
-    // std::cout << "Creating listener for port:" << _listenPort << std::endl;
     
     int sockfd = socket(AF_INET, SOCK_STREAM, 0); // creation de la socket du server
     if (sockfd == -1)
@@ -85,14 +84,11 @@ int ServerConfig::createListener()
     if (bind(sockfd, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0) // on attache les parametre setup a la socket 
     {
         close(sockfd);
-        // throw std::runtime_error("couldn't bind on port " + std::to_string(server.listenPort));
     }
     if (listen(sockfd, 100) < 0) // la socket peut mtn accpeter les connections avec une queue d'attente de 5 maximum
     {
         close(sockfd);
-        // throw std::runtime_error("couldn't listen on port " + std::to_string(server.listenPort));
     }
-    // setNonBlocking(sockfd); // se fait dans la boucle de epoll
     std::cout << "Listener ready on " << ": " << _listenPort << "..." << std::endl;
     return sockfd;
 }

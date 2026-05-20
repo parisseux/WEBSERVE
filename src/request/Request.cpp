@@ -100,10 +100,8 @@ const LocationConfig *Request::MatchLocation(const std::string &reqLoc, const st
 
 void Request::parseBody(Client *client)
 {
-    std::cout << "PARSE BODY " << std::endl;
     this->_body = client->getRequestBuffer();
     this->_bodyBinary.assign(client->getRequestBuffer().begin(), client->getRequestBuffer().end());
-    // printBodyDebug(this->_bodyBinary);
     client->setRequestComplete(true);
 }
 
@@ -134,7 +132,6 @@ void    Request::parseRequestFirstLine(std::stringstream &stream)
         this->_requestTarget = this->_requestTarget.substr(0, found);
     }
     this->_path = this->_requestTarget;
-    std::cout << "DEBUG" << this->_path << std::endl;
     stream >> word;    
     this->_protocol = word;
 }

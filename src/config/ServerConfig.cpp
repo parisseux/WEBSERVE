@@ -102,6 +102,19 @@ void ServerConfig::parseServerLine(const std::string &t)
         this->parseIndexDirective(t);
     else if (t.find("error_page ") == 0)
         this->parseErrorPageDirective(t);
+    else if (t.find("client_max_body_size ") == 0)
+        this->parseClientMaxBodySizeDirective(t);
     else
         throw std::runtime_error("Unknown directive inside server: " + t);
+}
+
+void ServerConfig::parseClientMaxBodySizeDirective(const std::string &t)
+{
+    if (_hasMaxBodySize)
+        throw std::runtime_error("Duplicate 'client_max_body_size'");
+    std::string val = removeSemicolon(t.substr(20));
+    if (val.empty())
+        throw std::runtime_error("Empty client_max_body_size");
+    _maxBodySize = atoi(val.c_str());
+    _hasMaxBodySize = true;
 }

@@ -30,7 +30,6 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     if (loc->getHasRedirect())
     {
-        std::cout << "Lets handle redirect HTTP" << std::endl;
         sendRedirect(loc->getRedirect());
         return ;
     }
@@ -51,7 +50,6 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     if (req.getMethod() == "POST")
     {
-        std::cout << "UPLOAD" << std::endl; 
         Upload up;
         status = up.CheckBodySize(*loc, req);
         if (status != 200)
@@ -66,8 +64,6 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
         }
         if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0 && req.getPath() == "/upload")
         {
-            // Response uploadRes;
-            // int upStatus = up.Handle(*loc, req, uploadRes);
             int upStatus = up.Handle(*loc, req);
             if (upStatus != 200)
             {
@@ -87,12 +83,7 @@ void    Client::Handle(Request &req, const std::vector<LocationConfig>& location
     }
     else if (req.getMethod() == "DELETE")
     {
-        req.displayRequest();
-
         Response res;
-        // std::cout << "Let's delete this shit" << std::endl;
-        // std::cout << "real http delete request" << std::endl;
-        // req.displayRequest();
         Delete del;
         int hasBeenDeleted = del.isFileExisting(req, *loc);
         client->getResponseBuffer().push_front(res.buildDeleteResponse(hasBeenDeleted).constructResponse());
