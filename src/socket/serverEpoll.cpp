@@ -4,6 +4,8 @@
 # include <sys/wait.h>
 # include <sys/time.h>
 
+volatile int stop = 0;
+
 void print_ready_events(int num_events, struct epoll_event* events_array) {
     std::cout << "Nombre d'événements: " << num_events << std::endl;
     for (int i = 0; i < num_events; ++i) {
@@ -364,13 +366,20 @@ void Epoll::closeCgiFd()
 	}
 }
 
+void signalHandler(int sig)
+{
+    (void)sig;
+    stop = 1;
+}
 void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerConfig> &servers)
 {
 	creatEpollFdListeners(listener_fds);
-	while (1)
+	while (!stop)
 	{
+		signal(SIGINT, signalHandler);
 		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 10000);
-		print_ready_events(_eventWait, _events);
+
+		// print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
@@ -435,5 +444,8 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 		generatePendingResponse(servers);			
 		// printClientMap();
 	}
+	close(this->_epFd);
+	for (size_t i = 0; i < listener_fds.size(); i++)
+		close(listener_fds[i]);
 	return;
 }
