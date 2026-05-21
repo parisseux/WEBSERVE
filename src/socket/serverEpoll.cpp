@@ -90,8 +90,16 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
             HeaderEnd(client);
 		else
 		{
-			client->setClientState(WAITING_FOR_HEADER);
-			return;
+			if (client->getRequestBuffer().size() <= 1)
+			{
+				client->setClientState(WAITING_FOR_HEADER);
+				return;
+			}
+			else
+			{
+            	client->setClientState(READING_HEADER);				
+			}
+
 		}			
 		if (client->getRequestClass().getParseError() != 0)
 		{
@@ -370,7 +378,7 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 					_client->sendError(504, "Gateway Timeout", servers[_client->getServerIndex()]);
 				}
 				else
-					_client->sendError(500, "Internal Server Error", servers[_client->getServerIndex()]);
+					_client->sendError(504, "Gateway Timeout", servers[_client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
 				_ev.data.fd = _client->getFd();            
@@ -435,7 +443,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	{
 		signal(SIGINT, signalHandler);
 		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 5000);
-		print_ready_events(_eventWait, _events);
+		// print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
