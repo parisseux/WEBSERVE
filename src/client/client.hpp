@@ -18,6 +18,7 @@
 enum ClientState
 {
     WAITING,
+    WAITING_FOR_HEADER,
     READING_HEADER,
     READING_BODY,
     GENERATING_RESPONSE,
@@ -107,7 +108,10 @@ class Client
         void sendError(int code, const std::string& reason, const ServerConfig& server);
         void sendUpload();
         void sendRedirect(const std::string &redir);
-};
+        void HandleCgi(Request &req, const ServerConfig &server, Client *client, Epoll &epoll, const LocationConfig &loc);
+        void HandlePost(Request &req, const ServerConfig &server, const LocationConfig &loc);
+        void HandleDelete(Request &req, const LocationConfig &loc, Client *client);    
+    };
 
 void setNonBlocking(int fd);
 

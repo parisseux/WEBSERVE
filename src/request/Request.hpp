@@ -35,6 +35,7 @@ class Request
         std::map<std::string, std::string>  _header;
         std::string                         _body;
         std::vector<unsigned char>          _bodyBinary;
+        int _parseError;
     public:
         Request() {/*std::cout << "Request constructor called" << std::endl;*/};
         Request(std::string request);
@@ -61,6 +62,7 @@ class Request
         std::string& getBody() { return _body; }
         std::vector<unsigned char>  &getBodyBinary() { return _bodyBinary; }
         std::map<std::string,std::string>& getHeaders() { return _header; }    
+        int getParseError() const { return _parseError; }
 
         //lecture seule
         const std::string& getMethod()  const { return _method; }

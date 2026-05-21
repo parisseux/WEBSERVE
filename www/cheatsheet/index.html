@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>webserv — cheatsheet</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🦥 webserv — cheatsheet</h1>
+  <p class="subtitle">./webserv configurationFiles/10_test.conf</p>
+
+  <h2>Basique</h2>
+  <p class="expect ok">→ 200 OK</p>
+  <pre>curl -v http://localhost:8080/index.html</pre>
+  <p class="expect err">→ 404 Not Found</p>
+  <pre>curl -v http://localhost:8080/nope.html</pre>
+  <p class="expect err">→ 405 Method Not Allowed</p>
+  <pre>curl -v http://localhost:8080/upload</pre>
+  <p class="expect err">→ 301 Moved Permanently</p>
+  <pre>curl -v http://localhost:8080/old-page</pre>
+  <p class="expect ok">→ 200 + connexion maintenue</p>
+  <pre>curl -v --http1.1 -H "Connection: keep-alive" http://localhost:8080/index.html</pre>
+
+  <h2>POST / Upload</h2>
+  <p class="expect err">→ 403 Unsupported Media Type</p>
+  <pre>curl -v -X POST http://localhost:8080/upload \
+  -H "Content-Type: text/plain" \
+  -d "hello world"</pre>
+  <p class="expect ok">→ 200 ou 201</p>
+  <pre>echo "test content" > test.txt
+curl -v -X POST http://localhost:8080/upload \
+  -F "file=@test.txt;type=application/octet-stream"</pre>
+  <p class="expect ok">→ 200 ou 204</p>
+  <pre>curl -v -X DELETE http://localhost:8080/upload/test.txt</pre>
+
+  <h2>Erreurs</h2>
+  <p class="expect err">→ 400 Bad Request</p>
+  <pre>curl -v -X POST http://localhost:8080/upload \
+  -H "Content-Length: -1" \
+  -d "data"</pre>
+
+  <h2>CGI</h2>
+  <p class="expect ok">→ 200 + output du script</p>
+  <pre>curl -v http://localhost:8080/cgi-bin/index.py</pre>
+  <p class="expect ok">→ 200 + output du script</p>
+  <pre>curl -v -X POST http://localhost:8080/cgi-bin/index.py \
+  -H "Content-Type: text/plain" \
+  -d "param=valeur"</pre>
+  <p class="expect err">→ 504 Gateway Timeout</p>
+  <pre>curl -v http://localhost:8080/cgi-bin/infinite_loop.py</pre>
+
+  <h2>Requêtes glr</h2>
+  <p class="expect err">→ 400 ou timeout, pas de crash</p>
+  <pre>echo "" | nc localhost 8080</pre>
+  <p class="expect err">→ timeout propre, pas de crash</p>
+  <pre>echo -e "GET / HTTP/1.1\r\nHost: localhost" | nc localhost 8080</pre>
+  <p class="expect err">→ 400 ou 403, jamais le fichier</p>
+  <pre>curl -v http://localhost:8080/../../../etc/passwd</pre>
+  <p class="expect err">→ 400, pas de path traversal</p>
+  <pre>printf "GET /\x00../../etc/passwd HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8080</pre>
+  <p class="expect err">→ 400 ou 431, pas de crash</p>
+  <pre>python3 -c "
+import socket
+s = socket.socket()
+s.connect(('localhost', 8080))
+s.send(b'GET / HTTP/1.1\r\nHost: localhost\r\nX-Big: ' + b'A'*100000 + b'\r\n\r\n')
+print(s.recv(4096))
+"</pre>
+
+  <h2>Stress</h2>
+  <p class="expect ok">→ Availability 100%, Failed 0</p>
+  <pre>siege -c 10 -t 30s http://localhost:8080/index.html</pre>
+  <p class="expect ok">→ Availability 100%, Failed 0</p>
+  <pre>siege -c 100 -t 60s http://localhost:8080/index.html</pre>
+  <p class="expect ok">→ pas de crash, toutes les requêtes traitées</p>
+  <pre>python3 -c "
+import requests, threading
+
+def spam():
+    for i in range(100):
+        requests.get('http://127.0.0.1:8080/')
+
+threads = [threading.Thread(target=spam) for _ in range(50)]
+for t in threads: t.start()
+for t in threads: t.join()
+"</pre>
+
+</body>
+</html>
