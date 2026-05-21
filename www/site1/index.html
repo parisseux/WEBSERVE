@@ -14,11 +14,8 @@
 
     <!-- Upload form (inchangé) -->
     <h3 class="section-title">Upload</h3>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <button type="submit">Upload 🦥</button>
-    </form>
-
+    <input type="file" id="fileInput" required>
+    <button type="button" onclick="uploadFromInput()">Upload 🦥</button>
     <hr>
 
     <!-- Delete section -->
