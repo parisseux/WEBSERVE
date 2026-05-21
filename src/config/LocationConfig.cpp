@@ -108,7 +108,6 @@ void LocationConfig::parseLocationCgiExt(const std::string& s)
 
 void LocationConfig::parseRedict(const std::string &s)
 {
-    // std::cout << "Parsing Redirection" << std::endl;
     if (this->_hasRedirect)
         throw std::runtime_error("Duplicate 'redirection HTTP' directive in location " + this->_path);
    this->_redirect = removeSemicolon(s.substr(11));
@@ -130,7 +129,6 @@ void LocationConfig::parseLocationHeader(const std::string& firstLine)
     if (path.empty())
         throw std::runtime_error("location: empty path");
     this->_path = path;
-    // std::cout << "path is : " << path << std::endl;
 }
 
 void LocationConfig::parseLocationLine(const std::string& s)
