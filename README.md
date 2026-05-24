@@ -47,9 +47,9 @@ What do you monitor?
 
 ### Methods
 
-GET: Retrieve a resource from the server. The server finds the requested file and sends it back. No body in the request.
-POST: Send data to the server. We only handle multipart/form-data — the server parses the body, extracts the file, and saves it to the upload directory.
-DELETE: Remove a resource from the server. The server finds the file at the requested path and deletes it. Returns 200 if successful, 404 if the file doesn't exist.
+- GET: Retrieve a resource from the server. The server finds the requested file and sends it back. No body in the request.
+- POST: Send data to the server. We only handle multipart/form-data — the server parses the body, extracts the file, and saves it to the upload directory.
+- DELETE: Remove a resource from the server. The server finds the file at the requested path and deletes it. Returns 200 if successful, 404 if the file doesn't exist.
 
 ### Important status code
 
