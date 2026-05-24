@@ -33,10 +33,10 @@ Basically the webserv does:
 
 ### Important status code
 
-2xx : success
-3xx: redirection
-4xx: error from client
-5xx: error from server 
+- 2xx : success
+- 3xx: redirection
+- 4xx: error from client
+- 5xx: error from server 
 
 ### Epoll
 
