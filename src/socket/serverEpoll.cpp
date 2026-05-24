@@ -165,10 +165,10 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
 		else
 			client->setRequestComplete(true);
     }
-    if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
-    {
-		// client->setClientState(GENERATING_RESPONSE);
-    }
+    // if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
+    // {
+	// 	client->setClientState(GENERATING_RESPONSE);
+    // }
 }
 
 void Epoll::formatingchunk(Client *client, std::string bufferString)

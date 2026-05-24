@@ -37,7 +37,7 @@ class Request
         std::vector<unsigned char>          _bodyBinary;
         int _parseError;
     public:
-        Request(){_parseError = 0;} //{/*std::cout << "Request constructor called" << std::endl;*/};
+        Request() : _parseError(0) {/*std::cout << "Request constructor called" << std::endl;*/};
         Request(std::string request);
         ~Request() {/*std::cout << "Request destructor called" << std::endl;*/};
 

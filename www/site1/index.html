@@ -14,17 +14,14 @@
 
     <!-- Upload form (inchangé) -->
     <h3 class="section-title">Upload</h3>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" required>
-        <button type="submit">Upload 🦥</button>
-    </form>
-
+    <input type="file" id="fileInput" required>
+    <button type="button" onclick="uploadFromInput()">Upload 🦥</button>
     <hr>
 
     <!-- Delete section -->
     <h3 class="section-title">Delete</h3>
     <input type="text" id="filename" placeholder="Filename to delete (example.txt)" required>
-    <button class="danger" type="button" onclick="deleteFromInput()">Delete 🗑</button>
+    <button type="button" onclick="deleteFromInput()">Delete 🗑</button>
 
     <div id="result"></div>
 </div>

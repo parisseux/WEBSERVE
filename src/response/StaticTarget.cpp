@@ -166,7 +166,6 @@ ResolvedTarget StaticTarget::ResolveStaticTarget(const Request &req, const Serve
         r.reason = "Forbidden";
         return r;
     }
-    
     std::string path = JoinPath(root, rel);
   
     struct stat st;
