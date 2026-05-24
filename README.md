@@ -19,6 +19,39 @@ This project deepens understanding of:
 
 The server is configurable through a configuration file inspired by Nginx syntax.
 
+### Basic of an HTTP server
+
+A client (browser, curl) sends an HTTP request, the server reads it, processes it and send back a response. 
+Basically the webserv does:
+1. opens a socket and listens on a port
+2. epoll watches for incoming connections
+3. when a client connects, reads the request
+4. parse the method, path, header
+5. find the matching location in the config
+6. server a static file, runs a CGI or handles upload/delete
+7. sends the response and close (or keep-alive)
+
+### Important status code
+
+2xx : success
+3xx: redirection
+4xx: error from client
+5xx: error from server 
+
+### Epoll
+
+Why Epoll? 
+- More efficient than select/poll for many connections — epoll_wait only returns the active fds, while select and poll scan through all monitored fds on every call.
+
+How to use it? 
+- epoll_create, epoll_ctl to add/removes fds.
+- We use epoll_wait which blocks until one or more fds are ready. It returns only the active fds, so we don't waste time checking idle connections. We use only one epoll_wait. Everything goes through the same loop
+  - if the ready fd is the server socket --> we call accept() and add the new client fd to epoll
+  - if the ready fd is a client socket --> it's incoming data so we read the request, process it and write the response back. 
+
+What do you monitor?
+-  server sockets (new connections) and client sockets (incoming data)
+
 ---
 
 ## Features
