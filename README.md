@@ -51,6 +51,26 @@ What do you monitor?
 - POST: Send data to the server. We only handle multipart/form-data — the server parses the body, extracts the file, and saves it to the upload directory.
 - DELETE: Remove a resource from the server. The server finds the file at the requested path and deletes it. Returns 200 if successful, 404 if the file doesn't exist.
 
+### NGINX
+
+NGINX is a production-grade HTTP server that we used as a reference for our project. 
+What we took from NGINX:
+- Config structure: server {} blocks with location {} blocks inside
+- Directives: listen, root, index, return, client_max_body_size
+- Location matching: most specific path wins
+
+Key differences from our webserv:
+- NGINX handles thousands of concurrent connections in production — ours is a school project
+- NGINX has many more features (reverse proxy, load balancing, SSL, gzip...)
+- We only implement a subset of HTTP/1.0 — GET, POST (multipart only), DELETE
+- No virtual hosts (out of scope per the subject)
+
+### CGI — Common Gateway Interface
+
+A protocol that allows a web server to execute an external program and send its output as the HTTP response. Instead of serving a static file, the server runs a script and returns what it prints.
+
+Timeout: if the CGI takes too long, the paretn kills the child process and return 504 Gateway Timeout. Otherwise the server would block forver. 
+
 ### Important status code
 
 - 2xx : success
