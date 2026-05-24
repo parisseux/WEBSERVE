@@ -78,7 +78,7 @@ void Epoll::HeaderEnd(Client *client)
 }
 
 // fonction a call pour gerer EPOLLIN
-void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
+void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, std::vector<ServerConfig> &servers)
 {
     std::string bufferString(buf, byteReads);
     client->getRequestBuffer().append(bufferString);
@@ -90,6 +90,17 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
             HeaderEnd(client);
 		else
 		{
+			if (client->getRequestBuffer().size() >= 8192) // 8KB
+			{
+				client->setClientState(GENERATING_RESPONSE);
+				client->setResponseComplete(true);
+				client->sendError(431, "Request Header Fields Too Large", servers[client->getServerIndex()]);
+				_client->setClientState(SENDING_RESPONSE);
+				_ev.events = EPOLLOUT | EPOLLRDHUP;
+				_ev.data.fd = _client->getFd();            
+				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);					
+				return;
+			}
 			if (client->getRequestBuffer().size() <= 1)
 			{
 				client->setClientState(WAITING_FOR_HEADER);
@@ -115,11 +126,27 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf)
         if (client->getRequestClass().getMethod() == "GET"
 			|| client->getRequestClass().getMethod() == "DELETE")
         {
-            client->setClientState(WAITING);
             client->setRequestComplete(true);
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
+			LocationConfig fallback;
+			const LocationConfig *loc = client->getRequestClass().MatchLocation(client->getRequestClass().getPath(), servers[client->getServerIndex()].getLocations(), servers[client->getServerIndex()], fallback);
+			if (loc->getHasMaxBodySize())
+			{
+				if (client->getRequestBuffer().size() > static_cast<unsigned long>(loc->getMaxBodySize()))
+				{
+					std::cout << "STOP DIRECTE TROP GROS" << std::endl;
+					client->setResponseComplete(true);
+					client->sendError(413, "Payload Too Large", servers[client->getServerIndex()]);
+					_client->setClientState(SENDING_RESPONSE);
+					_ev.events = EPOLLOUT | EPOLLRDHUP;
+					_ev.data.fd = _client->getFd();            
+					epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);					
+					return;					
+				}
+
+    		} 		
             if (client->getRequestBuffer().size() >= client->getContentLength())
             {
                 client->getRequestClass().parseBody(client);   
@@ -214,7 +241,7 @@ void Epoll::deleteClient()
 		_clientsMap.erase(_client->getFd());
 		if(_client)
 			delete _client;
-		_client = NULL;		
+		_client = NULL;	
 	}
 }
 
@@ -242,12 +269,6 @@ void Epoll::MatchEventWithClient(int eventFd)
 	}
 	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it) // choisi le bon client en fonction du fd de l'event recu
 	{
-		// if (eventFd == _it->first)
-		// {
-		// 	_client = _it->second;
-		// 	_isCgi = false;	
-		// 	break ;
-		// }
 		if (eventFd == _it->second->getCgiFd())
 		{
 			_client = _it->second;
@@ -266,7 +287,7 @@ void Epoll::HandleEpollin(int eventFd, std::vector<ServerConfig> &servers)
 		if (_isCgi == true)
 			manageCgi(_client, byteReads, buf);
 		else
-			manageClientRequest(_clientsMap.at(eventFd), byteReads, buf);
+			manageClientRequest(_clientsMap.at(eventFd), byteReads, buf, servers);
 	}
 	else if (byteReads == 0)
 	{
@@ -334,6 +355,7 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 		_client = _it->second;
 		if(_client->getClientState() == GENERATING_RESPONSE && _client->getResponseComplete() == false)
 		{
+			std::cout << "WE GENERATE RESPONSE" << std::endl;
 			try {
 				_client->Handle(_client->getRequestClass(), servers[_client->getServerIndex()].getLocations(),  servers[_client->getServerIndex()], _client, *this);	
 			}
