@@ -3,6 +3,6 @@
 
 # define MAX_CLIENTS 100
 # define MAX_READ_SIZE 32 *1024 // 32 Ko
-# define MAX_TIMEOUT 3 //en seconde
+# define MAX_TIMEOUT 10 //en seconde
 
 #endif

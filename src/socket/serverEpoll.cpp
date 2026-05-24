@@ -67,10 +67,12 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
     _ev.data.fd = client->getFd();
     epoll_ctl(this->_epFd, EPOLL_CTL_ADD, client->getFd(), &_ev);
 	_clientsMap.insert(std::make_pair(client->getFd(), client));
+	std::cout << "Client n°" << client->getFd() << " created" << std::endl;
 }
 
 void Epoll::HeaderEnd(Client *client)
 {
+	// std::cout << "FIN DU HEADER" << std::endl;
     unsigned int found = client->getRequestBuffer().find("\r\n\r\n");                                                                                      
     client->getRequestClass().parseRequest(client->getRequestBuffer());
     client->getRequestBuffer().erase(0, found + 4);
@@ -80,6 +82,7 @@ void Epoll::HeaderEnd(Client *client)
 // fonction a call pour gerer EPOLLIN
 void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, std::vector<ServerConfig> &servers)
 {
+	// std::cout << "MANAGE CLIENT " << client->getFd() << " Request " << std::endl; 
     std::string bufferString(buf, byteReads);
     client->getRequestBuffer().append(bufferString);
     if (client->getClientState() == WAITING || client->getClientState() == READING_HEADER)
@@ -90,9 +93,10 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
             HeaderEnd(client);
 		else
 		{
-			if (client->getRequestBuffer().size() >= 8192) // 8KB
+			if (client->getRequestBuffer().size() >= 8192 && client->getClientState() == READING_HEADER) // 8KB
 			{
-				client->setClientState(GENERATING_RESPONSE);
+				// std::cout << "HEADER TROP GROS" << std::endl;
+ 				// client->setClientState(GENERATING_RESPONSE);
 				client->setResponseComplete(true);
 				client->sendError(431, "Request Header Fields Too Large", servers[client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
@@ -101,13 +105,15 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
 				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);					
 				return;
 			}
-			if (client->getRequestBuffer().size() <= 1)
+			else if (client->getRequestBuffer().size() <= 1)
 			{
+				// std::cout << "Waiting for header" << std::endl;
 				client->setClientState(WAITING_FOR_HEADER);
 				return;
 			}
 			else
 			{
+				// std::cout << "JE REMET LE MODE READING HEADER" << std::endl;
             	client->setClientState(READING_HEADER);				
 			}
 
@@ -127,6 +133,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
 			|| client->getRequestClass().getMethod() == "DELETE")
         {
             client->setRequestComplete(true);
+			client->setClientState(GENERATING_RESPONSE);
         }
         if (client->getRequestClass().getMethod() == "POST")
         {
@@ -136,7 +143,8 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
 			{
 				if (client->getRequestBuffer().size() > static_cast<unsigned long>(loc->getMaxBodySize()))
 				{
-					std::cout << "STOP DIRECTE TROP GROS" << std::endl;
+					client->setClientState(GENERATING_RESPONSE);
+					// std::cout << "STOP DIRECTE TROP GROS" << std::endl;
 					client->setResponseComplete(true);
 					client->sendError(413, "Payload Too Large", servers[client->getServerIndex()]);
 					_client->setClientState(SENDING_RESPONSE);
@@ -149,7 +157,9 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
     		} 		
             if (client->getRequestBuffer().size() >= client->getContentLength())
             {
-                client->getRequestClass().parseBody(client);   
+                client->getRequestClass().parseBody(client);
+				client->setClientState(GENERATING_RESPONSE);
+
             }
         }
 		else
@@ -157,7 +167,7 @@ void Epoll::manageClientRequest(Client *client, ssize_t byteReads, char *buf, st
     }
     if (client->getRequestComplete() == true) // client prêt a recevoir une reponse
     {
-		client->setClientState(GENERATING_RESPONSE);
+		// client->setClientState(GENERATING_RESPONSE);
     }
 }
 
@@ -224,6 +234,7 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 
 void Epoll::deleteClient()
 {
+	std::cout << "Client n°" << _client->getFd() << " deleted" << std::endl;
 	if (_client != NULL && _client->getFd() >= 0 )
 	{
 		epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getFd(), &_ev);
@@ -286,7 +297,7 @@ void Epoll::HandleEpollin(int eventFd, std::vector<ServerConfig> &servers)
 	{
 		if (_isCgi == true)
 			manageCgi(_client, byteReads, buf);
-		else
+		else if (_client->getClientState() != SENDING_RESPONSE)
 			manageClientRequest(_clientsMap.at(eventFd), byteReads, buf, servers);
 	}
 	else if (byteReads == 0)
@@ -310,11 +321,11 @@ void Epoll::HandleEpollin(int eventFd, std::vector<ServerConfig> &servers)
 
 void Epoll::HandleEpollout()
 {
+	// std::cout << "sending Response" << std::endl;
 	if (_client->getResponseBuffer().empty() == 0)
 	{
 		std::string response = _client->getResponseBuffer().front();
-		_client->getResponseBuffer().pop_front();
-		ssize_t byteReads = send(_client->getFd(), response.data(), response.size(), 0);
+		ssize_t byteSent = send(_client->getFd(), response.data(), response.size(), 0);
 		if (response.size() >= 5 && response.substr(0, 5) == "HTTP/")
 		{
 			size_t end = response.find('\n');
@@ -323,28 +334,17 @@ void Epoll::HandleEpollout()
 						<< _client->getRequestClass().getPath() << " "
 						<< response.substr(0, end) << std::endl;
 		}
-		_client->setTimeout(std::time(NULL));
-		if (byteReads == -1)
+
+		if (byteSent == -1)
 			throw std::runtime_error("Error occurs during the send function (EPOLLOUT)\n");
-		if (byteReads == 0 && _client->getResponseComplete() == false)
-		{
-			_client->setClientState(GENERATING_RESPONSE);
-		}
-		if (_client->getResponseBuffer().empty() && _client->getResponseComplete() == true) // a voir mettre secu en plus car fonction send envoie ce qu'il veut 
-		{
-			std::string connectionType = _client->getRequestClass().getHeader("Connection");			
-			if (connectionType == "keep-alive\r")
-		  	{  
-				_ev.events = EPOLLIN | EPOLLRDHUP |EPOLLERR;
-				_ev.data.fd = _client->getFd();            
-				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
-				_client->clearClient();
-			}	
-			else
-			{						
-				deleteClient();
-			}
-		}
+		_client->addByteSent(byteSent);
+		_client->setTimeout(std::time(NULL));
+		if (_client->getByteSent() < static_cast<long>(response.size()))
+			return;
+		_client->getResponseBuffer().pop_front();
+		_client->setByteSent(0);
+		if (_client->getResponseBuffer().empty() && _client->getResponseComplete() == true)
+			deleteClient();
 	}
 }
 
@@ -355,13 +355,13 @@ void Epoll::generatePendingResponse(std::vector<ServerConfig> &servers)
 		_client = _it->second;
 		if(_client->getClientState() == GENERATING_RESPONSE && _client->getResponseComplete() == false)
 		{
-			std::cout << "WE GENERATE RESPONSE" << std::endl;
+			// std::cout << _client->getFd() << " GENERATE RESPONSE" << std::endl;
 			try {
 				_client->Handle(_client->getRequestClass(), servers[_client->getServerIndex()].getLocations(),  servers[_client->getServerIndex()], _client, *this);	
 			}
 			catch (const std::exception& e) {
 				std::cerr << e.what() << '\n';
-				_client->sendError(504, "Gateway Timeout", servers[_client->getServerIndex()]);
+				_client->sendError(500, "Internal Server Error", servers[_client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
 				_ev.data.fd = _client->getFd();            
@@ -383,7 +383,7 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 	{
 		_client = _it->second;
 		// std::cout << "client °" << _client->getFd() << std::endl;
-		if (_client->getClientState() == GENERATING_RESPONSE || _client->getClientState() == GENERATING_CGI || _client->getClientState() == WAITING_FOR_HEADER || _client->getClientState() == WAITING)
+		if (_client->getClientState() == GENERATING_RESPONSE || _client->getClientState() == GENERATING_CGI || _client->getClientState() == WAITING_FOR_HEADER || _client->getClientState() == WAITING || _client->getClientState() == READING_HEADER)
 		{
 			time_t current_time;
 			current_time = std::time(NULL);
@@ -464,7 +464,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	while (!stop)
 	{
 		signal(SIGINT, signalHandler);
-		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 5000);
+		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 1000);
 		// print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
@@ -501,7 +501,8 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 			}
 		}
 		handlingTimeout(servers);
-		generatePendingResponse(servers);			
+		generatePendingResponse(servers);		
+	
 	}
 	std::cout << "Server Off..." << std::endl;
 	close(this->_epFd);

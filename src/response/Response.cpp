@@ -57,6 +57,8 @@ std::string Response::makeStatusLine(int code)
             return "HTTP/1.0 405 Method Not Allowed";
         else if (code == 413)
             return "HTTP/1.0 413 Payload Too Large";
+        else if (code == 415)
+            return "HTTP/1.0 415 Unsupported Media Type";            
         else if (code == 431)
             return "HTTP/1.0 431 Request Header Fields Too Large";            
         else if (code == 501)

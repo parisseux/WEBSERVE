@@ -55,7 +55,7 @@ void Client::HandlePost(Request &req, const ServerConfig &server, const Location
         sendUpload();
         return;
     }
-    sendError(400, "Bad Request", server);
+    sendError(415, "Unsupported Media Type", server);
 }
 void Client::HandleDelete(Request &req, const LocationConfig &loc, Client *client)
 {
