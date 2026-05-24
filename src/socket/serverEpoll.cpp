@@ -159,7 +159,7 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 		}
 		std::string headerPart = bufferString.substr(0, pos);
 		std::string chunk;
-		chunk.append("HTTP/1.1 200 OKOK\r\n");
+		chunk.append("HTTP/1.1 200 OK\r\n");
 		chunk.append("Transfer-Encoding: chunked\r\n");
 		chunk.append(headerPart);
 		chunk.append("\r\n\r\n");
@@ -234,12 +234,6 @@ void Epoll::MatchEventWithClient(int eventFd)
 	}
 	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it) // choisi le bon client en fonction du fd de l'event recu
 	{
-		// if (eventFd == _it->first)
-		// {
-		// 	_client = _it->second;
-		// 	_isCgi = false;	
-		// 	break ;
-		// }
 		if (eventFd == _it->second->getCgiFd())
 		{
 			_client = _it->second;
@@ -352,12 +346,11 @@ void Epoll::handlingTimeout(std::vector<ServerConfig> &servers)
 	for (_it = _clientsMap.begin(); _it != _clientsMap.end(); ++_it)
 	{
 		_client = _it->second;
-		// std::cout << "client °" << _client->getFd() << std::endl;
 		if (_client->getClientState() == GENERATING_RESPONSE || _client->getClientState() == GENERATING_CGI || _client->getClientState() == WAITING_FOR_HEADER || _client->getClientState() == WAITING)
 		{
 			time_t current_time;
 			current_time = std::time(NULL);
-			// std::cout << "client °" << _client->getFd() << std::endl;
+			
 			if (difftime(current_time, _client->getTimeout()) >= MAX_TIMEOUT)
 			{
 				if (_client->getClientState() == GENERATING_CGI)
@@ -398,13 +391,11 @@ void Epoll::handleCgiAndErrors(std::vector<ServerConfig> &servers)
 	if (_isCgi)
 	{
 		int status;
-		// std::cout << "waitpid" << std::endl;
 		waitpid(_client->getCgiPid(), &status, WNOHANG);
 		if (WIFEXITED(status))
 		{
 			if (WEXITSTATUS(status) > 0)
 			{
-				// std::cout << "on capte un probleme cgi" << std::endl;
 				_client->sendError(500, "Error with the script", servers[_client->getServerIndex()]);
 				_client->setClientState(SENDING_RESPONSE);
 				_ev.events = EPOLLOUT | EPOLLRDHUP;
@@ -414,7 +405,6 @@ void Epoll::handleCgiAndErrors(std::vector<ServerConfig> &servers)
 			}
 			else if (WEXITSTATUS(status) == 0 && _client->getClientState() == SENDING_RESPONSE)
 			{							
-				std::cout << "on close le CGI" << std::endl;
 				closeCgiFd();
 			}
 		}
@@ -435,7 +425,6 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	{
 		signal(SIGINT, signalHandler);
 		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 5000);
-		print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;
