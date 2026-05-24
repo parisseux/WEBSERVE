@@ -64,8 +64,6 @@ curl -v -X POST http://localhost:8080/upload \
   <pre>echo "" | nc localhost 8080</pre>
   <p class="expect err">→ timeout propre, pas de crash</p>
   <pre>echo -e "GET / HTTP/1.1\r\nHost: localhost" | nc localhost 8080</pre>
-  <p class="expect err">→ 400 ou 403, jamais le fichier</p>
-  <pre>curl -v http://localhost:8080/../../../etc/passwd</pre>
   <p class="expect err">→ 400, pas de path traversal</p>
   <pre>printf "GET /\x00../../etc/passwd HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8080</pre>
   <p class="expect err">→ 400 ou 431, pas de crash</p>
