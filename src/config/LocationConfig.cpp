@@ -183,4 +183,9 @@ void LocationConfig::applyLocationDefaults(ServerConfig& server)
         this->_index = server.getIndex();
     if (!this->_hasRoot)
         this->_root = server.getRoot();
+    if (!this->_hasMaxBodySize && server.getHasMaxBodySize())
+    {
+        this->_maxBodySize = server.getMaxBodySize();
+        this->_hasMaxBodySize = true;
+    }
 }
