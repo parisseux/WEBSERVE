@@ -12,7 +12,7 @@ function sendDelete(filename) {
                 "<p style='color:red;'>File not found ❌</p>";
             return null;
         }
-        else if (response.status === 204)
+        else if (response.status === 200 || response.status === 204)
         {
             document.getElementById("result").innerHTML =
                 "<p style='color:green;'>File delete successfully ✅</p>";
@@ -56,6 +56,6 @@ function uploadFromInput() {
 
 function deleteFromInput() {
     const filename = document.getElementById("filename").value.trim();
-    if (!file) return;
+    if (!filename) return;
     sendDelete(filename);
 }

@@ -173,7 +173,6 @@ void Upload::ProcessParts()
             std::cerr << "Unsafe filename rejected: " << filename << std::endl;
             continue;
         }
-        //la je vais crer le fichier et remplir avec content
         std::string path = _uploadDir + "/" + filename;
         if (access(path.c_str(), F_OK) == 0)
         {

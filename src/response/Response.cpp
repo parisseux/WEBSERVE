@@ -6,26 +6,25 @@ Response Response::buildDeleteResponse(int hasBeenDeleted)
     if (hasBeenDeleted == 0)
     {
         this->setStatus(200);
-        std::string path = "/app/www/delete/index.html";
         std::string body;
 
-        int fd = open(path.c_str(), O_RDONLY);
-        if (fd < 0)
-        {
-            std::cout << "Open failed" << std::endl;
-            this->setStatus(500);
-            this->setHeader("Content-Length", "0");
-            close(fd);
-            return (*this);
-        }
-        else
-        {
-            ssize_t bytes;
-            char buf[4096];
-            while ((bytes = read(fd, buf, sizeof(buf))) > 0)
-                body.append(buf, bytes);
-            close(fd);
-        }
+        // int fd = open(path.c_str(), O_RDONLY);
+        // if (fd < 0)
+        // {
+        //     std::cout << "Open failed" << std::endl;
+        //     this->setStatus(500);
+        //     this->setHeader("Content-Length", "0");
+        //     close(fd);
+        //     return (*this);
+        // }
+        // else
+        // {
+        // ssize_t bytes;
+        // char buf[4096];
+        // while ((bytes = read(fd, buf, sizeof(buf))) > 0)
+        //     body.append(buf, bytes);
+        // close(fd);
+        // }
         std::ostringstream len;
         len << body.size();
         this->setBody(body);

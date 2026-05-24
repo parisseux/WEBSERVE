@@ -435,7 +435,7 @@ void Epoll::epollManagment (std::vector<int>& listener_fds, std::vector<ServerCo
 	{
 		signal(SIGINT, signalHandler);
 		_eventWait = epoll_wait(_epFd, _events, MAX_CLIENTS, 5000);
-		print_ready_events(_eventWait, _events);
+		// print_ready_events(_eventWait, _events);
 		for (int i = 0; i < _eventWait; i++)
 		{
 			_isCgi = false;

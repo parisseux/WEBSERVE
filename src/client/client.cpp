@@ -107,40 +107,39 @@ void Client::sendError(int code, const std::string& reason, const ServerConfig& 
     setResponseComplete(true);
 }
 
-// on peut utiliser le sendUpload pour envoyer body pour
-// les autres types de reponses qu on a en faisant un template
-// ou un variable pour le finalPath
 void Client::sendUpload()
 {
-    std::string finalPath = "/app/www/siteUpload/index.html";
-    std::string body;
+    // std::string finalPath = "/app/www/siteUpload/index.html";
+    // std::string body;
 
-    int fd = open(finalPath.c_str(), O_RDONLY);
-    if (fd >= 0)
-    {
-        char buffer[4096];
-        ssize_t bytes;
-        while ((bytes = read(fd, buffer, sizeof(buffer))) > 0)
-            body.append(buffer, bytes);
-        close(fd);
-    }
-    else 
-        std::cout << "problème lorsqu'on essaie d'ouvrir l'upload page" << std::endl;
-    if (body.empty())
-    {
-        std::ostringstream ss;
-        ss << "<html><body><h1>"
-           << 200 << " " << "Upload reussi mais récupération de fichier n'a pas fonctionné"
-           << "</h1></body></html>";
-        body = ss.str();
-    }
+    // int fd = open(finalPath.c_str(), O_RDONLY);
+    // if (fd >= 0)
+    // {
+    //     char buffer[4096];
+    //     ssize_t bytes;
+    //     while ((bytes = read(fd, buffer, sizeof(buffer))) > 0)
+    //         body.append(buffer, bytes);
+    //     close(fd);
+    // }
+    // else 
+    //     std::cout << "problème lorsqu'on essaie d'ouvrir l'upload page" << std::endl;
+    // if (body.empty())
+    // {
+    //     std::ostringstream ss;
+    //     ss << "<html><body><h1>"
+    //        << 200 << " " << "Upload reussi mais récupération de fichier n'a pas fonctionné"
+    //        << "</h1></body></html>";
+    //     body = ss.str();
+    // }
     Response res;
     res.setStatus(200);
-    res.setBody(body);
+    // res.setBody(body);
+    res.setBody("");
     res.setHeader("Content-Type", "text/html");
     std::ostringstream len;
-    len << body.size();
-    res.setHeader("Content-Length", len.str());
+    // len << body.size();
+    // res.setHeader("Content-Length", len.str());
+    res.setHeader("Content-Length", "0");
     getResponseBuffer().push_front(res.constructResponse());
     setResponseComplete(true);
 }
