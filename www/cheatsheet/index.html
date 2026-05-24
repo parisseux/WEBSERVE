@@ -22,6 +22,8 @@
   <pre>curl -v http://localhost:8080/old-page</pre>
   <p class="expect ok">→ 200 + connexion maintenue</p>
   <pre>curl -v --http1.1 -H "Connection: keep-alive" http://localhost:8080/index.html</pre>
+  <p class="expect ok">→ 200 ou 505</p>
+  <pre>curl -v --http1.0 http://localhost:8080/</pre>
 
   <h2>POST / Upload</h2>
   <p class="expect err">→ 403 Unsupported Media Type</p>
@@ -32,8 +34,14 @@
   <pre>echo "test content" > test.txt
 curl -v -X POST http://localhost:8080/upload \
   -F "file=@test.txt;type=application/octet-stream"</pre>
+  <p class="expect err">→ 413 Content Too Large</p>
+  <pre>python3 -c "print('A' * 100000)" > big.txt
+curl -v -X POST http://localhost:8080/upload \
+  -F "file=@big.txt;type=application/octet-stream"</pre>
   <p class="expect ok">→ 200 ou 204</p>
   <pre>curl -v -X DELETE http://localhost:8080/upload/test.txt</pre>
+  <p class="expect err">→ 404 Not Found</p>
+  <pre>curl -v -X DELETE http://localhost:8080/upload/inexistant.txt</pre>
 
   <h2>Erreurs</h2>
   <p class="expect err">→ 400 Bad Request</p>
@@ -56,8 +64,6 @@ curl -v -X POST http://localhost:8080/upload \
   <pre>echo "" | nc localhost 8080</pre>
   <p class="expect err">→ timeout propre, pas de crash</p>
   <pre>echo -e "GET / HTTP/1.1\r\nHost: localhost" | nc localhost 8080</pre>
-  <p class="expect err">→ 400 ou 403, jamais le fichier</p>
-  <pre>curl -v http://localhost:8080/../../../etc/passwd</pre>
   <p class="expect err">→ 400, pas de path traversal</p>
   <pre>printf "GET /\x00../../etc/passwd HTTP/1.1\r\nHost: localhost\r\n\r\n" | nc localhost 8080</pre>
   <p class="expect err">→ 400 ou 431, pas de crash</p>

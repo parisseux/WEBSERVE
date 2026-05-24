@@ -9,7 +9,6 @@ int Delete::isFileExisting(const Request& req, const LocationConfig& loc)
     // Vérifie si le fichier existe
     if (access(path.c_str(), F_OK) != 0)
     {
-        std::cout << "File does not exist: " << path << std::endl;
         return -1;
     }
     // Essaye de supprimer le fichier
