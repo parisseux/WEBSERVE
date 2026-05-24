@@ -31,7 +31,7 @@ void Client::HandlePost(Request &req, const ServerConfig &server, const Location
     }
     if (!req.hasHeader("Content-Type") || !req.hasHeader("Content-Length"))
     {
-        sendError(400, "Bad Request", server);        
+        sendError(400, "Bad Request", server);    
         return ;
     }
     if (req.getHeader("Content-Type").rfind("multipart/form-data", 0) == 0 && req.getPath() == "/upload")
@@ -58,6 +58,7 @@ void Client::HandlePost(Request &req, const ServerConfig &server, const Location
         return ;
     }
 }
+
 void Client::HandleDelete(Request &req, const LocationConfig &loc, Client *client)
 {
     Response res;

@@ -33,7 +33,7 @@ class Epoll
 		std::map<int, Client*>::iterator    _it;
 		Client*                             _client; 
 		bool                                _is_listener;
-	    bool                                _isCgi;                   
+	    bool                                _isCgi;    
     public:
         Epoll() {/*std::cout << "Epoll constructor called" << std::endl;*/};
         ~Epoll() {/*std::cout << "Epoll destructor called" << std::endl;*/};
