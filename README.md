@@ -31,13 +31,6 @@ Basically the webserv does:
 6. server a static file, runs a CGI or handles upload/delete
 7. sends the response and close (or keep-alive)
 
-### Important status code
-
-- 2xx : success
-- 3xx: redirection
-- 4xx: error from client
-- 5xx: error from server 
-
 ### Epoll
 
 Why Epoll? 
@@ -51,6 +44,19 @@ How to use it?
 
 What do you monitor?
 -  server sockets (new connections) and client sockets (incoming data)
+
+### Methods
+
+GET: Retrieve a resource from the server. The server finds the requested file and sends it back. No body in the request.
+POST: Send data to the server. We only handle multipart/form-data — the server parses the body, extracts the file, and saves it to the upload directory.
+DELETE: Remove a resource from the server. The server finds the file at the requested path and deletes it. Returns 200 if successful, 404 if the file doesn't exist.
+
+### Important status code
+
+- 2xx : success
+- 3xx: redirection
+- 4xx: error from client
+- 5xx: error from server 
 
 ---
 
