@@ -5,7 +5,7 @@
 
 ## Description
 
-Webserv is a custom HTTP/1.1 web server written in C++, developed as part of the 42 curriculum.
+Webserv is a custom HTTP/1.0 web server written in C++, developed as part of the 42 curriculum.
 
 The goal of this project is to understand how web servers work internally by implementing one from scratch. Instead of using existing solutions such as Nginx or Apache, we recreate the core mechanisms of an HTTP server, including request parsing, response generation, configuration handling, and client connection management.
 
@@ -23,14 +23,14 @@ The server is configurable through a configuration file inspired by Nginx syntax
 
 ## Features
 
-- HTTP/1.1 support
+- HTTP/1.0 support
 - Multiple server blocks
 - Non-blocking I/O
 - GET, POST, DELETE methods
 - Static file serving
 - Directory listing (autoindex)
 - File uploads
-- CGI execution (e.g., PHP or Python)
+- CGI execution (.py)
 - Custom error pages
 - Configurable host and ports
 
