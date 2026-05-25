@@ -67,7 +67,6 @@ void Epoll::creactNewClient(std::vector<int>& listener_fds, int j)
     _ev.data.fd = client->getFd();
     epoll_ctl(this->_epFd, EPOLL_CTL_ADD, client->getFd(), &_ev);
 	_clientsMap.insert(std::make_pair(client->getFd(), client));
-	std::cout << "Client n°" << client->getFd() << " created" << std::endl;
 }
 
 void Epoll::HeaderEnd(Client *client)
@@ -204,7 +203,7 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 		}
 		std::string headerPart = bufferString.substr(0, pos);
 		std::string chunk;
-		chunk.append("HTTP/1.1 200 OKOK\r\n");
+		chunk.append("HTTP/1.1 200 OK\r\n");
 		chunk.append("Transfer-Encoding: chunked\r\n");
 		chunk.append(headerPart);
 		chunk.append("\r\n\r\n");
@@ -234,7 +233,6 @@ void Epoll::manageCgi(Client *client, int byteReads, char *buf)
 
 void Epoll::deleteClient()
 {
-	std::cout << "Client n°" << _client->getFd() << " deleted" << std::endl;
 	if (_client != NULL && _client->getFd() >= 0 )
 	{
 		epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getFd(), &_ev);
@@ -442,11 +440,8 @@ void Epoll::handleCgiAndErrors(std::vector<ServerConfig> &servers)
 				epoll_ctl(this->_epFd, EPOLL_CTL_MOD, _client->getFd(), &_ev);
 				epoll_ctl(this->_epFd, EPOLL_CTL_DEL, _client->getCgiFd(), &_ev);								
 			}
-			else if (WEXITSTATUS(status) == 0 && _client->getClientState() == SENDING_RESPONSE)
-			{							
-				std::cout << "on close le CGI" << std::endl;
+			else if (WEXITSTATUS(status) == 0 && _client->getClientState() == SENDING_RESPONSE)						
 				closeCgiFd();
-			}
 		}
 	}
 	else
