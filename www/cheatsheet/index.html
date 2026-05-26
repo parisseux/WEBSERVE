@@ -20,13 +20,11 @@
   <pre>curl -v http://localhost:8080/upload</pre>
   <p class="expect err">→ 301 Moved Permanently</p>
   <pre>curl -v http://localhost:8080/old-page</pre>
-  <p class="expect ok">→ 200 + connexion maintenue</p>
-  <pre>curl -v --http1.1 -H "Connection: keep-alive" http://localhost:8080/index.html</pre>
   <p class="expect ok">→ 200 ou 505</p>
   <pre>curl -v --http1.0 http://localhost:8080/</pre>
 
   <h2>POST / Upload</h2>
-  <p class="expect err">→ 403 Unsupported Media Type</p>
+  <p class="expect err">→ 415 Unsupported Media Type</p>
   <pre>curl -v -X POST http://localhost:8080/upload \
   -H "Content-Type: text/plain" \
   -d "hello world"</pre>
@@ -34,7 +32,7 @@
   <pre>echo "test content" > test.txt
 curl -v -X POST http://localhost:8080/upload \
   -F "file=@test.txt;type=application/octet-stream"</pre>
-  <p class="expect err">→ 413 Content Too Large</p>
+  <p class="expect err">→ 413 Payload Too Large</p>
   <pre>python3 -c "print('A' * 100000)" > big.txt
 curl -v -X POST http://localhost:8080/upload \
   -F "file=@big.txt;type=application/octet-stream"</pre>
