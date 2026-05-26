@@ -146,7 +146,8 @@ curl -X POST -F "file=@test.txt" http://localhost:8080/upload
 
 - RFC 7230 & 7231 (protocol HTTP)
 - Nginx documentation
-- a completer 
+- https://medium.com/@aryandev512/i-wrote-a-http-server-from-scratch-in-c-0a97e8252371
+- https://aosabook.org/en/v2/nginx.html
 
 
 ## Use of IA
