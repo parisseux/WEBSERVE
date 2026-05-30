@@ -1,32 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sloth Upload - Site 1</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Sloth Upload - Site 1</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
 <body>
+    <div class="card">
+        <div class="emoji">🦥☁️</div>
+        <h1>Site 1</h1>
+        <p>Upload & delete files — simple and sleepy 💗</p>
 
-<div class="card">
-    <div class="emoji">🦥☁️</div>
-    <h1>Site 1</h1>
-    <p>Upload & delete files — simple and sleepy 💗</p>
+        <!-- Upload form (inchangé) -->
+        <h3 class="section-title">Upload</h3>
+        <input type="file" id="fileInput" required>
+        <button type="button" onclick="uploadFromInput()">Upload 🦥</button>
+        <hr>
 
-    <!-- Upload form (inchangé) -->
-    <h3 class="section-title">Upload</h3>
-    <input type="file" id="fileInput" required>
-    <button type="button" onclick="uploadFromInput()">Upload 🦥</button>
-    <hr>
+        <!-- Delete section -->
+        <h3 class="section-title">Delete</h3>
+        <input type="text" id="filename" placeholder="Filename to delete (example.txt)" required>
+        <button type="button" onclick="deleteFromInput()">Delete 🗑</button>
 
-    <!-- Delete section -->
-    <h3 class="section-title">Delete</h3>
-    <input type="text" id="filename" placeholder="Filename to delete (example.txt)" required>
-    <button type="button" onclick="deleteFromInput()">Delete 🗑</button>
-
-    <div id="result"></div>
-</div>
-
-<script src="script.js"></script>
-
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
